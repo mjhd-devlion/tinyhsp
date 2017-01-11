@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "token.h"
 #include "lexer.h"
 #include "parser.h"
@@ -26,15 +27,34 @@ unget_token(Token* token) {
 static double
 parser_primary_expression() {
 	Token token;
+	double value = 0.0;
+	bool minus_flag = false;
+	
+	// 負の数に対応
+	my_get_token(&token);
+	if (token.group == SUB_TOKEN) {
+		minus_flag = true;
+	} else {
+		unget_token(&token);
+	}
 	
 	my_get_token(&token);
 	if (token.group == NUM_TOKEN) {
-		return token.value;
+		value = token.value;
+	} else if (token.group == LP_TOKEN) { // 括弧に対応
+		value = parser_expression();
+		my_get_token(&token);
+		if (token.group != RP_TOKEN) {
+			fprintf(stderr, "')'が見つかりません\n");
+			exit(1);
+		}
+	} else {
+		unget_token(&token);
 	}
-	
-	fprintf(stderr, "syntax error.\n");
-	exit(1);
-	return 0.0;
+	if (minus_flag) {
+		value = -value;
+	}
+	return value;
 }
 
 static double
