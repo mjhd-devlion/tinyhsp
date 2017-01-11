@@ -22,7 +22,8 @@ const char* keyword[] = {
 	"@"
 };
 
-bool isOperator(char c) {
+static bool
+isOperator(char c) {
     if (c == '+' || c == '-' || c == '*' || c == '/') {
         return true;
     } else {
@@ -30,7 +31,8 @@ bool isOperator(char c) {
     }
 }
 
-bool isNumberStatus(LexerStatus lex_status) {
+static bool
+isNumberStatus(LexerStatus lex_status) {
     if ((lex_status == INT_STATUS
         || lex_status == FRAC_STATUS)) {
         return true;
@@ -152,7 +154,6 @@ void get_token(Token* token) {
             lex_status = EQUAL_STATUS;
             continue;
         }
-        
         
         if (current_char == '.') {
             if (lex_status == INT_STATUS) {
