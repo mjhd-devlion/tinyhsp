@@ -189,8 +189,8 @@ void set_line(char* line) {
     st_line_pos = 0;
 }
 
-// テストコード
-
+// テスト用コード
+/*
 void parse_line(char* buf) {
     Token token;
     
@@ -209,7 +209,6 @@ void parse_line(char* buf) {
     }
 }
 
-/*
 int
 main(int argc, char **argv) {
    char buf[1024];
