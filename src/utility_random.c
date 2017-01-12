@@ -1,3 +1,5 @@
+#include "utility_random.h"
+
 unsigned long
 xor128()
 {
