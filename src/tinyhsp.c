@@ -11,24 +11,45 @@
 #include "token.h"
 #include "lexer.h"
 #include "parser.h"
+#include "utility_random.h"
+#include "utility_file.h"
 
 int32_t width = 640;
 int32_t height = 480;
 uint8_t pixel_data[640 * 480 * 3];
 
-int main(void)
+int main(int argc, char* argv[])
 {
-	char line[LINE_BUF_SIZE];
-	double value;
-	
-	while (fgets(line, LINE_BUF_SIZE, stdin) != NULL) {
-		set_line(line);
-		set_st_token_exists(0);
-		value = parser_expression();
-		printf(">>%f\n",value);
-	}
+	int line_length_max; // 行の長さ
+    int line_number_max; // 行の個数
+    char** line_buffer = NULL; // 読み込み領域を指すポインタ
+    char* file_name;
+    double result_value;
+
+    // ファイル名を特定する
+    if (argc >= 2) {
+    	file_name = argv[1];
+    } else {
+    	file_name = "../test/start.hsp";
+    }
     
-    //
+    // ファイルから行ごとに二次元配列に格納して返す
+    line_buffer = malloc_file_to_buffer(file_name, line_buffer, &line_length_max, &line_number_max);
+
+    // 計算のテスト
+    for (int i = 0; i < line_number_max; i++) {
+        set_line(line_buffer[i]);
+		set_st_token_exists(0);
+		result_value = parser_expression();
+		printf(">>%f\n", result_value);
+    }
+
+	// 確保した二次元配列を解放する
+	free_line_buffer(line_buffer, line_number_max);
+    
+    
+    //--- ここから描画処理
+    
     
     GLFWwindow* window;
 
@@ -51,9 +72,9 @@ int main(void)
     int index = 0;
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
-            pixel_data[index] = 255;
-            pixel_data[index + 1] = 0;
-            pixel_data[index + 2] = 0;
+            pixel_data[index] = 200;
+            pixel_data[index + 1] = 200;
+            pixel_data[index + 2] = 200;
             index += 3;
          }
     }
