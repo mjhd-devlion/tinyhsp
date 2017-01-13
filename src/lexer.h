@@ -11,5 +11,5 @@ typedef enum {
     EQUAL_STATUS
 } LexerStatus;
 
-void get_token(Token* token);
 void set_line(char* line);
+void get_token(Token* token);
