@@ -12,7 +12,8 @@ typedef enum {
     RP_TOKEN,
     EQUAL_TOKEN,
     EOF_TOKEN,
-    COMMENT_TOKEN
+    COMMENT_TOKEN,
+    COMMAND_TOKEN
 } TokenGroup;
 
 #define MAX_TOKEN_SIZE (1024)
