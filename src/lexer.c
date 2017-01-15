@@ -3,8 +3,12 @@
 #include <ctype.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 #include "token.h"
 #include "lexer.h"
+
+#define get_keyword_count(a) ((int)(sizeof a / sizeof(char*)))
+#define get_array_count(a,b) ((int)(sizeof a / sizeof(b)))
 
 static bool is_operator(char c);
 static bool is_number_status(LexerStatus lex_status);
@@ -25,6 +29,86 @@ const char* keyword_comment[] = {";"};
 const char* keyword_compare[] = {"==",">=", ">", "<=", "<"};
 const char* keyword_operator[] = {"-", "+", "*", "/", "(", ")"};
 const char* keyword_array[] = {"@"};
+
+// テスト用コード
+/*
+static void parse_line(char* buf);
+
+int
+main(int argc, char **argv) {
+   char buf[1024];
+    
+    while (fgets(buf, 1024, stdin) != NULL) {
+        parse_line(buf);
+    }
+	
+	return 0;
+}
+
+static void
+parse_line(char* buf) {
+    Token token;
+    
+    set_line(buf);
+    
+    for (;;) {
+        get_token(&token);
+        if (token.group == EOF_TOKEN) {
+            break;
+        } else if (token.group == COMMENT_TOKEN) {
+            printf("トークン:%d, 文字列:%s\n", token.group, token.string);
+            break;
+        } else {
+            printf("トークン:%d, 文字列:%s\n", token.group, token.string);
+        }
+    }
+}
+*/
+
+//
+
+//void init_string(char* str, int size) {
+//    for (int i = 0; i < size; i++) {
+//        str[i] = '\0';
+//    }
+//}
+
+//
+bool is_command(const char* str, const char* line, int index) {
+    int compare_flag = 0;
+    int compare_count = 0;
+    char compare_string[8];
+    for (int i = 0; i < 8; i++) {
+        compare_string[i] = '\0';
+    }
+    //
+    for (int i = 0; i < 8; i++) {
+        if (line[index] == '\0') {
+            break;
+        }
+        compare_string[i] = line[index + i];
+        if (strcmp(compare_string, str) == 0) {
+            compare_flag = 1;
+            compare_count = i;
+        }
+    }
+    if (compare_flag == 1) {
+        if (isspace(line[index + compare_count + 1])) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void set_token_string(Token* token, const char* str) {
+    int len = strlen(str);
+    for (int i = 0; i < len; i++) {
+        token->string[i] = str[i];
+    }
+    token->string[len + 1] = '\0';
+}
+
+//
 
 void set_line(char* line) {
     st_line = line;
@@ -55,6 +139,16 @@ void get_token(Token* token) {
         if (out_pos >= MAX_TOKEN_SIZE - 1) {
             fprintf(stderr, "トークンが長すぎます\n");
             exit(1);
+        }
+        
+        // 命令かどうかチェックする
+        for (int i = 0; i < get_keyword_count(keyword_command); i++) {
+            if (is_command(keyword_command[i], st_line, st_line_pos)) {
+                set_token_string(token, keyword_command[i]);
+                token->group = COMMAND_TOKEN;
+                st_line_pos += strlen(keyword_command[i]);
+                return;
+            }
         }
         
         // 1文字進める
@@ -225,35 +319,3 @@ check_char_set_status(LexerStatus* lex_status, char current_char)
     
     return false;
 }
-
-// テスト用コード
-/*
-void parse_line(char* buf) {
-    Token token;
-    
-    set_line(buf);
-    
-    for (;;) {
-        get_token(&token);
-        if (token.group == EOF_TOKEN) {
-            break;
-        } else if (token.group == COMMENT_TOKEN) {
-            printf("トークン:%d, 文字列:%s\n", token.group, token.string);
-            break;
-        } else {
-            printf("トークン:%d, 文字列:%s\n", token.group, token.string);
-        }
-    }
-}
-
-int
-main(int argc, char **argv) {
-   char buf[1024];
-    
-    while (fgets(buf, 1024, stdin) != NULL) {
-        parse_line(buf);
-    }
-	
-	return 0;
-}
-*/
