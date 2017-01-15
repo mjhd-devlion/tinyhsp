@@ -15,18 +15,16 @@ static bool check_char_set_status(LexerStatus* lex_status, char current_char);
 static char* st_line;
 static int st_line_pos;
 
-const char* keyword[] = {
-	"repeat", "loop",
-	"goto", "gosub", "return",
-	"if", ":",
-	"pset", "color", "redraw", "title", "wait",
-	"rnd",
-	"key",
-	";",
-	"==",">=", ">", "<=", "<",
-	"-", "+", "*", "/", "(", ")",
-	"@"
-};
+const char* keyword_command[] = {"pset", "color", "redraw", "title", "wait"};
+const char* keyword_branch[] = {"if", ":"};
+const char* keyword_routine[] = {"goto", "gosub", "return"};
+const char* keyword_repeat[] = {"repeat", "loop"};
+const char* keyword_function[] = {"rnd"};
+const char* keyword_variable[] = {"key"};
+const char* keyword_comment[] = {";"};
+const char* keyword_compare[] = {"==",">=", ">", "<=", "<"};
+const char* keyword_operator[] = {"-", "+", "*", "/", "(", ")"};
+const char* keyword_array[] = {"@"};
 
 void set_line(char* line) {
     st_line = line;
