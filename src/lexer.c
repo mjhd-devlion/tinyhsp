@@ -20,43 +20,6 @@ const char* keyword_compare[] = {"==",">=", ">", "<=", "<"};
 const char* keyword_operator[] = {"-", "+", "*", "/", "(", ")"};
 const char* keyword_array[] = {"@"};
 
-// テスト用コード
-/*
-static void parse_line(char* buf);
-
-int
-main(int argc, char **argv) {
-   char buf[1024];
-    
-    while (fgets(buf, 1024, stdin) != NULL) {
-        parse_line(buf);
-    }
-	
-	return 0;
-}
-
-static void
-parse_line(char* buf) {
-    Token token;
-    
-    set_line(buf);
-    
-    for (;;) {
-        get_token(&token);
-        if (token.group == EOF_TOKEN) {
-            break;
-        } else if (token.group == COMMENT_TOKEN) {
-            printf("トークン:%d, 文字列:%s\n", token.group, token.string);
-            break;
-        } else {
-            printf("トークン:%d, 文字列:%s\n", token.group, token.string);
-        }
-    }
-}
-*/
-
-//
-
 //void init_string(char* str, int size) {
 //    for (int i = 0; i < size; i++) {
 //        str[i] = '\0';
@@ -100,12 +63,16 @@ void set_token_string(Token* token, const char* str) {
 
 //
 
-void set_line(char* line) {
+void
+set_line(char* line)
+{
     st_line = line;
     st_line_pos = 0;
 }
 
-void get_token(Token* token) {
+void
+get_token(Token* token)
+{
     int out_pos = 0;
     char current_char = ' ';
     LexerStatus lex_status = INITIAL_STATUS;
@@ -166,7 +133,8 @@ void get_token(Token* token) {
 // 内部関数
 
 static bool
-is_operator(char c) {
+is_operator(char c)
+{
     if (c == '+' || c == '-' || c == '*' || c == '/') {
         return true;
     } else {
@@ -175,7 +143,8 @@ is_operator(char c) {
 }
 
 static bool
-is_number_status(LexerStatus lex_status) {
+is_number_status(LexerStatus lex_status)
+{
     if ((lex_status == INT_STATUS
         || lex_status == FRAC_STATUS)) {
         return true;
