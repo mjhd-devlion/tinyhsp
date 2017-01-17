@@ -1,14 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <string.h>
-#include "token.h"
 #include "lexer.h"
-
-#define get_keyword_count(a) ((int)(sizeof a / sizeof(char*)))
-#define get_array_count(a,b) ((int)(sizeof a / sizeof(b)))
 
 static bool is_operator(char c);
 static bool is_number_status(LexerStatus lex_status);

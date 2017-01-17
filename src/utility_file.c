@@ -1,6 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
 #include "utility_file.h"
 
 static FILE* file_open_read(const char* file_name); // ファイルを読み込み専用でオープンする

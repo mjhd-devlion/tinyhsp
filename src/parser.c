@@ -1,8 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include "token.h"
-#include "lexer.h"
 #include "parser.h"
 
 static void my_get_token(Token* token);
@@ -39,21 +34,24 @@ parse_line(void)
 */
 //
 
-void set_st_token_exists(int value) {
+void 
+set_st_token_exists(int value)
+{
 	st_token_exists = value;
 }
 
 double
-parser_expression() {
+parser_expression()
+{
 	double v1;
 	double v2;
 	Token token;
-	
 	v1 = parser_term();
 	for (;;) {
 		my_get_token(&token);
-		if (token.group != ADD_TOKEN
-			&& token.group != SUB_TOKEN) {
+		if (token.group != ADD_TOKEN &&
+			token.group != SUB_TOKEN)
+		{
 			unget_token(&token);
 			break;
 		}
@@ -66,14 +64,14 @@ parser_expression() {
 			unget_token(&token);
 		}
 	}
-	
 	return v1;
 }
 
-//
+// 内部関数
 
 static void
-my_get_token(Token* token) {
+my_get_token(Token* token)
+{
 	if (st_token_exists) {
 		*token = st_token;
 		st_token_exists = 0;
@@ -83,17 +81,18 @@ my_get_token(Token* token) {
 }
 
 static void
-unget_token(Token* token) {
+unget_token(Token* token)
+{
 	st_token = *token;
 	st_token_exists = 1;
 }
 
 static double
-parser_primary_expression() {
+parser_primary_expression()
+{
 	Token token;
 	double value = 0.0;
 	bool minus_flag = false;
-	
 	// 負の数に対応
 	my_get_token(&token);
 	if (token.group == SUB_TOKEN) {
@@ -101,7 +100,6 @@ parser_primary_expression() {
 	} else {
 		unget_token(&token);
 	}
-	
 	my_get_token(&token);
 	if (token.group == NUM_TOKEN) {
 		value = token.value;
@@ -122,16 +120,17 @@ parser_primary_expression() {
 }
 
 static double
-parser_term() {
+parser_term()
+{
 	double v1;
 	double v2;
 	Token token;
-	
 	v1 = parser_primary_expression();
 	for (;;) {
 		my_get_token(&token);
-		if (token.group != MUL_TOKEN
-			&& token.group != DIV_TOKEN) {
+		if (token.group != MUL_TOKEN &&
+			token.group != DIV_TOKEN)
+		{
 			unget_token(&token);
 			break;
 		}
@@ -142,6 +141,5 @@ parser_term() {
 			v1 = v1 / v2;
 		}
 	}
-	
 	return v1;
 }
