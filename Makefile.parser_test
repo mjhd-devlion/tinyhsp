@@ -1,7 +1,7 @@
 # Makefile
 
 parser: parser_test.o parser.o lexer.o
-	clang -Wall -O2 -o ./bin/parser ./obj/parser_test.o ./obj/parser.o ./obj/lexer.o
+	clang -Wall -O2 -o ./bin/parser_test ./obj/parser_test.o ./obj/parser.o ./obj/lexer.o
 	rm -f ./obj/parser_test.o ./obj/parser.o ./obj/lexer.o
 
 parser_test.o: ./test/parser_test.c

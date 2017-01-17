@@ -1,7 +1,7 @@
 # Makefile
 
 lexer_test: lexer_test.o lexer.o
-	clang -Wall -O2 -o ./bin/lexer ./obj/lexer_test.o ./obj/lexer.o
+	clang -Wall -O2 -o ./bin/lexer_test ./obj/lexer_test.o ./obj/lexer.o
 	rm -f ./obj/lexer_test.o ./obj/lexer.o
 
 lexer_test.o: ./test/lexer_test.c
