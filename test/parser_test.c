@@ -5,7 +5,8 @@ parse_line(void)
 {
 	double value;
 	set_st_token_exists(0);
-	value = parser_expression();
+	value = parser_main();
+	//value = parser_expression();
 	return value;
 }
 

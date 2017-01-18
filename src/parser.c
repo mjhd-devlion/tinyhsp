@@ -1,5 +1,29 @@
 #include "parser.h"
 
+/*
+expression
+	: term
+	| expression ADD team
+	| expression SUB team
+	;
+term
+	: primary_expression
+	| term MUL primary_expression
+	| term DIV primary_expression
+	;
+primary_expression
+	: DOUBLE_LITERAL
+	| SUB primary_expression
+	{
+		$$ = -$2;
+	}
+	| LP expression RP
+	{
+		$$ = $2;
+	}
+	;
+*/
+
 static void my_get_token(Token* token);
 static void unget_token(Token* token);
 static double parser_primary_expression();
@@ -15,6 +39,26 @@ set_st_token_exists(int value)
 }
 
 double
+parser_main()
+{
+	double value;
+	Token token;
+	for (;;) {
+		my_get_token(&token);
+		if (token.group == EOF_TOKEN) {
+			printf("EOF token\n");
+			unget_token(&token);
+			break;
+		}
+		if (token.group == COMMAND_TOKEN) {
+			printf("Command token\n");
+			value = parser_expression();
+		}
+	}
+	return value;	
+}
+
+double
 parser_expression()
 {
 	double v1;
@@ -23,12 +67,14 @@ parser_expression()
 	v1 = parser_term();
 	for (;;) {
 		my_get_token(&token);
+		// "+","-" 以外のものが来るまで繰り返す
 		if (token.group != ADD_TOKEN &&
 			token.group != SUB_TOKEN)
 		{
-			unget_token(&token);
+			unget_token(&token); //トークンを押し戻す
 			break;
 		}
+		// term をパースする
 		v2 = parser_term();
 		if (token.group == ADD_TOKEN) {
 			v1 = v1 + v2;
@@ -62,6 +108,33 @@ unget_token(Token* token)
 }
 
 static double
+parser_term()
+{
+	double v1;
+	double v2;
+	Token token;
+	v1 = parser_primary_expression();
+	for (;;) {
+		my_get_token(&token);
+		// "*","/"以外のものが来るまで繰り返す 
+		if (token.group != MUL_TOKEN &&
+			token.group != DIV_TOKEN)
+		{
+			unget_token(&token); //トークンを押し戻す
+			break;
+		}
+		// primary expressionをパースする
+		v2 = parser_primary_expression();
+		if (token.group == MUL_TOKEN) {
+			v1 = v1 * v2;
+		} else if (token.group == DIV_TOKEN) {
+			v1 = v1 / v2;
+		}
+	}
+	return v1;
+}
+
+static double
 parser_primary_expression()
 {
 	Token token;
@@ -72,7 +145,7 @@ parser_primary_expression()
 	if (token.group == SUB_TOKEN) {
 		minus_flag = true;
 	} else {
-		unget_token(&token);
+		unget_token(&token); //トークンを押し戻す
 	}
 	my_get_token(&token);
 	if (token.group == NUM_TOKEN) {
@@ -85,35 +158,10 @@ parser_primary_expression()
 			exit(1);
 		}
 	} else {
-		unget_token(&token);
+		unget_token(&token); //トークンを押し戻す
 	}
 	if (minus_flag) {
 		value = -value;
 	}
 	return value;
-}
-
-static double
-parser_term()
-{
-	double v1;
-	double v2;
-	Token token;
-	v1 = parser_primary_expression();
-	for (;;) {
-		my_get_token(&token);
-		if (token.group != MUL_TOKEN &&
-			token.group != DIV_TOKEN)
-		{
-			unget_token(&token);
-			break;
-		}
-		v2 = parser_primary_expression();
-		if (token.group == MUL_TOKEN) {
-			v1 = v1 * v2;
-		} else if (token.group == DIV_TOKEN) {
-			v1 = v1 / v2;
-		}
-	}
-	return v1;
 }
