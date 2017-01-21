@@ -1,9 +1,14 @@
 # TinyHSP
 
-TinyHSPは**最軽量のHSPを作成する**ことを目標にしたプロジェクトです。マルチプラットフォーム（Windows・Linux・macOS）で動作するインタプリタを作成することを目指しています。
+TinyHSPは**最軽量のHSPを作成する**ことを目標にしたプロジェクトです。
+
+![miyuzu](https://cloud.githubusercontent.com/assets/13228693/22172736/56d7206a-dff2-11e6-8ca8-ea155caf7acf.jpg)
+
+マルチプラットフォーム（Windows・Linux・macOS）で動作するインタプリタを作成することを目指しています。
 
 ## 更新履歴
 
+- 2017/01/21 README.mdにイラストを追加
 - 2017/01/18 パーサを修正
 - 2017/01/17 テスト用のMakefileを作成
 - 2017/01/16 パーサにテスト用コードを追加
