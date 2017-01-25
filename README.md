@@ -18,9 +18,9 @@ TinyHSPの言語仕様は、プロトタイプごとに異なります。
 
 ## 更新履歴
 
-- 2017/01/25 [改行方式でprint命令のみ使える](https://github.com/dolphilia/tinyhsp/tree/master/02_print)プロトタイプ
-- 2017/01/24 作り直しを始める／ヘッダー画像を追加／[start.hspを読み込むだけ](https://github.com/dolphilia/tinyhsp/tree/master/01_file_to_array)のプロトタイプ
-- 2017/01/23 作り直しを検討／これ以前のプログラムを[最初に見た夢](https://github.com/dolphilia/tinyhsp/tree/master/00_start)としてまとめた。
+- 2017/01/25 改行方式でprint命令のみ使えるプロトタイプ
+- 2017/01/24 作り直しを始める／ヘッダー画像を追加／start.hspを読み込むだけのプロトタイプ
+- 2017/01/23 作り直しを検討／これ以前のプログラムを1つのディレクトリにまとめた。
 - 2017/01/22 ディレクトリ構成を変更
 - 2017/01/21 README.mdにイラストを追加
 - 2017/01/18 パーサを修正
