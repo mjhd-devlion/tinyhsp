@@ -4,6 +4,18 @@
 
 TinyHSPは**最軽量のHSPを作成する**ことを目標にしたプロジェクトです。
 
+## 言語仕様
+
+TinyHSPの言語仕様は、プロトタイプごとに異なります。
+
+- v0.0.2 [改行方式でprint命令のみ使える](https://github.com/dolphilia/tinyhsp/tree/master/02_print)
+- v0.0.1 [start.hspを読み込むだけで何もしない](https://github.com/dolphilia/tinyhsp/tree/master/01_file_to_array)
+- v0.0.0 [最初に見た夢](https://github.com/dolphilia/tinyhsp/tree/master/00_start)
+
+## 運営方針
+
+プロトタイプをたくさん作っていく方式で進めています。
+
 ## 更新履歴
 
 - 2017/01/25 最軽量の改行方式インタプリタを作成
@@ -22,18 +34,6 @@ TinyHSPは**最軽量のHSPを作成する**ことを目標にしたプロジェ
 - 2017/01/10 字句解析器を修正／仕様を変更（wait命令を追加）
 - 2017/01/09 電卓を実装（未対応：丸括弧・負の数）
 - 2016/11/29 リポジトリを開設
-
-## 運営方針
-
-プロトタイプをたくさん作っていく方式で進めています。
-
-## 言語仕様
-
-TinyHSPの言語仕様は、プロトタイプごとに異なります。
-
-- v0.0.2 [改行方式でprint命令のみ使える](https://github.com/dolphilia/tinyhsp/tree/master/02_print)
-- v0.0.1 [start.hspを読み込むだけで何もしない](https://github.com/dolphilia/tinyhsp/tree/master/01_file_to_array)
-- v0.0.0 [最初に見た夢](https://github.com/dolphilia/tinyhsp/tree/master/00_start)
 
 ## どんなことでもissuesにどうぞ
 
