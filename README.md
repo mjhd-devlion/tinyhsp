@@ -4,14 +4,9 @@
 
 TinyHSPは**最軽量のHSPを作成する**ことを目標にしたプロジェクトです。
 
-## 言語仕様
-
-![miyuzu](https://cloud.githubusercontent.com/assets/13228693/22172736/56d7206a-dff2-11e6-8ca8-ea155caf7acf.jpg)
-
-検討中です。
-
 ## 更新履歴
 
+- 2017/01/25 最軽量の改行方式インタプリタを作成
 - 2017/01/24 作り直しを始める／ヘッダー画像を追加
 - 2017/01/23 作り直しを検討
 - 2017/01/22 ディレクトリ構成を変更
@@ -28,9 +23,23 @@ TinyHSPは**最軽量のHSPを作成する**ことを目標にしたプロジェ
 - 2017/01/09 電卓を実装（未対応：丸括弧・負の数）
 - 2016/11/29 リポジトリを開設
 
+## 運営方針
+
+プロトタイプをたくさん作っていく方式で進めています。
+
+## 言語仕様
+
+TinyHSPの言語仕様は、プロトタイプごとに異なります。
+
+- v0.0.2 改行方式でprint命令のみ使える
+- v0.0.1 start.hspを読み込むだけの特に何もしない
+- v0.0.0 [最初に見た夢](https://github.com/dolphilia/tinyhsp/tree/master/00_start)
+
 ## どんなことでもissuesにどうぞ
 
 Githubでは掲示板のスレッドのような機能「イシュー」を使うことができます。質問や提案・不具合の報告などがありましたら、ご自由に[Issuesのページ](https://github.com/dolphilia/tinyhsp/issues)からイシューを立てていただければと思います。
+
+![miyuzu](https://cloud.githubusercontent.com/assets/13228693/22172736/56d7206a-dff2-11e6-8ca8-ea155caf7acf.jpg)
 
 ## リンク
 
