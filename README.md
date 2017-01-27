@@ -8,6 +8,7 @@ TinyHSPは**最軽量のHSPを作成する**ことを目標にしたプロジェ
 
 TinyHSPの言語仕様は、プロトタイプごとに異なります。
 
+- v0.0.4 [wait命令が使えるプロトタイプ](https://github.com/dolphilia/tinyhsp/tree/master/04_wait)
 - v0.0.3 [改行方式でpset命令も使える](https://github.com/dolphilia/tinyhsp/tree/master/03_pset)
 - v0.0.2 [改行方式でprint命令のみ使える](https://github.com/dolphilia/tinyhsp/tree/master/02_print)
 - v0.0.1 [start.hspを読み込むだけ](https://github.com/dolphilia/tinyhsp/tree/master/01_file_to_array)
@@ -19,6 +20,7 @@ TinyHSPの言語仕様は、プロトタイプごとに異なります。
 
 ## 更新履歴
 
+- 2017/01/27 wait命令が使えるプロトタイプ
 - 2017/01/26 改行方式でpset命令も使えるプロトタイプ
 - 2017/01/25 改行方式でprint命令のみ使えるプロトタイプ
 - 2017/01/24 作り直しを始める／ヘッダー画像を追加／start.hspを読み込むだけのプロトタイプ
