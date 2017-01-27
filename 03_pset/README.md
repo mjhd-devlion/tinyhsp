@@ -54,6 +54,9 @@ pset
 10
 10
 ```
+## 実行結果
+
+![v003](https://cloud.githubusercontent.com/assets/13228693/22358842/db6dab72-e485-11e6-980a-b0ef1f56db42.png)
 
 ---
 
