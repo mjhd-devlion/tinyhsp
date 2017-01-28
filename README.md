@@ -21,6 +21,8 @@ TinyHSPの言語仕様は、プロトタイプごとに異なります。
 
 ## 更新履歴
 
+![miyuzu_change_log](https://cloud.githubusercontent.com/assets/13228693/22394825/6cfac8fc-e56e-11e6-9a29-26bcff971422.png)
+
 - 2017/01/28 stb_truetype.hを使って文字を描画するテスト
 - 2017/01/27 wait命令が使えるプロトタイプ
 - 2017/01/26 改行方式でpset命令も使えるプロトタイプ
