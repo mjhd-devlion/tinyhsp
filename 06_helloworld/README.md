@@ -19,7 +19,7 @@ GLFWとOpenGLとstb_truetype.hを使って、
 
 ## その他
 
-Megn+ のフォントは SIL Open Font License 1.1 のもとで使用しています。
+Megn+ フォントを SIL Open Font License 1.1 のもとで使用しています。
 
 ---
 
