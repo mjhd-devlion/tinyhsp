@@ -8,6 +8,7 @@ TinyHSPは**最軽量のHSPを作成する**ことを目標にしたプロジェ
 
 TinyHSPの言語仕様は、プロトタイプごとに異なります。
 
+- v0.0.7 [空白文字を考慮する](https://github.com/dolphilia/tinyhsp/tree/master/07_whitespace)
 - v0.0.6 [はろーわーるど](https://github.com/dolphilia/tinyhsp/tree/master/06_helloworld)
 - v0.0.5 [stb_truetype.hを使って文字を描画する](https://github.com/dolphilia/tinyhsp/tree/master/05_truetype)
 - v0.0.4 [wait命令が使えるプロトタイプ](https://github.com/dolphilia/tinyhsp/tree/master/04_wait)
@@ -24,6 +25,7 @@ TinyHSPの言語仕様は、プロトタイプごとに異なります。
 
 ![miyuzu_change_log](https://cloud.githubusercontent.com/assets/13228693/22394825/6cfac8fc-e56e-11e6-9a29-26bcff971422.png)
 
+- 2017/01/31 空白文字を考慮して文字列を描画する
 - 2017/01/30 Unicode文字列を描画するプロトタイプ
 - 2017/01/28 stb_truetype.hを使って文字を描画するテスト／README.mdにイラストを追加
 - 2017/01/27 wait命令が使えるプロトタイプ
