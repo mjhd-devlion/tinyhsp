@@ -5,7 +5,7 @@
 // $ g++ tinyhsp.c -o tinyhsp -std=c++11 -lglfw3dll -lopengl32
 // or -std=gnu++11
 // or -std=c++0x
-// or -std=c++0x
+// or -std=gnu++0x
 //
 // For Linux:
 // $ g++ tinyhsp.c -o tinyhsp -std=c++11 -lm -ldl -lglfw3 -lGL -lX11 -lXxf86vm -lXrandr -lXinerama -lXcursor -lpthread -lXi
