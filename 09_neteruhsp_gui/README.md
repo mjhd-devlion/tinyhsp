@@ -48,13 +48,13 @@ HSP2.xのようにソースの末尾にstopを書く必要があります。
 環境によりそれぞれ以下のようにします。
 
 MinGW
-`$ g++ tinyhsp.c -o tinyhsp -std=c++11 -lglfw3dll -lopengl32`
+`$ g++ tinyhsp.cpp -o tinyhsp -std=c++11 -lglfw3dll -lopengl32`
 
 macOS
 `$ clang++ tinyhsp.cpp -o tinyhsp -std=c++11 -lglfw -framework OpenGL`
 
 Linux
-`$ g++ tinyhsp.c -o tinyhsp -std=c++11 -lm -ldl -lglfw3 -lGL -lX11 -lXxf86vm -lXrandr -lXinerama -lXcursor -lpthread -lXi`
+`$ g++ tinyhsp.cpp -o tinyhsp -std=c++11 -lm -ldl -lglfw3 -lGL -lX11 -lXxf86vm -lXrandr -lXinerama -lXcursor -lpthread -lXi`
 
 上記の`-std=c++11`はコンパイラのバージョンによっては、あるいは`-std=gnu++11`、あるいは`-std=c++0x`、あるいは`-std=gnu++0x`と書くのが正しい可能性もあります。
 
