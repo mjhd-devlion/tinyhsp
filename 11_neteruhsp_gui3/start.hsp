@@ -1,0 +1,6 @@
+pos 32, 32
+picload "miyuzu.png"
+pos 32,380
+mes "文字表示のテスト"
+redraw 1
+stop
