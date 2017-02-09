@@ -8,6 +8,8 @@ TinyHSPは**最軽量のHSPを作成する**ことを目標にしたプロジェ
 
 TinyHSPの言語仕様は、プロトタイプごとに異なります。
 
+- v0.1.1 neteruhspにGUIを実装する3
+- v0.1.0 neteruhspにGUIを実装する2
 - v0.0.9 [neteruhspにGUIを実装する](https://github.com/dolphilia/tinyhsp/tree/master/09_neteruhsp_gui)
 - v0.0.8 [stb_image.hを使って画像を描画する](https://github.com/dolphilia/tinyhsp/tree/master/08_loadimage)
 - v0.0.7 [空白文字を考慮する](https://github.com/dolphilia/tinyhsp/tree/master/07_whitespace)
@@ -27,6 +29,8 @@ TinyHSPの言語仕様は、プロトタイプごとに異なります。
 
 ![miyuzu_change_log](https://cloud.githubusercontent.com/assets/13228693/22394825/6cfac8fc-e56e-11e6-9a29-26bcff971422.png)
 
+- 2017/02/09 neteruhspにGUIを実装する3
+- 2017/02/08 neteruhspにGUIを実装する2
 - 2017/02/07 neteruhspにGUIを実装する
 - 2017/02/05 stb\_image.hを使って画像を描画する
 - 2017/01/31 空白文字を考慮して文字列を描画する
