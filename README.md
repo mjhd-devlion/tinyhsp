@@ -170,7 +170,7 @@ TinyHSPを拡張して[文字と画像を表示できるようにしたバージ
 - きっかけ
     - [TinyHSPの提案](http://hsp.tv/play/pforum.php?mode=all&num=77515)
 - 使用したライブラリ・フォント
-    - [GFLW3](http://www.glfw.org)
+    - [GLFW3](http://www.glfw.org)
     - [exrd / neteruhsp](https://github.com/exrd/neteruhsp)
     - [nothings / stb](https://github.com/nothings/stb)
     - [M+ FONTS](http://mplus-fonts.osdn.jp)
