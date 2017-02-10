@@ -6,11 +6,9 @@ TinyHSPは**最軽量のHSPを作成する**ことを目標にしたプロジェ
 
 ## 仕様
 
-TinyHSPは`tinyhsp.cpp`のみで構成されており、ソースコードは5000行ほどです。
+TinyHSPは`tinyhsp.cpp`のみで構成されており、ソースコードは5000行ほどです。[neteruhsp](https://github.com/exrd/neteruhsp)をベースにしており、文法や変数の規則などは基本的に同じです。
 
-TinyHSPは[neteruhsp](https://github.com/exrd/neteruhsp)をベースにしており、文法や変数の規則などは基本的に同じです。
-
-以下にTinyHSPで追加された命令とシステム変数を示します。
+TinyHSPで新しく追加された命令とシステム変数は以下の通りです。
 
 ### 命令
 
@@ -38,16 +36,11 @@ TinyHSPは[neteruhsp](https://github.com/exrd/neteruhsp)をベースにしてお
 
 ### その他の仕様
 
-スクリプトファイルの末尾まで実行したら、
-自動的に終了するようになっています。
-
-すぐにウィンドウを閉じないようにするためには、
-HSP2.xのようにソースの末尾にstopを書く必要があります。
+TinyHSPはスクリプトファイルの末尾まで実行したら、自動的に終了するようになっています。すぐにウィンドウを閉じないようにするためには、HSP2.xのようにソースの末尾にstopを書く必要があります。
 
 ## 開発環境の入手
 
-TinyHSPではGLFW3というライブラリを使っています。
-導入する手順は以下の通りです。
+TinyHSPではGLFW3というライブラリを使っています。導入する手順は以下の通りです。
 
 ### macOSの場合
 
@@ -110,25 +103,25 @@ GLFWには32bit版と64bit版があります。
 
 環境によりそれぞれ以下のようにコンパイルします。
 
-macOS:
-`$ clang++ tinyhsp.cpp -o tinyhsp -std=c++11 -lglfw -framework OpenGL`
+macOS: `$ clang++ tinyhsp.cpp -o tinyhsp -std=c++11 -lglfw -framework OpenGL`
 
-Linux:
-`$ g++ tinyhsp.cpp -o tinyhsp -std=gnu++11 -lm -ldl -lglfw3 -lGL -lX11 -lXxf86vm -lXrandr -lXinerama -lXcursor -lpthread -lXi`
+Linux: `$ g++ tinyhsp.cpp -o tinyhsp -std=gnu++11 -lm -ldl -lglfw3 -lGL -lX11 -lXxf86vm -lXrandr -lXinerama -lXcursor -lpthread -lXi`
 
-MinGW:
-`$ g++ tinyhsp.cpp -o tinyhsp -std=gnu++11 -lglfw3dll -lopengl32`
+MinGW: `$ g++ tinyhsp.cpp -o tinyhsp -std=gnu++11 -lglfw3dll -lopengl32`
 
 注記：`tinyhsp.cpp`の文字コードはUTF-8である必要があります。
 
 ## 実行
 
 `$ ./tinyhsp`
+
 のようにコマンドラインのオプションに何も指定がない場合は、
 実行ファイルと同じディレクトリにある`start.hsp`を読み込みます。
 
 明示的に、
+
 `$ ./tinyhsp -f start.hsp`
+
 のように`-f`オプションを使って指定することもできます。
 
 ## 更新履歴
