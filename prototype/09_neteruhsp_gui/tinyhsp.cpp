@@ -2071,14 +2071,12 @@ parse_statement(parse_context_t& c)
     // ここまで来て何もないなら、パース不能
     if (statement == nullptr) {
         const auto token = read_token(c);
-        raise_error("ステートメントが解析不能です@@ %d行目", token->appear_line_);
+        raise_error("ステートメントが解析できません@@ %d行目", token->appear_line_);
     }
     // 最後の改行チェック
-    {
-        const auto token = read_token(c);
-        if (!is_eos_like_token(token->tag_)) {
-            raise_error("ステートメントをすべて正しく解析できませんでした@@ %d行目", token->appear_line_);
-        }
+    const auto token = read_token(c);
+    if (!is_eos_like_token(token->tag_)) {
+        raise_error("ステートメントをすべて正しく解析できませんでした@@ %d行目", token->appear_line_);
     }
     return statement;
 }
