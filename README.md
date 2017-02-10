@@ -128,6 +128,8 @@ MinGW: `$ g++ tinyhsp.cpp -o tinyhsp -std=gnu++11 -lglfw3dll -lopengl32`
 
 TinyHSPを拡張して[文字と画像を表示できるようにしたバージョンも入手できます](https://github.com/dolphilia/tinyhsp/tree/master/prototype/11_neteruhsp_gui3)。
 
+コンパイル方法は通常版と同じです。
+
 [stbライブラリ](https://github.com/nothings/stb)と[M+フォント](http://mplus-fonts.osdn.jp)を使用しています。
 
 ### 拡張された命令
