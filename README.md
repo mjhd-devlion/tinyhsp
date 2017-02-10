@@ -4,9 +4,62 @@
 
 TinyHSPは**最軽量のHSPを作成する**ことを目標にしたプロジェクトです。
 
-## 言語仕様
+## ビルド方法
 
-TinyHSPの言語仕様は、プロトタイプごとに異なります。
+### MinGWでTinyHSPをコンパイルする方法
+
+TinyHSPはOpenGLとGLFWというライブラリを使っているので、
+それらを導入する必要があります。
+
+導入の手順:
+
+1. GLFWをダウンロードする
+2. include内のGLFWフォルダをMinGW内のincludeフォルダにコピーする
+3. 2つの.aファイルをMinGW内のlibフォルダにコピーする
+4. glfw3.dllをプロジェクトのフォルダにコピーする
+
+#### 1. GLFWをダウンロードする
+
+OpenGLはMinGWに最初から入っています。
+**GLFWライブラリは[GLFWのダウンロードページ](http://www.glfw.org/download.html)から入手**します。
+
+GLFWには32bit版と64bit版があります。
+仮に64bit版をダウンロードしたとして話を進めます。
+
+#### 2. include内のGLFWフォルダをMinGW内のincludeフォルダにコピーする
+
+ダウンロードしたフォルダの中に、
+`include` というフォルダが入っています。
+この中に `GLFW` というフォルダがあるので、
+その**GLFWフォルダをMinGWのincludeフォルダにコピー**します。
+
+#### 3. 2つの.aファイルをMinGW内のlibフォルダにコピーする
+
+ダウンロードしたフォルダの中に、
+`lib-mingw-w64` というフォルダが入っているので、
+この中にある、
+
+- libglfw3.a
+- libglfw3dll.a
+
+という**2つの.aファイルをMinGWのlibフォルダにコピー**します。
+
+#### 4. glfw3.dllをプロジェクトのフォルダにコピーする
+
+上と同じ `lib-mingw-w64` フォルダ内に、
+
+- glfw3.dll
+
+というファイルがあるので、
+作成したいプロジェクト用のフォルダ内にコピーします。
+
+例えば、**glfw3.dllをtinyhsp.cがあるフォルダと同じ場所にコピー**します。
+
+#### コンパイルする
+
+コンパイルは以下のようにします。
+
+`$ g++ tinyhsp.cpp -o tinyhsp -std=c++11 -lglfw3dll -lopengl32`
 
 ## 更新履歴
 
