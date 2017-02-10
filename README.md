@@ -4,23 +4,73 @@
 
 TinyHSPは**最軽量のHSPを作成する**ことを目標にしたプロジェクトです。
 
-## ビルド方法
+## 仕様
 
-### MinGWでTinyHSPをコンパイルする方法
+### 命令
 
-TinyHSPはOpenGLとGLFWというライブラリを使っているので、
-それらを導入する必要があります。
+neteruhspをベースに、
+次の命令を追加しました。
 
-導入の手順:
+|-|書式|説明|
+|---|---|---|
+|wait|wait p1| p1ミリ秒待つ|
+|stop|stop|クローズされるまで待つ|
+|title|title p1|タイトルバーに文字列p1を表示する|
+|pset|pset p1,p2|位置p1,p2にドットを描画する。p1,p2が省略された場合はカレントポジションに描画する|
+|line|line p1,p2,p3,p4|位置p1,p2から位置p3,p4まで線を描画する|
+|boxf|line p1,p2,p3,p4|位置p1,p2から位置p3,p4まで矩形を塗りつぶす|
+|redraw|redraw p1|p1が0なら再描画スイッチをオフに、1ならオンにする。p1が省略されたらオンにする|
+|pos|pos p1,p2|位置p1,p2をカレントポジションに設定する|
+|color|color p1,p2,p3|RGBカラーp1,p2,p3をカレントカラーに設定する|
+|stick|stick p1|数値変数p1にキー情報を格納する。本家HSPの stick p1,1+2+4+8+16+32+64+128+256+512+1024 相当の動作をする|
 
-1. GLFWをダウンロードする
+### システム変数
+
+次のシステム変数を追加しました。
+
+|-|説明|
+|---|---|
+|mousex|マウスのx座標|
+|mousey|マウスのy座標|
+|mousel|マウスの左ボタンが押されていれば1、押されていなけば0|
+|mouser|マウスの右ボタンが押されていれば1、押されていなけば0|
+
+### その他の仕様
+
+スクリプトファイルの末尾まで実行したら、
+自動的に終了するようになっています。
+
+すぐにウィンドウを閉じないようにするためには、
+HSP2.xのようにソースの末尾にstopを書く必要があります。
+
+## 開発環境の入手
+
+TinyHSPではGLFW3というライブラリを使っています。
+導入する手順は以下の通りです。
+
+### macOSの場合
+
+macOS用のパッケージマネージャーであるHomebrewを使用します。[Homebrew](http://brew.sh/index_ja.html)のウェブサイトにあるスクリプトをターミナルに貼り付け実行します。
+
+次いでターミナルで次のコマンドを実行してください。
+
+`$ brew install glfw3`
+
+### Linuxの場合
+
+未確認です。
+
+### MinGWの場合
+
+MinGWはWindows用の開発環境です。次の手順で導入します。
+
+1. GLFW3をダウンロードする
 2. include内のGLFWフォルダをMinGW内のincludeフォルダにコピーする
 3. 2つの.aファイルをMinGW内のlibフォルダにコピーする
 4. glfw3.dllをプロジェクトのフォルダにコピーする
 
 #### 1. GLFWをダウンロードする
 
-OpenGLはMinGWに最初から入っています。
 **GLFWライブラリは[GLFWのダウンロードページ](http://www.glfw.org/download.html)から入手**します。
 
 GLFWには32bit版と64bit版があります。
@@ -55,11 +105,30 @@ GLFWには32bit版と64bit版があります。
 
 例えば、**glfw3.dllをtinyhsp.cがあるフォルダと同じ場所にコピー**します。
 
-#### コンパイルする
+## コンパイル
 
-コンパイルは以下のようにします。
+環境によりそれぞれ以下のようにコンパイルします。
 
-`$ g++ tinyhsp.cpp -o tinyhsp -std=c++11 -lglfw3dll -lopengl32`
+macOS:
+`$ clang++ tinyhsp.cpp -o tinyhsp -std=c++11 -lglfw -framework OpenGL`
+
+Linux:
+`$ g++ tinyhsp.cpp -o tinyhsp -std=gnu++11 -lm -ldl -lglfw3 -lGL -lX11 -lXxf86vm -lXrandr -lXinerama -lXcursor -lpthread -lXi`
+
+MinGW:
+`$ g++ tinyhsp.cpp -o tinyhsp -std=gnu++11 -lglfw3dll -lopengl32`
+
+注記：`tinyhsp.cpp`の文字コードはUTF-8である必要があります。
+
+## 実行
+
+`$ ./tinyhsp`
+のようにコマンドラインのオプションに何も指定がない場合は、
+実行ファイルと同じディレクトリにある`start.hsp`を読み込みます。
+
+明示的に、
+`$ ./tinyhsp -f start.hsp`
+のように`-f`オプションを使って指定することもできます。
 
 ## 更新履歴
 
