@@ -37,13 +37,16 @@ TinyHSPの言語仕様は、プロトタイプごとに異なります。
 - 2017/01/09 電卓を実装（未対応：丸括弧・負の数）
 - 2016/12/29 リポジトリを開設
 
-## どんなことでもissuesにどうぞ
-
-Githubでは掲示板のスレッドのような機能「イシュー」を使うことができます。質問や提案・不具合の報告などがありましたら、ご自由に[Issuesのページ](https://github.com/dolphilia/tinyhsp/issues)からイシューを立てていただければと思います。
-
 ## リンク
 
-- [TinyHSPの提案](http://hsp.tv/play/pforum.php?mode=all&num=77515)
+- きっかけ
+    - [TinyHSPの提案](http://hsp.tv/play/pforum.php?mode=all&num=77515)
+- 使用したライブラリ・フォント
+    - [GFLW3](http://www.glfw.org)
+    - [exrd / neteruhsp](https://github.com/exrd/neteruhsp)
+    - [nothings / stb](https://github.com/nothings/stb)
+    - [M+ FONTS](http://mplus-fonts.osdn.jp)
+    - [Mgen+](http://jikasei.me/font/mgenplus/)
 
 ## ライセンス
 
