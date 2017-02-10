@@ -81,6 +81,41 @@ MinGW: `$ g++ tinyhsp.cpp -o tinyhsp -std=gnu++11 -lglfw3dll -lopengl32`
 
 明示的に、`$ ./tinyhsp -f start.hsp` のように`-f`オプションを使って指定することもできます。
 
+## サンプル
+
+同封したサンプル`start.hsp`は簡易的なお絵かきスクリプトです。
+
+### サンプルスクリプト
+
+```
+title "TinyPaint"
+
+old_x = -1
+old_y = -1
+now_x = 0
+now_y = 0
+
+repeat
+    stick key
+    if key & 256 {
+        now_x = mousex
+        now_y = mousey
+        line now_x, now_y, old_x, old_y
+        old_x = now_x
+        old_y = now_y
+    } else {
+        old_x = mousex
+        old_y = mousey
+    }
+    wait 5
+loop
+
+stop
+```
+
+### サンプルのスクリーンショット
+![tinypaint](https://cloud.githubusercontent.com/assets/13228693/22679200/833b9b1e-ed43-11e6-80c2-94f5711863de.png)
+
 ## おまけ：文字と画像を表示する
 
 TinyHSPを拡張して[文字と画像を表示できるようにしたバージョンも入手できます](https://github.com/dolphilia/tinyhsp/tree/master/prototype/11_neteruhsp_gui3)。
