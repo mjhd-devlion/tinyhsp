@@ -58,26 +58,10 @@ macOS用のパッケージマネージャーであるHomebrewを使用します�
 
 MinGWはWindows用の開発環境です。次の手順で導入します。
 
-1. GLFW3をダウンロードする
-2. include内のGLFWフォルダをMinGW内のincludeフォルダにコピーする
-3. 2つの.aファイルをMinGW内のlibフォルダにコピーする
-4. glfw3.dllをプロジェクトのフォルダにコピーする
-
-#### 1. GLFWをダウンロードする
-
-**GLFWライブラリは[GLFWのダウンロードページ](http://www.glfw.org/download.html)から入手**します。GLFWには32bit版と64bit版があります。仮に64bit版をダウンロードしたとして話を進めます。
-
-#### 2. include内のGLFWフォルダをMinGW内のincludeフォルダにコピーする
-
-ダウンロードしたフォルダの中に、`include` というフォルダが入っています。この中に `GLFW` というフォルダがあるので、その**GLFWフォルダをMinGWのincludeフォルダにコピー**します。
-
-#### 3. 2つの.aファイルをMinGW内のlibフォルダにコピーする
-
-ダウンロードしたフォルダの中に、`lib-mingw-w64` というフォルダが入っているので、この中にある、`libglfw3.a`、`libglfw3dll.a`という**2つの.aファイルをMinGWのlibフォルダにコピー**します。
-
-#### 4. glfw3.dllをプロジェクトのフォルダにコピーする
-
-上と同じ `lib-mingw-w64` フォルダ内に`glfw3.dll`というファイルがあるので、作成したいプロジェクト用のフォルダ内にコピーします。例えば、**glfw3.dllをtinyhsp.cがあるフォルダと同じ場所にコピー**します。
+1. **GLFWをダウンロードする**: **GLFWライブラリは[GLFWのダウンロードページ](http://www.glfw.org/download.html)から入手**します。GLFWには32bit版と64bit版があります。仮に64bit版をダウンロードしたとして話を進めます。
+2. **include内のGLFWフォルダをMinGW内のincludeフォルダにコピーする**: ダウンロードしたフォルダの中に、`include` というフォルダが入っています。この中に `GLFW` というフォルダがあるので、その**GLFWフォルダをMinGWのincludeフォルダにコピー**します。
+3. **2つの.aファイルをMinGW内のlibフォルダにコピーする**: ダウンロードしたフォルダの中に、`lib-mingw-w64` というフォルダが入っているので、この中にある、`libglfw3.a`、`libglfw3dll.a`という**2つの.aファイルをMinGWのlibフォルダにコピー**します。
+4. **glfw3.dllをプロジェクトのフォルダにコピーする**: 上と同じ `lib-mingw-w64` フォルダ内に`glfw3.dll`というファイルがあるので、作成したいプロジェクト用のフォルダ内にコピーします。例えば、**glfw3.dllをtinyhsp.cがあるフォルダと同じ場所にコピー**します。
 
 ## コンパイル
 
