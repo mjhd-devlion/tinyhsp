@@ -14,7 +14,7 @@ TinyHSPはプロトタイプをたくさん作る方式で進めました。最�
 - 7号 [空白文字を考慮する](https://github.com/dolphilia/tinyhsp/tree/master/prototype/07_whitespace)
 - 8号 [stb_image.hを使って画像を描画する](https://github.com/dolphilia/tinyhsp/tree/master/prototype/08_loadimage)
 - 9号 [neteruhspにGUIを実装する](https://github.com/dolphilia/tinyhsp/tree/master/prototype/09_neteruhsp_gui)
-- 10号 [neteruhspにGUIを実装する2](https://github.com/dolphilia/tinyhsp/tree/master/prototype/010_neteruhsp_gui2)
+- 10号 [neteruhspにGUIを実装する2](https://github.com/dolphilia/tinyhsp/tree/master/prototype/10_neteruhsp_gui2)
 - 11号 [neteruhspにGUIを実装する3](https://github.com/dolphilia/tinyhsp/tree/master/prototype/11_neteruhsp_gui3)
 
 ## ライセンス
