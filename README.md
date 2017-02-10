@@ -124,6 +124,10 @@ TinyHSPを拡張して[文字と画像を表示できるようにしたバージ
 
 [stbライブラリ](https://github.com/nothings/stb)と[M+フォント](http://mplus-fonts.osdn.jp)を使用しています。
 
+### サンプルのスクリーンショット
+
+![011](https://cloud.githubusercontent.com/assets/13228693/22812773/138d0278-ef8a-11e6-9a83-944f5e9cf31d.png)
+
 ### 拡張された命令
 
 |-|書式|説明|
