@@ -1,6 +1,7 @@
 pos 32, 32
-picload "miyuzu.png"
-pos 32,380
-mes "文字表示のテスト"
+picload "miyuzu.jpg"
+font "", 60
+pos 80, 360
+mes "文字と画像を表示します"
 redraw 1
 stop
