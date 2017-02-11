@@ -668,6 +668,10 @@ load_image(char const *file_name,
                              &image_height,
                              &image_bpp,
                              0);
+    if (image_pixels == nullptr) {
+        printf("picload：画像ファイル%sをオープンできませんでした\n", file_name);
+        exit(-1);
+    }
     image_size_t image_size;
     image_size.width = image_width;
     image_size.height = image_height;
@@ -1582,8 +1586,7 @@ command_font(execute_environment_t* NHSP_UNUA(e), execute_status_t* s, int arg_n
     }
     if (strcmp(name,"") != 0) {
         FILE* fp = fopen(name, "rb");
-        if (fp == NULL) {
-            fclose(fp);
+        if (fp == nullptr) {
             raise_error("font：フォントファイル%sをオープンできませんでした",name);
         }
         fread(font_ttf_buffer, 1, 5000000, fp);
@@ -5123,7 +5126,11 @@ main(int argc, const char* argv[])
     // フォントの初期化
     {
         char font_ttf_buffer[5000000]; // フォント情報
-        FILE* fp = fopen("./mplus-1c-regular.ttf", "rb");
+        FILE* fp = fopen("mplus-1c-regular.ttf", "rb");
+        if (fp == nullptr) {
+            printf("ERROR : cannot read such file mplus-1c-regular.ttf\n");
+            return -1;
+        }
         fread(font_ttf_buffer, 1, 5000000, fp);
         fclose(fp);
 
