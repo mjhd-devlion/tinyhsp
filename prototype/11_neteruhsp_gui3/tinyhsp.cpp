@@ -58,7 +58,6 @@ GLFWwindow* window;
 bool redraw_flag;
 bool close_flag;
 stbtt_fontinfo font; //フォント情報
-char font_ttf_buffer[5000000]; // フォント情報
 int font_ascent = 0;
 float font_scale = 0.0;
 int font_baseline = 0;
@@ -1585,6 +1584,8 @@ command_font(execute_environment_t* NHSP_UNUA(e), execute_status_t* s, int arg_n
         style = value_calc_int(*p3);
     }
     if (strcmp(name,"") != 0) {
+        char* font_ttf_buffer;
+        font_ttf_buffer = (char*)calloc(5000000, sizeof(char));
         FILE* fp = fopen(name, "rb");
         if (fp == nullptr) {
             raise_error("font：フォントファイル%sをオープンできませんでした",name);
@@ -1593,6 +1594,7 @@ command_font(execute_environment_t* NHSP_UNUA(e), execute_status_t* s, int arg_n
         fclose(fp);
         int offset = stbtt_GetFontOffsetForIndex((unsigned char *)font_ttf_buffer, 0);
         stbtt_InitFont(&font, (unsigned char *)font_ttf_buffer, offset);
+        free(font_ttf_buffer);
     }
     if (font_size != size) { // フォント情報の生成
         font_size = size;
@@ -5125,17 +5127,19 @@ main(int argc, const char* argv[])
     }
     // フォントの初期化
     {
-        char font_ttf_buffer[5000000]; // フォント情報
+        char* font_ttf_buffer; // フォント情報
+        font_ttf_buffer = (char*)calloc(2000000, sizeof(char));
         FILE* fp = fopen("mplus-1c-regular.ttf", "rb");
         if (fp == nullptr) {
             printf("ERROR : cannot read such file mplus-1c-regular.ttf\n");
             return -1;
         }
-        fread(font_ttf_buffer, 1, 5000000, fp);
+        fread(font_ttf_buffer, 1, 2000000, fp);
         fclose(fp);
 
         int offset = stbtt_GetFontOffsetForIndex((unsigned char *)font_ttf_buffer, 0);
         stbtt_InitFont(&font, (unsigned char *)font_ttf_buffer, offset);
+        free(font_ttf_buffer);
 
         font_scale = stbtt_ScaleForPixelHeight(&font, font_size);
         stbtt_GetFontVMetrics(&font, &font_ascent, 0, 0);

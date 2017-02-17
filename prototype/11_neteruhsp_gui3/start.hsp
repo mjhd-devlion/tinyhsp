@@ -1,7 +1,7 @@
 pos 32, 32
 picload "miyuzu.jpg"
-font "", 60
+font "mgenplus-1c-regular.ttf", 60
 pos 80, 360
-mes "文字と画像を表示します"
+mes "こんにちは！你好！"
 redraw 1
 stop
