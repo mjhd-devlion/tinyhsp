@@ -2,7 +2,7 @@
 // $ clang++ tinyhsp.cpp -o tinyhsp -std=c++11 -lglfw -framework OpenGL
 //
 // For MinGW:
-// $ g++ tinyhsp.c -o tinyhsp -std=c++11 -lglfw3dll -lopengl32
+// $ g++ tinyhsp.c -o tinyhsp -std=gnu++11 -lglfw3dll -lopengl32
 // or -std=gnu++11
 // or -std=c++0x
 // or -std=gnu++0x
@@ -12,7 +12,7 @@
 //
 // This project is using GLFW
 // http://www.glfw.org
-// 
+//
 // This project is using neteruhsp
 // https://github.com/exrd/neteruhsp
 
@@ -1191,7 +1191,7 @@ command_stick(execute_environment_t* NHSP_UNUA(e), execute_status_t* s, int arg_
     //if (num <= 0) {
     //    raise_error("stick：0以下は指定できません");
     //}
-    
+
     int key = 0;
     if (glfwGetKey(window, GLFW_KEY_LEFT)) {
         key += 1;
@@ -1226,7 +1226,7 @@ command_stick(execute_environment_t* NHSP_UNUA(e), execute_status_t* s, int arg_
     if (glfwGetKey(window, GLFW_KEY_TAB)) {
         key += 1024;
     }
-    
+
     // 指定された変数に代入
     void* data_ptr = v->variable_->data_;
     reinterpret_cast<int*>(data_ptr)[0] = key;
@@ -4628,7 +4628,7 @@ main(int argc, const char* argv[])
     bool show_help = false;
     // オプション解析
     if (argc >= 2) {
-        for (int i = 1 /* 0飛ばし */; i < argc; ++i) {
+        for (int i = 1 ; i < argc; ++i) {
             const auto arg = argv[i];
             if (arg[0] == '-') {
                 switch (arg[1]) {
@@ -4731,7 +4731,7 @@ main(int argc, const char* argv[])
         for (int i = 0; i < screen_width * screen_height * 3; i++) {
             pixel_data[i] = 255;
         }
-        
+
         // GLFWライブラリの初期化
         {
             //初期化して、ウインドウを生成する
@@ -4743,18 +4743,18 @@ main(int argc, const char* argv[])
                                       NULL);
             glfwMakeContextCurrent(window);
         }
-        
+
         // コールバック関数を登録する
         glfwSetMouseButtonCallback(window, mouse_button_callback);
         glfwSetCursorPosCallback(window, cursor_position_callback);
         glfwSetKeyCallback(window, key_callback);
-        
+
         // １度だけスクリーンを初期化する
         {
             // 描画の準備
             glClear(GL_COLOR_BUFFER_BIT);
             glRasterPos2i(-1, -1);
-            
+
             // ピクセルを描画
             glDrawPixels(screen_width,
                          screen_height,
