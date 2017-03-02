@@ -2,13 +2,13 @@
 // $ clang++ tinyhsp.cpp -o tinyhsp -std=c++11 -lglfw -framework OpenGL
 //
 // For MinGW:
-// $ g++ tinyhsp.c -o tinyhsp -std=gnu++11 -lglfw3dll -lopengl32
+// $ g++ tinyhsp.cpp -o tinyhsp -std=gnu++11 -lglfw3dll -lopengl32 -mwindows
 // or -std=gnu++11
 // or -std=c++0x
 // or -std=gnu++0x
 //
 // For Linux:
-// $ g++ tinyhsp.c -o tinyhsp -std=c++11 -lm -ldl -lglfw3 -lGL -lX11 -lXxf86vm -lXrandr -lXinerama -lXcursor -lpthread -lXi
+// $ g++ tinyhsp.cpp -o tinyhsp -std=c++11 -lm -ldl -lglfw3 -lGL -lX11 -lXxf86vm -lXrandr -lXinerama -lXcursor -lpthread -lXi
 //
 // This project is using GLFW
 // http://www.glfw.org
@@ -367,6 +367,7 @@ enum sysvar_tag
     SYSVAR_STAT,
     SYSVAR_REFDVAL,
     SYSVAR_REFSTR,
+    SYSVAR_STRSIZE,
     SYSVAR_MOUSEX,
     SYSVAR_MOUSEY,
     SYSVAR_MOUSEL,
@@ -456,6 +457,7 @@ enum builtin_command_tag
     COMMAND_LINE,
     COMMAND_BOXF,
     COMMAND_STICK,
+    COMMAND_BLOAD,
     MAX_COMMAND,
 };
 
@@ -1231,6 +1233,72 @@ command_stick(execute_environment_t* NHSP_UNUA(e), execute_status_t* s, int arg_
     void* data_ptr = v->variable_->data_;
     reinterpret_cast<int*>(data_ptr)[0] = key;
     //prepare_variable(v->variable_, VALUE_INT, 64, num);
+    stack_pop(s->stack_, arg_num);
+}
+
+void
+command_bload(execute_environment_t* NHSP_UNUA(e), execute_status_t* s, int arg_num)
+{
+    // 引数の数をチェックする
+    if (arg_num < 2) {
+        raise_error("bload：引数がたりません");
+    }
+    if (arg_num > 4) {
+        raise_error("bload：引数が多すぎます");
+    }
+
+    // １つ目の引数を取得する
+    const auto arg_start = -arg_num;
+    const auto m = stack_peek(s->stack_, arg_start);
+    value_isolate(*m);
+    if (m->type_ != VALUE_STRING) {
+        raise_error("bload：引数が文字列型ではありません");
+    }
+    char* filename = m->svalue_;
+
+    // ２つめの引数を取得する
+    const auto v = stack_peek(s->stack_, arg_start + 1);
+    if (v->type_ != VALUE_VARIABLE) {
+        raise_error("bload：対象が変数ではありません");
+    }
+
+    // ファイルをオープンする
+    FILE* fp = fopen(filename, "rb");
+    if (fp == nullptr) {
+        printf("ERROR : cannot read such file %s\n", filename);
+        exit(1);
+    }
+
+    // ファイルサイズを取得する
+    fseek(fp, 0, SEEK_END); // ファイル位置表示子をファイルの最後に位置付ける
+    long size = ftell(fp);
+
+    // バイナリを一時的な変数に読み込む
+    fseek(fp, 0, SEEK_SET); // ファイル位置表示子をファイルの始めに位置付ける
+    uint8_t* tmp = (uint8_t*)calloc(size, sizeof(uint8_t));
+    fread(tmp, sizeof(uint8_t), (int)size, fp);
+
+    // 読み込んだバイナリをコンソールに出力する
+    //for (int i = 0; i < size; i++) {
+    //    if(i % 16 == 0) {
+    //        printf("\n");
+    //    }
+    //    printf("%02X ", tmp[i]);
+    //}
+
+    // 指定された変数に一時的な変数から代入する
+    void* data_ptr = v->variable_->data_;
+    uint8_t* data_ptr_u8 = reinterpret_cast<uint8_t*>(data_ptr);
+    for(int i = 0; i < size; i++ ) {
+        data_ptr_u8[i] = tmp[i];
+    }
+
+    // システム変数にファイルサイズを書き込む
+    s->strsize_ = size;
+
+    // 解放処理
+    free(tmp);
+    fclose(fp);
     stack_pop(s->stack_, arg_num);
 }
 
@@ -3538,6 +3606,9 @@ query_sysvar(const char* s)
             SYSVAR_REFSTR, "refstr",
         },
         {
+            SYSVAR_STRSIZE, "strsize",
+        },
+        {
             SYSVAR_MOUSEX, "mousex",
         },
         {
@@ -4035,6 +4106,9 @@ evaluate(execute_environment_t* e, execute_status_t* s, ast_node_t* n)
                         case SYSVAR_REFSTR:
                             stack_push(s->stack_, create_value(s->refstr_));
                             break;
+                        case SYSVAR_STRSIZE:
+                            stack_push(s->stack_, create_value(s->strsize_));
+                            break;
                         case SYSVAR_MOUSEX:
                             stack_push(s->stack_, create_value(current_mouse_x));
                             break;
@@ -4340,6 +4414,9 @@ query_command(const char* s)
         {
             COMMAND_STICK, "stick",
         },
+        {
+            COMMAND_BLOAD, "bload",
+        },
         { -1, nullptr },
     };
     // 全探索
@@ -4372,6 +4449,7 @@ get_command_delegate(builtin_command_tag command)
         &command_line,
         &command_boxf,
         &command_stick,
+        &command_bload,
         nullptr,
     };
     return commands[command];
