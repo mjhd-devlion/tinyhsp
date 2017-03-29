@@ -1,2 +1,3 @@
-a = 100
-mes "aiueo"+a
+b = "aiueo"
+
+mes b

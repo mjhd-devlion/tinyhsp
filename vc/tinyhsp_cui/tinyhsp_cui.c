@@ -279,11 +279,11 @@ struct value_tag__
 		int ivalue_;
 		double dvalue_;
 		char* svalue_;
-		//struct
-		//{
+		struct
+		{
 		variable_t* variable_;
 		int index_;
-		//};
+		};
 		unsigned long long value_;
 	};
 };
@@ -748,7 +748,29 @@ command_mes(execute_environment_t* e, execute_status_t* s, int arg_num)
 		raise_error("mes：引数が多すぎます@@ %d個渡されました", arg_num);
 	}
 	value_t* m = stack_peek(s->stack_, -1);
+
+	if (m->type_ == VALUE_VARIABLE) {
+
+	}
+
 	value_isolate(m);
+
+	//
+	//value_t* var = stack_peek(s->stack_, -2);
+	//if (var->type_ != VALUE_VARIABLE) {
+	//	raise_error("変数代入：代入先が変数ではありませんでした");
+	//}
+	//value_t* v = stack_peek(s->stack_, -1);
+	//value_isolate(v);
+	//if (var->variable_ == NULL) {
+	//	variable_set(e->variable_table_, v, NULL, var->index_);// var->variable_->name_, var->index_);
+	//}
+	//else {
+	//	variable_set(e->variable_table_, v, var->variable_->name_, var->index_);
+	//}
+	//stack_pop(s->stack_, 2);
+	//
+
 	if (m->type_ != VALUE_STRING) {
 		raise_error("mes：引数が文字列型ではありません");
 	}
@@ -2363,6 +2385,7 @@ parse_identifier_expression(parse_context_t* /*&*/ c)
 variable_t*
 create_variable(const char* name)
 {
+
 	variable_t* res = (variable_t*)xmalloc(sizeof(variable_t), "");
 	res->name_ = create_string3(name);
 	res->type_ = VALUE_NONE;
@@ -2522,10 +2545,14 @@ variable_set(list_t* table, const value_t* /*&*/ v, const char* name, int idx)
 
 }
 
+int count;
+
 void*
 variable_data_ptr(const variable_t* /*&*/ v, int idx)
 {
+	//count++;
 	if (v == NULL) {
+		//return NULL;
 		if (idx < 0 || idx >= 0) {
 			raise_error("変数への配列アクセスが範囲外です@@ %s(%d)", "???", idx);
 		}
@@ -3476,10 +3503,12 @@ walk(execute_environment_t* e, ast_node_t* node)
 		char* var_name = node->token_->content_;
 		if (search_variable(e->variable_table_, var_name) == NULL) {
 			// 適当な変数として初期化しておく
-			value_t* v = (value_t*)malloc(sizeof(value_t));
+			value_t* v = (value_t*)calloc(1, sizeof(value_t));
+			v->variable_ = (variable_t*)calloc(1, sizeof(variable_t));
 			v->type_ = VALUE_INT;
 			v->ivalue_ = 0;
 			variable_set(e->variable_table_, v, var_name, 0);
+
 		}
 	}
 	if (node->left_ != NULL) {
@@ -3589,6 +3618,7 @@ evaluate(execute_environment_t* e, execute_status_t* s, ast_node_t* n)
 			raise_error("変数代入：代入先が変数ではありませんでした");
 		}
 		value_t* v = stack_peek(s->stack_, -1);
+
 		value_isolate(v);
 		if (var->variable_ == NULL) {
 			variable_set(e->variable_table_, v, NULL, var->index_);// var->variable_->name_, var->index_);
