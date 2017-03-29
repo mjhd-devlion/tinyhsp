@@ -4188,7 +4188,7 @@ _dump(int indent, ast_node_t* node, bool is_detail)
 		"JUMP_LABEL",
 		"JUMP_INTERNAL",
 	};
-	static_assert(sizeof(nodenames) / sizeof(*nodenames) == MAX_NODE, "nodenames size is not match with MAX_NODE");
+	_Static_assert(sizeof(nodenames) / sizeof(*nodenames) == MAX_NODE, "nodenames size is not match with MAX_NODE");
 	assert(node->tag_ >= 0 && node->tag_ < MAX_NODE);
 	printf("%s", nodenames[node->tag_]);
 	if (is_detail) {

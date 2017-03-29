@@ -1,4 +1,4 @@
-#ifdef _WIN32
+﻿#ifdef _WIN32
 #define _WIN32_64
 #elif _WIN64
 #define _WIN32_64
@@ -281,8 +281,8 @@ struct value_tag__
 		char* svalue_;
 		struct
 		{
-		variable_t* variable_;
-		int index_;
+			variable_t* variable_;
+			int index_;
 		};
 		unsigned long long value_;
 	};
@@ -4289,7 +4289,7 @@ main(int argc, const char* argv[])
 #ifdef _WIN32_64
 	char cdir[255];
 	GetCurrentDirectory(255, cdir);
-	printf("%s\n",cdir);
+	printf("%s\n", cdir);
 #endif
 
 	// オプション
