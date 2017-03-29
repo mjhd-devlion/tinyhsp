@@ -1,3 +1,9 @@
-a = "Hello"
-b = "World"
-mes a+b
+i=0
+*main
+	mes "Hello"
+	if i=10 {
+		goto *owari
+	}
+	i++
+	goto *main
+*owari
