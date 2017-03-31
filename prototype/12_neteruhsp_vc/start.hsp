@@ -1,9 +1,10 @@
-i=0
-*main
-	mes "Hello"
-	if i=10 {
-		goto *owari
-	}
-	i++
-	goto *main
-*owari
+gosub *test
+mes "b"
+end
+*test
+	mes "a"
+	gosub *test2
+	return
+*test2
+	mes "c"
+	return
