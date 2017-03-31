@@ -3850,8 +3850,9 @@ evaluate(execute_environment_t* e, execute_status_t* s, ast_node_t* n)
 			stack_pop(s->stack_, 1);
 		}
 		--s->current_call_frame_;
-		call_frame_t frame = s->call_frame_[s->current_call_frame_];
-		s->node_cur_ = frame.caller_;
+		//call_frame_t frame = s->call_frame_[s->current_call_frame_];
+		//s->node_cur_ = frame.caller_;
+		s->node_cur_ = s->call_frame_[s->current_call_frame_].caller_;
 		break;
 	}
 	case NODE_GOTO: {
@@ -3878,9 +3879,10 @@ evaluate(execute_environment_t* e, execute_status_t* s, ast_node_t* n)
 		if ((s->current_call_frame_ + 1) >= MAX_CALL_FRAME) {
 			raise_error("gosub：ネストが深すぎます");
 		}
-		call_frame_t frame = s->call_frame_[s->current_call_frame_];
+		//call_frame_t frame = s->call_frame_[s->current_call_frame_];
 		++s->current_call_frame_;
-		frame.caller_ = s->node_cur_;
+		//frame.caller_ = s->node_cur_;
+		s->call_frame_[s->current_call_frame_ - 1].caller_ = s->node_cur_;
 		s->node_cur_ = label;
 		break;
 	}
@@ -3888,12 +3890,16 @@ evaluate(execute_environment_t* e, execute_status_t* s, ast_node_t* n)
 		if (s->current_loop_frame_ + 1 >= MAX_LOOP_FRAME) {
 			raise_error("repeat：ネストが深すぎます");
 		}
-		loop_frame_t frame = s->loop_frame_[s->current_loop_frame_];
+		//loop_frame_t frame = s->loop_frame_[s->current_loop_frame_];
 		++s->current_loop_frame_;
-		frame.start_ = s->node_cur_;
-		frame.cnt_ = 0;
-		frame.counter_ = 0;
-		frame.max_ = 0;
+		//frame.start_ = s->node_cur_;
+		s->loop_frame_[s->current_loop_frame_ - 1].start_ = s->node_cur_;
+		//frame.cnt_ = 0;
+		s->loop_frame_[s->current_loop_frame_ - 1].cnt_ = 0;
+		//frame.counter_ = 0;
+		s->loop_frame_[s->current_loop_frame_ - 1].counter_ = 0;
+		//frame.max_ = 0;
+		s->loop_frame_[s->current_loop_frame_ - 1].max_ = 0;
 		int loop_num = -1;
 		if (n->left_) {
 			evaluate(e, s, n->left_);
@@ -3901,13 +3907,15 @@ evaluate(execute_environment_t* e, execute_status_t* s, ast_node_t* n)
 			loop_num = value_calc_int(v);
 			stack_pop(s->stack_, 1);
 		}
-		frame.max_ = loop_num;
+		//frame.max_ = loop_num;
+		s->loop_frame_[s->current_loop_frame_ - 1].max_ = loop_num;
 		break;
 	}
 	case NODE_REPEAT_CHECK: {
 		assert(s->current_loop_frame_ > 0);
-		loop_frame_t frame = s->loop_frame_[s->current_loop_frame_ - 1];
-		if (frame.max_ >= 0 && frame.counter_ >= frame.max_) {
+		//loop_frame_t frame = s->loop_frame_[s->current_loop_frame_ - 1];
+		if (s->loop_frame_[s->current_loop_frame_ - 1].max_ >= 0 &&
+			s->loop_frame_[s->current_loop_frame_ - 1].counter_ >= s->loop_frame_[s->current_loop_frame_ - 1].max_) {
 			int depth = 0;
 			while (s->node_cur_ != NULL) {
 				ast_node_t* ex = (ast_node_t*)s->node_cur_->value_;
@@ -3931,10 +3939,10 @@ evaluate(execute_environment_t* e, execute_status_t* s, ast_node_t* n)
 		if (s->current_loop_frame_ <= 0) {
 			raise_error("loop,continue：repeat-loopの中にありません");
 		}
-		loop_frame_t frame = s->loop_frame_[s->current_loop_frame_ - 1];
-		++frame.counter_;
-		++frame.cnt_;
-		s->node_cur_ = frame.start_;
+		//loop_frame_t frame = s->loop_frame_[s->current_loop_frame_ - 1];
+		++s->loop_frame_[s->current_loop_frame_ - 1].counter_;
+		++s->loop_frame_[s->current_loop_frame_ - 1].cnt_;
+		s->node_cur_ = s->loop_frame_[s->current_loop_frame_ - 1].start_;
 		break;
 	}
 	case NODE_BREAK: {

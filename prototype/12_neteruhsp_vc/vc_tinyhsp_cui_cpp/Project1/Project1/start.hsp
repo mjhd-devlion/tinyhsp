@@ -1,8 +1,3 @@
-*main
+repeat 100
 	mes "aiueo"
-	i++
-	if i=10 {
-		goto *owari
-	}
-	goto *main
-*owari
+loop
