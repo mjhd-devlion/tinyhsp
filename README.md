@@ -6,7 +6,7 @@ TinyHSPは**最軽量のHSPを作成する**ことを目標にしたプロジェ
 
 ## 仕様
 
-TinyHSPは`tinyhsp.cpp`のみで構成されており、ソースコードは5000行ほどです。[neteruhsp](https://github.com/exrd/neteruhsp)をベースにしており、文法や変数の規則などは基本的に同じです。
+TinyHSPは`tinyhsp.c`のみで構成されており、ソースコードは5000行ほどです。[neteruhsp](https://github.com/exrd/neteruhsp)をベースにしており、文法や変数の規則などは基本的に同じです。
 
 TinyHSPで新しく追加された命令とシステム変数は以下の通りです。
 

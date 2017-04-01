@@ -1,4 +1,4 @@
-﻿#ifdef _WIN32
+#ifdef _WIN32
 #define __WINDOWS__
 #elif _WIN64
 #define __WINDOWS__
