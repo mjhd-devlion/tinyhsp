@@ -1,0 +1,8 @@
+mes "aiueo"
+font "mgenplus-1c-regular.ttf",32
+mes "ありがとう"
+picload "miyuzu.jpg"
+wave 440,2000,0
+wave 880
+redraw 1
+stop
