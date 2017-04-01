@@ -67,13 +67,13 @@ MinGWはWindows用の開発環境です。次の手順で導入します。
 
 環境によりそれぞれ以下のようにコンパイルします。
 
-macOS: `$ clang++ tinyhsp.cpp -o tinyhsp -std=c++11 -lglfw -framework OpenGL`
+macOS: `$ clang tinyhsp.c -o tinyhsp -lglfw -framework OpenGL`
 
-Linux: `$ g++ tinyhsp.cpp -o tinyhsp -std=gnu++11 -lm -ldl -lglfw3 -lGL -lX11 -lXxf86vm -lXrandr -lXinerama -lXcursor -lpthread -lXi`
+Linux: `$ gcc tinyhsp.c -o tinyhsp -lm -ldl -lglfw3 -lGL -lX11 -lXxf86vm -lXrandr -lXinerama -lXcursor -lpthread -lXi`
 
-MinGW: `$ g++ tinyhsp.cpp -o tinyhsp -std=gnu++11 -lglfw3dll -lopengl32`
+MinGW: `$ gcc tinyhsp.c -o tinyhsp -lglfw3dll -lopengl32 -mwindows`
 
-注記：`tinyhsp.cpp`の文字コードはUTF-8である必要があります。
+注記：`tinyhsp.c`の文字コードはUTF-8である必要があります。
 
 ## 実行
 
