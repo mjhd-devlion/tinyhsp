@@ -1,14 +1,18 @@
 ﻿#ifdef _WIN32
-#define _WIN32_64
+#define __WINDOWS__
 #elif _WIN64
-#define _WIN32_64
+#define __WINDOWS__
 #else
 #endif
-#ifdef _WINDOWS
-#define _WIN32_64
+#ifdef __APPLE__
+#define __MACOS__
+#endif
+#ifdef __linux
+#define __LINUX__
 #endif
 
-#ifdef _WIN32_64
+
+#ifdef __WINDOWS__
 #define _CRT_SECURE_NO_WARNINGS
 #include <Windows.h>
 #endif
@@ -23,7 +27,33 @@
 #include <string.h>
 #include <time.h>
 
+#ifdef __APPLE__
+#include <OpenGL/gl.h>
+#else
+#include <GL/gl.h>
+#endif
+
+#include <GLFW/glfw3.h>
+
 #define NHSP_CONFIG_MEMLEAK_DETECTION (0) // メモリリーク発見用ユーティリティを有効化
+
+// グローバルな変数
+int current_pos_x;
+int current_pos_y;
+int current_color_r;
+int current_color_g;
+int current_color_b;
+int current_mouse_x;
+int current_mouse_y;
+int current_mouse_down_left;
+int current_mouse_down_right;
+int screen_width;
+int screen_height;
+char* window_title;
+unsigned char pixel_data[640 * 480 * 3 * 2];
+bool redraw_flag;
+bool close_flag;
+GLFWwindow* window;
 
 // 全体
 void initialize_system();
@@ -354,6 +384,10 @@ typedef enum
 	SYSVAR_REFDVAL,
 	SYSVAR_REFSTR,
 	SYSVAR_STRSIZE,
+	SYSVAR_MOUSEX,
+	SYSVAR_MOUSEY,
+	SYSVAR_MOUSEL,
+	SYSVAR_MOUSER,
 	MAX_SYSVAR,
 } sysvar_tag;
 
@@ -439,6 +473,16 @@ typedef enum
 	COMMAND_MES,
 	COMMAND_INPUT,
 	COMMAND_RANDOMIZE,
+	COMMAND_WAIT,
+	COMMAND_STOP,
+	COMMAND_TITLE,
+	COMMAND_PSET,
+	COMMAND_REDRAW,
+	COMMAND_POS,
+	COMMAND_COLOR,
+	COMMAND_LINE,
+	COMMAND_BOXF,
+	COMMAND_STICK,
 	COMMAND_BLOAD,
 	MAX_COMMAND,
 } builtin_command_tag;
@@ -464,6 +508,117 @@ void dump_ast(list_t* ast, bool is_detail/* = false*/); //※ 引数の初期値
 void dump_variable(list_t* var_table, const char* name, int idx);
 void dump_stack(value_stack_t* stack);
 
+//========================================================
+// 描画系ユーティリティ
+void set_pixel_rgb(uint8_t *pixel_data,
+	int32_t point_x, int32_t point_y,
+	uint8_t color_red, uint8_t color_green, uint8_t color_blue,
+	int32_t canvas_size_width, int32_t canvas_size_height)
+{
+	if (point_x < 0 ||
+		point_y < 0 ||
+		point_x >= canvas_size_width ||
+		point_y >= canvas_size_height)
+	{
+		return;
+	}
+	int index = (480 - point_y) * canvas_size_width * 3 + point_x * 3;
+	pixel_data[index] = color_red;
+	pixel_data[index + 1] = color_green;
+	pixel_data[index + 2] = color_blue;
+}
+
+void set_line_rgb(uint8_t *pixel_data,
+	int32_t start_point_x, int32_t start_point_y,
+	int32_t end_point_x, int32_t end_point_y,
+	uint8_t color_red, uint8_t color_green, uint8_t color_blue,
+	int32_t canvas_size_width, int32_t canvas_size_height)
+{
+	//let
+	int deltax = abs(end_point_x - start_point_x);
+	int deltay = abs(end_point_y - start_point_y);
+	int xstep = (end_point_x > start_point_x) ? 1 : -1;
+	int ystep = (end_point_y > start_point_y) ? 1 : -1;
+	//var
+	int x = start_point_x;
+	int y = start_point_y;
+	int error;
+	if (deltax >= deltay) {
+		error = 2 * deltay - deltax;
+		for (int i = 0; i <= deltax; ++i) {
+			if (x<0 || x>canvas_size_width || y<0 || y>canvas_size_height) {} //描画範囲を超える場合
+			else {
+				set_pixel_rgb(pixel_data,
+					x, y,
+					color_red, color_green, color_blue,
+					canvas_size_width, canvas_size_height);
+			}
+			x += xstep;
+			error += 2 * deltay;
+			if (error >= 0) {
+				y += ystep;
+				error -= 2 * deltax;
+			}
+		}
+	}
+	else {
+		error = 2 * deltax - deltay;
+		for (int i = 0; i <= deltay; ++i) {
+			if (x<0 || x>canvas_size_width || y<0 || y>canvas_size_height) {}
+			else {
+				set_pixel_rgb(pixel_data,
+					x, y,
+					color_red, color_green, color_blue,
+					canvas_size_width, canvas_size_height);
+			}
+			y += ystep;
+			error += 2 * deltax;
+			if (error >= 0) {
+				x += xstep;
+				error -= 2 * deltay;
+			}
+		}
+	}
+}
+
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#define MAX(a,b) (((a)>(b))?(a):(b))
+
+void fill_rect_rgb_slow(uint8_t *pixel_data,
+	int32_t start_point_x, int32_t start_point_y,
+	int32_t end_point_x, int32_t end_point_y,
+	uint8_t color_red, uint8_t color_green, uint8_t color_blue,
+	int32_t canvas_size_width, int32_t canvas_size_height)
+{
+	//普通に描画する方法：若干遅い
+	int minx = MIN(start_point_x, end_point_x);
+	int miny = MIN(start_point_y, end_point_y);
+	int diffx = MAX(start_point_x, end_point_x) - MIN(start_point_x, end_point_x) + 1;
+	int diffy = MAX(start_point_y, end_point_y) - MIN(start_point_y, end_point_y) + 1;
+	for (int y = 0; y<diffy; y++) {
+		for (int x = 0; x<diffx; x++) {
+			set_pixel_rgb(pixel_data,
+				minx + x, miny + y,
+				color_red, color_green, color_blue,
+				canvas_size_width, canvas_size_height);
+		}
+	}
+}
+
+void redraw()
+{
+	// 描画の準備
+	glClear(GL_COLOR_BUFFER_BIT);
+	glRasterPos2i(-1, -1);
+	// ピクセルを描画
+	glDrawPixels(screen_width,
+		screen_height,
+		GL_RGB,
+		GL_UNSIGNED_BYTE,
+		pixel_data);
+	// フロントバッファとバックバッファを交換する
+	glfwSwapBuffers(window);
+}
 //========================================================
 
 #define NHSP_UNUA(v)
@@ -526,11 +681,20 @@ zunregister_memory(void* ptr)
 void
 raise_error(const char* message, ...)
 {
+	char c[512];
 	va_list args;
 	va_start(args, message);
-	vfprintf(stderr, message, args);
+	vsprintf(c, message, args);
+	//vfprintf(stderr, message, args);
 	va_end(args);
+
+#ifdef __WINDOWS__
+	MessageBox(NULL, TEXT(c), TEXT("エラー"), MB_OK | MB_ICONWARNING);
+#elif
+	fprintf(stderr, "%s", c);
 	printf("\n");
+#endif
+
 	exit(-1);
 }
 
@@ -851,6 +1015,291 @@ command_randomize(execute_environment_t* e, execute_status_t* s, int arg_num)
 		seed = value_calc_int(m);
 	}
 	srand(seed);
+	stack_pop(s->stack_, arg_num);
+}
+
+void
+command_wait(execute_environment_t* e, execute_status_t* s, int arg_num)
+{
+	if (arg_num <= 0) {
+		raise_error("wait：引数がたりません");
+	}
+	if (arg_num > 1) {
+		raise_error("wait：引数が多すぎます");
+	}
+	double wait_time = 0.0;
+	const value_t* m = stack_peek(s->stack_, -1);
+	wait_time = value_calc_double(m);
+	glfwSetTime(0.0); // タイマーを初期化する
+	for (;;) { // ウィンドウを閉じるまで
+		if (glfwWindowShouldClose(window)) {
+			s->is_end_ = true;
+			break;
+		}
+		if (glfwGetTime() * 100 > wait_time) {
+			break;
+		}
+		glfwPollEvents(); // イベント待ち
+	}
+	stack_pop(s->stack_, arg_num);
+}
+
+void
+command_stop(execute_environment_t* e, execute_status_t* s, int arg_num)
+{
+	if (arg_num >= 1) {
+		raise_error("stop：引数が多すぎます");
+	}
+	for (;;) { // ウィンドウを閉じるまで
+		if (glfwWindowShouldClose(window)) {
+			s->is_end_ = true;
+			break;
+		}
+		glfwPollEvents(); // イベント待ち
+	}
+	stack_pop(s->stack_, arg_num);
+}
+
+void
+command_title(execute_environment_t* e, execute_status_t* s, int arg_num)
+{
+	if (arg_num <= 0) {
+		raise_error("title：引数がたりません");
+	}
+	if (arg_num > 1) {
+		raise_error("title：引数が多すぎます@@ %d個渡されました", arg_num);
+	}
+	const value_t* m = stack_peek(s->stack_, -1);
+	value_isolate(m);
+	if (m->type_ != VALUE_STRING) {
+		raise_error("title：引数が文字列型ではありません");
+	}
+	glfwSetWindowTitle(window, m->svalue_);
+	stack_pop(s->stack_, arg_num);
+}
+
+void
+command_pset(execute_environment_t* e, execute_status_t* s, int arg_num)
+{
+	if (arg_num > 2) {
+		raise_error("pset：引数が多すぎます");
+	}
+	if (arg_num <= 0) { // 引数が省略されば場合
+		set_pixel_rgb(pixel_data,
+			current_pos_x, current_pos_y,
+			current_color_r, current_color_g, current_color_b,
+			screen_width, screen_height);
+	}
+	else {
+		const int arg_start = -arg_num;
+		const value_t* p1 = stack_peek(s->stack_, arg_start);
+		const int x = value_calc_int(p1);
+		const value_t* p2 = stack_peek(s->stack_, arg_start + 1);
+		const int y = value_calc_int(p2);
+		set_pixel_rgb(pixel_data,
+			x, y,
+			current_color_r, current_color_g, current_color_b,
+			screen_width, screen_height);
+	}
+	if (redraw_flag) {
+		redraw();
+	}
+	stack_pop(s->stack_, arg_num);
+}
+
+void
+command_redraw(execute_environment_t* e, execute_status_t* s, int arg_num)
+{
+	if (arg_num > 1) {
+		raise_error("redraw：引数が多すぎます");
+	}
+	if (arg_num <= 0) { // 引数が省略された
+		redraw_flag = true;
+		redraw();
+	}
+	int redraw_flag_num = 0;
+	const value_t* n = stack_peek(s->stack_, -1);
+	redraw_flag_num = value_calc_int(n);
+	if (redraw_flag_num == 0) {
+		redraw_flag = false;
+	}
+	else if (redraw_flag_num == 1) {
+		redraw_flag = true;
+		redraw();
+	}
+	else {
+		raise_error("redraw：引数の値は0か1のみをサポートしています");
+	}
+	stack_pop(s->stack_, arg_num);
+}
+
+void
+command_pos(execute_environment_t* e, execute_status_t* s, int arg_num)
+{
+	if (arg_num <= 1) { // 引数が省略されば場合
+		raise_error("pos：引数が足りません");
+	}
+	if (arg_num > 2) {
+		raise_error("pos：引数が多すぎます");
+	}
+	const int arg_start = -arg_num;
+	const value_t* p1 = stack_peek(s->stack_, arg_start);
+	const int x = value_calc_int(p1);
+	const value_t* p2 = stack_peek(s->stack_, arg_start + 1);
+	const int y = value_calc_int(p2);
+	current_pos_x = x;
+	current_pos_y = y;
+	stack_pop(s->stack_, arg_num);
+}
+
+void
+command_color(execute_environment_t* e, execute_status_t* s, int arg_num)
+{
+	if (arg_num > 3) {
+		raise_error("color：引数が多すぎます");
+	}
+	if (arg_num <= 0) { // 引数が省略された場合
+		current_color_r = 0;
+		current_color_g = 0;
+		current_color_b = 0;
+	}
+	else {
+		const int arg_start = -arg_num;
+		const value_t* p1 = stack_peek(s->stack_, arg_start);
+		const int r = value_calc_int(p1);
+		const value_t* p2 = stack_peek(s->stack_, arg_start + 1);
+		const int g = value_calc_int(p2);
+		const value_t* p3 = stack_peek(s->stack_, arg_start + 2);
+		const int b = value_calc_int(p3);
+		current_color_r = r;
+		current_color_g = g;
+		current_color_b = b;
+	}
+	stack_pop(s->stack_, arg_num);
+}
+
+void
+command_line(execute_environment_t* e, execute_status_t* s, int arg_num)
+{
+	if (arg_num <= 3) { // 引数が省略されば場合
+		raise_error("line：引数が足りません");
+	}
+	if (arg_num > 4) {
+		raise_error("line：引数が多すぎます");
+	}
+	const int arg_start = -arg_num;
+	const value_t* p1 = stack_peek(s->stack_, arg_start);
+	const int sx = value_calc_int(p1);
+	const value_t* p2 = stack_peek(s->stack_, arg_start + 1);
+	const int sy = value_calc_int(p2);
+	const value_t* p3 = stack_peek(s->stack_, arg_start + 2);
+	const int ex = value_calc_int(p3);
+	const value_t* p4 = stack_peek(s->stack_, arg_start + 3);
+	const int ey = value_calc_int(p4);
+	set_line_rgb(pixel_data,
+		sx, sy,
+		ex, ey,
+		current_color_r, current_color_g, current_color_b,
+		screen_width, screen_height);
+	if (redraw_flag) {
+		redraw();
+	}
+	stack_pop(s->stack_, arg_num);
+}
+
+void
+command_boxf(execute_environment_t* e, execute_status_t* s, int arg_num)
+{
+	if (arg_num <= 3) { // 引数が省略されば場合
+		raise_error("line：引数が足りません");
+	}
+	if (arg_num > 4) {
+		raise_error("line：引数が多すぎます");
+	}
+	const int arg_start = -arg_num;
+	const value_t* p1 = stack_peek(s->stack_, arg_start);
+	const int x0 = value_calc_int(p1);
+	const value_t* p2 = stack_peek(s->stack_, arg_start + 1);
+	const int y0 = value_calc_int(p2);
+	const value_t* p3 = stack_peek(s->stack_, arg_start + 2);
+	const int x1 = value_calc_int(p3);
+	const value_t* p4 = stack_peek(s->stack_, arg_start + 3);
+	const int y1 = value_calc_int(p4);
+	fill_rect_rgb_slow(pixel_data,
+		x0, y0,
+		x1, y1,
+		current_color_r, current_color_g, current_color_b,
+		screen_width, screen_height);
+	if (redraw_flag) {
+		redraw();
+	}
+	stack_pop(s->stack_, arg_num);
+}
+
+void
+command_stick(execute_environment_t* e, execute_status_t* s, int arg_num)
+{
+	if (arg_num < 1) {
+		raise_error("stick：引数がたりません");
+	}
+	if (arg_num > 2) {
+		raise_error("stick：引数が多すぎます");
+	}
+	const int arg_start = -arg_num;
+	const value_t* v = stack_peek(s->stack_, arg_start);
+	if (v->type_ != VALUE_VARIABLE) {
+		raise_error("stick：対象が変数ではありません");
+	}
+	if (v->index_ > 0) {
+		raise_error("stick：対象の変数が配列として指定されています");
+	}
+	//const auto n = stack_peek(s->stack_, arg_start + 1);
+	//const auto num = value_calc_int(*n);
+	//if (num <= 0) {
+	//    raise_error("stick：0以下は指定できません");
+	//}
+
+	int key = 0;
+	if (glfwGetKey(window, GLFW_KEY_LEFT)) {
+		key += 1;
+	}
+	if (glfwGetKey(window, GLFW_KEY_UP)) {
+		key += 2;
+	}
+	if (glfwGetKey(window, GLFW_KEY_RIGHT)) {
+		key += 4;
+	}
+	if (glfwGetKey(window, GLFW_KEY_DOWN)) {
+		key += 8;
+	}
+	if (glfwGetKey(window, GLFW_KEY_SPACE)) {
+		key += 16;
+	}
+	if (glfwGetKey(window, GLFW_KEY_ENTER)) {
+		key += 32;
+	}
+	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) || glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL)) {
+		key += 64;
+	}
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE)) {
+		key += 128;
+	}
+	if (current_mouse_down_left == 1) {
+		key += 256;
+	}
+	if (current_mouse_down_right == 1) {
+		key += 512;
+	}
+	if (glfwGetKey(window, GLFW_KEY_TAB)) {
+		key += 1024;
+	}
+
+	// 指定された変数に代入
+	void* data_ptr = v->variable_->data_;
+	int* tmp = (int*)data_ptr;
+	tmp[0] = key;
+	//reinterpret_cast<int*>(data_ptr)[0] = key;
+	//prepare_variable(v->variable_, VALUE_INT, 64, num);
 	stack_pop(s->stack_, arg_num);
 }
 
@@ -3288,6 +3737,18 @@ query_sysvar(const char* s)
 		{
 			SYSVAR_STRSIZE, "strsize",
 		},
+		{
+			SYSVAR_MOUSEX, "mousex",
+		},
+		{
+			SYSVAR_MOUSEY, "mousey",
+		},
+		{
+			SYSVAR_MOUSEL, "mousel",
+		},
+		{
+			SYSVAR_MOUSER, "mouser",
+		},
 		{ -1, NULL },
 	};
 	// 全探索
@@ -3797,6 +4258,18 @@ evaluate(execute_environment_t* e, execute_status_t* s, ast_node_t* n)
 				case SYSVAR_STRSIZE:
 					stack_push(s->stack_, create_value(s->strsize_));
 					break;
+				case SYSVAR_MOUSEX:
+					stack_push(s->stack_, create_value(current_mouse_x));
+					break;
+				case SYSVAR_MOUSEY:
+					stack_push(s->stack_, create_value(current_mouse_y));
+					break;
+				case SYSVAR_MOUSEL:
+					stack_push(s->stack_, create_value(current_mouse_down_left));
+					break;
+				case SYSVAR_MOUSER:
+					stack_push(s->stack_, create_value(current_mouse_down_right));
+					break;
 				default:
 					assert(false);
 					stack_push(s->stack_, create_value(0));
@@ -4072,6 +4545,36 @@ query_command(const char* s)
 			COMMAND_RANDOMIZE, "randomize",
 		},
 		{
+			COMMAND_WAIT, "wait",
+		},
+		{
+			COMMAND_STOP, "stop",
+		},
+		{
+			COMMAND_TITLE, "title",
+		},
+		{
+			COMMAND_PSET, "pset",
+		},
+		{
+			COMMAND_REDRAW, "redraw",
+		},
+		{
+			COMMAND_POS, "pos",
+		},
+		{
+			COMMAND_COLOR, "color",
+		},
+		{
+			COMMAND_LINE, "line",
+		},
+		{
+			COMMAND_BOXF, "boxf",
+		},
+		{
+			COMMAND_STICK, "stick",
+		},
+		{
 			COMMAND_BLOAD, "bload",
 		},
 		{ -1, NULL },
@@ -4096,6 +4599,17 @@ get_command_delegate(builtin_command_tag command)
 		&command_mes,
 		&command_input,
 		&command_randomize,
+		&command_wait,
+		&command_stop,
+		&command_title,
+		&command_pset,
+		&command_redraw,
+		&command_pos,
+		&command_color,
+		&command_line,
+		&command_boxf,
+		&command_stick,
+		&command_bload,
 		NULL,
 	};
 	return commands[command];
@@ -4291,10 +4805,62 @@ dump_stack(value_stack_t* stack)
 	printf("----\n");
 }
 
+void
+mouse_button_callback(GLFWwindow *window, int button, int action, int mods)
+{
+	if (button == 0) { // 左クリック
+		current_mouse_down_left = action;
+	}
+	else if (button == 1) { // 右クリック
+		current_mouse_down_right = action;
+	}
+	else {
+	}
+}
+
+void
+cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
+{
+	current_mouse_x = (int)xpos;
+	current_mouse_y = (int)ypos;
+}
+
+void
+key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
+{
+	if (action == GLFW_PRESS) {
+		switch (key) {
+		case GLFW_KEY_SPACE:
+			break;
+		case GLFW_KEY_ESCAPE:
+			break;
+		case GLFW_KEY_ENTER:
+			break;
+		case GLFW_KEY_TAB:
+			break;
+		case GLFW_KEY_RIGHT:
+			break;
+		case GLFW_KEY_LEFT:
+			break;
+		case GLFW_KEY_DOWN:
+			break;
+		case GLFW_KEY_UP:
+			break;
+		case GLFW_KEY_LEFT_CONTROL:
+			break;
+		case GLFW_KEY_RIGHT_CONTROL:
+			break;
+		default:
+			break;
+		}
+	}
+}
+
 int
 main(int argc, const char* argv[])
 {
-#ifdef _WIN32_64
+
+#ifdef __WINDOWS__
 	char cdir[255];
 	GetCurrentDirectory(255, cdir);
 	printf("%s\n", cdir);
@@ -4401,6 +4967,57 @@ main(int argc, const char* argv[])
 		printf("====LOADED SCRIPT FILE(%d bytes)\n----begin----\n%s\n----end----\n", script_size, script);
 	}
 
+	// 描画処理
+	{
+		current_color_r = 0;
+		current_color_g = 0;
+		current_color_b = 0;
+		current_pos_x = 0;
+		current_pos_y = 0;
+		screen_width = 640;
+		screen_height = 480;
+		window_title = (char*)"Untitled";
+		redraw_flag = true;
+		close_flag = false;
+		for (int i = 0; i < screen_width * screen_height * 3; i++) {
+			pixel_data[i] = 255;
+		}
+
+		// GLFWライブラリの初期化
+		{
+			//初期化して、ウインドウを生成する
+			glfwInit();
+			window = glfwCreateWindow(screen_width,
+				screen_height,
+				window_title,
+				NULL,
+				NULL);
+			glfwMakeContextCurrent(window);
+		}
+
+		// コールバック関数を登録する
+		glfwSetMouseButtonCallback(window, mouse_button_callback);
+		glfwSetCursorPosCallback(window, cursor_position_callback);
+		glfwSetKeyCallback(window, key_callback);
+
+		// １度だけスクリーンを初期化する
+		{
+			// 描画の準備
+			glClear(GL_COLOR_BUFFER_BIT);
+			glRasterPos2i(-1, -1);
+
+			// ピクセルを描画
+			glDrawPixels(screen_width,
+				screen_height,
+				GL_RGB,
+				GL_UNSIGNED_BYTE,
+				pixel_data);
+
+			// フロントバッファとバックバッファを交換する
+			glfwSwapBuffers(window);
+		}
+	}
+
 	// 実行
 	{
 		{
@@ -4416,7 +5033,8 @@ main(int argc, const char* argv[])
 			execute(env);
 			destroy_execute_environment(env);
 		}
-		//glfwTerminate();
+		
+		glfwTerminate();
 	}
 	xfree(script);
 	destroy_system();

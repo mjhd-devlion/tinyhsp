@@ -1,4 +1,4 @@
-mes "HelloWorld"+
+mes "HelloWorld"
 line 10,0, 100,100
 repeat
 	title ""+mousex
