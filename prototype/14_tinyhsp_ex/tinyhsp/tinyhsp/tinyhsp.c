@@ -538,6 +538,7 @@ typedef enum
 	FUNCTION_STR,
 	FUNCTION_RND,
 	FUNCTION_ABS,
+	FUNCTION_POWF,
 	MAX_FUNCTION,
 } builtin_function_tag;
 
@@ -2001,7 +2002,7 @@ function_double(execute_environment_t* e, execute_status_t* s, int arg_num)
 	const value_t* m = stack_peek(s->stack_, -1);
 	const int r = value_calc_double(m);
 	stack_pop(s->stack_, arg_num);
-	stack_push(s->stack_, create_value(r));
+	stack_push(s->stack_, create_value2(r));
 }
 
 void
@@ -2052,6 +2053,27 @@ function_abs(execute_environment_t* e, execute_status_t* s, int arg_num)
 	stack_pop(s->stack_, arg_num);
 	const int res = (r < 0 ? -r : r);
 	stack_push(s->stack_, create_value(res));
+}
+
+void
+function_powf(execute_environment_t* e, execute_status_t* s, int arg_num)
+{
+	if (arg_num <= 0) {
+		raise_error("pofw：引数がたりません");
+	}
+	if (arg_num > 2) {
+		raise_error("pofw：引数が多すぎます@@ %d個渡されました", arg_num);
+	}
+
+	const int arg_start = -arg_num;
+
+	const value_t* p1 = stack_peek(s->stack_, arg_start);
+	double x = value_calc_double(p1);
+	const value_t* p2 = stack_peek(s->stack_, arg_start + 1);
+	double y = value_calc_double(p2);
+
+	stack_pop(s->stack_, arg_num);
+	stack_push(s->stack_, create_value2(powf(x,y)));
 }
 
 // 外部リンケージを持つ人たち、ここから
@@ -5254,6 +5276,9 @@ query_function(const char* s)
 		{
 			FUNCTION_ABS, "abs",
 		},
+		{
+			FUNCTION_POWF, "powf",
+		},
 		{ -1, NULL },
 	};
 	// 全探索
@@ -5274,6 +5299,7 @@ get_function_delegate(builtin_function_tag function)
 		&function_str,
 		&function_rnd,
 		&function_abs,
+		&function_powf,
 		NULL,
 	};
 	return functions[function];
