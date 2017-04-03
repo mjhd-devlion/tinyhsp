@@ -1,7 +1,6 @@
-mes "HelloWorld"
-line 10,0, 100,100
+randomize
 repeat
-	title ""+mousex
+	title ""+rnd(100)
 	wait 5
 loop
 stop

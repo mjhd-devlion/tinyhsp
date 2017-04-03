@@ -905,6 +905,21 @@ randf(double min, double max)
 	return ((max - min)*((float)xor128() / 0x100000000)) + min;
 }
 
+// 一の位で四捨五入
+int round_one(int n) {
+	double tmp_d = (double)n;
+	if (tmp_d < 0) {
+		tmp_d -= 5;
+	}
+	else {
+		tmp_d += 5;
+	}
+	tmp_d /= 10;
+	tmp_d = floor(tmp_d);
+	tmp_d *= 10;
+	return (int)tmp_d;
+}
+
 //========================================================
 
 #define NHSP_UNUA(v)
@@ -1880,33 +1895,36 @@ command_wave(execute_environment_t* e, execute_status_t* s, int arg_num)
 		freq = value_calc_int(p1);
 	}
 
+	
+
 	// 音を生成して再生
 	//printf("%d,%d,%d\n", freq, duration, waveform);
+	double f = freq;
 	double fs = 44100.0;
 	ALuint buffer;
 	ALuint source;
-	ALsizei size = (int)fs * duration / 1000;
+	ALsizei size = round_one((int)fs * duration / 500);
+	//printf("%d ", size);
 	ALshort* data = (ALshort*)calloc(size, sizeof(ALshort));
-
 	alGenBuffers(1, &buffer); // 次の行は音のデータを作成している
 
 	// 音の生成
 	double n = 0.0;
+	ALshort tmp = 0;
 	for (int i = 0; i < size; i++) {
-		ALshort tmp;
 		switch (waveform) {
 		case 0: // 正弦波
-			tmp = volume * sin(n * 2.0 * M_PI * freq / fs);
+			tmp = volume * sin(2.0 * M_PI * f * n / fs);
 			break;
 		case 1: // ノコギリ波
 		{
-			double cons = fs / freq;
-			double cons2 = 2.0 * volume * freq / fs;
+			double cons = fs / f;
+			double cons2 = 2.0 * volume * f / fs;
 			tmp = cons2 * fmod(n, cons) - volume;
 			break;
 		}
 		case 2: // 矩形波
-			if (fmod(n, fs / freq) < fs / (2.0 * freq)) {
+			if (fmod(n, fs / f) < fs / (2.0 * f)) {
 				tmp = volume;
 			}
 			else {
@@ -1914,11 +1932,11 @@ command_wave(execute_environment_t* e, execute_status_t* s, int arg_num)
 			}
 			break;
 		case 3: // 三角波
-			if (fmod(n, fs / freq) < fs / (2.0 * freq)) {
-				tmp = volume * (2.0 * (freq / fs) * fmod(n, fs / freq) - 1.0);
+			if (fmod(n, fs / f) < fs / (2.0 * f)) {
+				tmp = volume * (2.0 * (f / fs) * fmod(n, fs / f) - 1.0);
 			}
 			else {
-				tmp = -(volume * (2.0 * (freq / fs) * fmod(n, fs / freq) - 1.0));
+				tmp = -(volume * (2.0 * (f / fs) * fmod(n, fs / f) - 1.0));
 			}
 			break;
 		case 4: // 白雑音
@@ -1941,7 +1959,7 @@ command_wave(execute_environment_t* e, execute_status_t* s, int arg_num)
 			s->is_end_ = true;
 			break;
 		}
-		if (glfwGetTime() * 2000.0 > (double)duration) {
+		if (glfwGetTime() * 1000.0 > (double)duration) {
 			break;
 		}
 		glfwPollEvents(); // イベント待ち
@@ -1950,6 +1968,7 @@ command_wave(execute_environment_t* e, execute_status_t* s, int arg_num)
 	alSourceStop(source); // ソースのバッファを停止
 	alDeleteSources(1, &source); // ソースを消去
 	alDeleteBuffers(1, &buffer); //バッファを消去
+	free(data);
 
 	stack_pop(s->stack_, arg_num);
 }
