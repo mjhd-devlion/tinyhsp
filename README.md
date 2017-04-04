@@ -4,13 +4,62 @@
 
 TinyHSPは**最軽量のHSPを作成する**ことを目標にしたプロジェクトです。
 
+## 更新履歴
+
+- 2017/04/04 リポジトリを整理。[プロトタイプを専用リポジトリに移動](https://github.com/dolphilia/tinyhsp-prototype)。(v1.0.2)[https://github.com/dolphilia/tinyhsp/releases/tag/1.0.2]をリリース
+- 2017/04/03 (v1.0.1)[https://github.com/dolphilia/tinyhsp/releases/tag/1.0.1]をリリース
+- 2017/04/01 TinyHSPのC言語に移植。(v1.0.0)[https://github.com/dolphilia/tinyhsp/releases/tag/1.0.0]をリリース
+- 2017/03/31 neteruhspをC言語に移植
+- 2017/02/10 プロジェクト完了
+- 2017/02/09 neteruhspにGUIを実装する3
+- 2017/02/08 neteruhspにGUIを実装する2
+- 2017/02/07 neteruhspにGUIを実装する
+- 2017/02/05 stb\_image.hを使って画像を描画する
+- 2017/01/31 空白文字を考慮して文字列を描画する
+- 2017/01/30 Unicode文字列を描画するプロトタイプ
+- 2017/01/28 stb\_truetype.hを使って文字を描画するテスト／README.mdにイラストを追加
+- 2017/01/27 wait命令が使えるプロトタイプ
+- 2017/01/26 改行方式でpset命令も使えるプロトタイプ
+- 2017/01/25 改行方式でprint命令のみ使えるプロトタイプ
+- 2017/01/24 作り直しを始める／ヘッダー画像を追加／start.hspを読み込むだけのプロトタイプ
+- 2017/01/23 作り直しを検討／これ以前のプログラムを1つのディレクトリにまとめた
+- 2017/01/22 ディレクトリ構成を変更
+- 2017/01/21 README.mdにイラストを追加
+- 2017/01/18 パーサを修正
+- 2017/01/17 テスト用のMakefileを作成
+- 2017/01/16 パーサにテスト用コードを追加
+- 2017/01/15 命令トークンを識別するように変更
+- 2017/01/14 ピクセル操作のためのファイルを追加
+- 2017/01/13 字句解析器を修正（長い関数を分割）
+- 2017/01/12 ファイル読み込み用のユーティリティを追加
+- 2017/01/11 ディレクトリ構成およびMakefileの変更
+- 2017/01/10 字句解析器を修正／仕様を変更（wait命令を追加）
+- 2017/01/09 電卓を実装（未対応：丸括弧・負の数）
+- 2016/12/29 リポジトリを開設
+
 ## 仕様
 
-TinyHSPは`tinyhsp.c`のみで構成されており、ソースコードは5000行ほどです。[neteruhsp](https://github.com/exrd/neteruhsp)をベースにしており、文法や変数の規則などは基本的に同じです。
+TinyHSPの本体は`tinyhsp.c`のみで構成されており、ソースコードは5000行ほどです。ソースコードはC言語で書かれています。
 
-TinyHSPで新しく追加された命令とシステム変数は以下の通りです。
+TinyHSPはコンパイルフラグにより３通りのバイナリを作ることができます。
 
-### 命令
+- __HSPCUI__ : コンソール版
+- __HSPSTD__ : 標準版
+- __HSPEXT__ : 拡張版
+
+[neteruhsp](https://github.com/exrd/neteruhsp)をベースにしており、文法や変数の規則などは基本的に同じです。
+
+### 共通の追加命令
+
+３種類のバイナリで共通に追加した命令です。
+
+|-|書式|説明|
+|---|---|---|
+|bload|bload p1, p2| p2で指定した変数にp1ファイルデータを読み込みます |
+
+### 標準版の命令
+
+以下は標準版に追加した命令です。
 
 |-|書式|説明|
 |---|---|---|
@@ -25,10 +74,31 @@ TinyHSPで新しく追加された命令とシステム変数は以下の通り�
 |color|color p1,p2,p3|RGBカラーp1,p2,p3をカレントカラーに設定する|
 |stick|stick p1|数値変数p1にキー情報を格納する。本家HSPの stick p1,1+2+4+8+16+32+64+128+256+512+1024 相当の動作をする|
 
-### システム変数
+以下は標準版で省かれる命令です。
+
+- mes
+- input
+
+### 拡張版の命令
+
+拡張版は標準版に加えて、以下の命令を追加しています。
+
+|-|書式|説明|
+|---|---|---|
+|mes|mes p1|カレントポジションに文字列p1を画面に描画します。描画後にカレントポジションを文字サイズ分Y方向にずらします|
+|font|font p1,p2,p3|フォントの設定をします。p1には使用するTTFファイルのパスを拡張子.ttfも含めて記述します。p2にはフォントサイズを指定します。フォントサイズは上限が100です。p3にはフォントのスムージングを行うか行わないかを指定します。0でスムージングを行わず、16でスムージングを行うように設定します|
+|picload|picload p1|カレントポジションにp1で指定した画像を描画します。p1には使用する画像ファイルのパスの拡張子も含めて記述します|
+|wave|wave p1,p2,p3,p4|特定の周波数で波形を再生します。p1は周波数、p2は再生する長さをミリ秒で、p3は波形の種類を、p4はボリュームを0～30000程度で指定します。|
+
+以下は拡張版で省かれる命令です。
+
+- input
+
+### 追加したシステム変数
 
 |-|説明|
 |---|---|
+|strsize|bload命令の戻り値などに使用されます|
 |mousex|マウスのx座標|
 |mousey|マウスのy座標|
 |mousel|マウスの左ボタンが押されていれば1、押されていなけば0|
@@ -38,54 +108,141 @@ TinyHSPで新しく追加された命令とシステム変数は以下の通り�
 
 TinyHSPはスクリプトファイルの末尾まで実行したら、自動的に終了するようになっています。すぐにウィンドウを閉じないようにするためには、HSP2.xのようにソースの末尾にstopを書く必要があります。
 
-## 開発環境の入手
+## 開発環境の導入
 
-TinyHSPではGLFW3というライブラリを使っています。導入する手順は以下の通りです。
+標準版はOpenGLとGLFW3ライブラリを使用しています。拡張版ではそれに加えてOpenALライブラリを使用しています。導入する手順は以下の通りです。
 
-### macOSの場合
+### Windows(MinGW)の場合
 
-macOS用のパッケージマネージャーであるHomebrewを使用します。[Homebrew](http://brew.sh/index_ja.html)のウェブサイトにあるスクリプトをターミナルに貼り付け実行します。
+MinGWにはOpenGLが最初から入っています。
+MinGWにGLFW3を導入するには、次の手順で導入します。
 
-次いでターミナルで次のコマンドを実行してください。
-
-`$ brew install glfw3`
-
-### Linuxの場合
-
-未確認です。
-
-### MinGWの場合
-
-MinGWはWindows用の開発環境です。次の手順で導入します。
-
-1. **GLFWをダウンロードする**: **GLFWライブラリは[GLFWのダウンロードページ](http://www.glfw.org/download.html)から入手**します。GLFWには32bit版と64bit版があります。仮に64bit版をダウンロードしたとして話を進めます。
+1. **GLFWをダウンロードする**: **GLFWライブラリは[GLFWのダウンロードページ](http://www.glfw.org/download.html)から入手**します。GLFWには32bit版と64bit版があります。仮に32bit版をダウンロードしたとして話を進めます。
 2. **include内のGLFWフォルダをMinGW内のincludeフォルダにコピーする**: ダウンロードしたフォルダの中に、`include` というフォルダが入っています。この中に `GLFW` というフォルダがあるので、その**GLFWフォルダをMinGWのincludeフォルダにコピー**します。
-3. **2つの.aファイルをMinGW内のlibフォルダにコピーする**: ダウンロードしたフォルダの中に、`lib-mingw-w64` というフォルダが入っているので、この中にある、`libglfw3.a`、`libglfw3dll.a`という**2つの.aファイルをMinGWのlibフォルダにコピー**します。
+3. **2つの.aファイルをMinGW内のlibフォルダにコピーする**: ダウンロードしたフォルダの中に、`lib-mingw-w32` というフォルダが入っているので、この中にある、`libglfw3.a`、`libglfw3dll.a`という**2つの.aファイルをMinGWのlibフォルダにコピー**します。
 4. **glfw3.dllをプロジェクトのフォルダにコピーする**: 上と同じ `lib-mingw-w64` フォルダ内に`glfw3.dll`というファイルがあるので、作成したいプロジェクト用のフォルダ内にコピーします。例えば、**glfw3.dllをtinyhsp.cがあるフォルダと同じ場所にコピー**します。
+
+MinGWにOpenALを導入する方法は以下のとおりです。
+
+1. [OpenALを入手](https://openal.org/downloads/)します。（OpenAL 1.1 Core SDK と OpenAL 1.1 Windows Installer）
+2. 上記の２つのファイルを解凍、インストーラを実行してインストールします。
+3. `C:\Program Files(x86)\OpenAL 1.1 SDK` にある `include` 内を `MinGW\include` にコピーします。
+4. `C:\Program Files(x86)\OpenAL 1.1 SDK` にある `libs\Win32` 内を `MinGWlib` にコピーします。
+5. `C:\Windows\SysWOW64OpenAL32.dll` を作業中のプロジェクトフォルダにコピーします。
+
+※ フォルダ `Program Files(x86)` は `Program Files` かもしれません。また、`C:\Windows\System32` にも `OpenAL32.dll` がインストールされています。どちらを使用すべきなのかは、現状不明です。
+
+#### Windows(VisualStudio)の場合
+
+VisualStudioにOpenGLを設定する方法は以下のとおりです。
+
+1. VisualStudioの「プロジェクト」メニューから「プロパティ」を選択します。
+2. 「構成プロパティ」内の「リンカー」内の「入力」を選択します。
+3. 「追加の依存ファイル」項目を編集して `opengl32.lib` を追加します。
+
+VisualStudioにGLFW3を導入する手順は以下のとおりです。
+
+1. VisualStudioの「プロジェクト」メニューから「NuGetパッケージの管理」をクリックします。
+2. 「参照」をクリックして、検索ボックスに「glfw」と書いて検索します。
+3. 検索結果から「glfw」を選択して、「インストール」ボタンをクリックします。
+
+※ NuGetで入手するGLFW3は、2017年4月4日の時点でVisual Studio 2010, 2012, 2013, 2015に対応しています。
+
+VisualStudioにOpenALを導入する方法は以下のとおりです。
+
+1. [OpenALを入手](https://openal.org/downloads/)します。（OpenAL 1.1 Core SDK と OpenAL 1.1 Windows Installer）
+2. 上記の２つのファイルを解凍、インストーラを実行してインストールします。
+3. VisualStudioの「プロジェクト」メニューから「プロパティ」を選択します。
+4. 「構成プロパティ」内の「VC++ ディレクトリ」を選択します。
+5. 「インクルードディレクトリ」項目を編集して `C:\Program Files (x86)\OpenAL 1.1 SDK\include` を追加します。
+6. 「ライブラリディレクトリ」項目を編集して `C:\Program Files (x86)\OpenAL 1.1 SDK\libs\Win32` を追加します。
+7. 「構成プロパティ」内の「リンカー」内の「入力」を選択します。
+8. 「追加の依存ファイル」項目を編集して `OpenGL32.lib` を追加します。
+
+#### macOSの場合
+
+macOSにはOpenGLが最初から入っています。またOpenALも最初から入っています。
+macOSにGLFW3を導入する手順は以下のとおりです。
+
+1. Homebrewを導入します。（[Homebrew](http://brew.sh/index_ja.html)のウェブサイトにあるスクリプトをターミナルに貼り付け実行してください）
+2. ターミナルで `$ brew install glfw3` を実行します。
+
+#### Linux（Ubuntu）の場合
+
+GLFW3を導入する手順は以下のとおりです。
+
+1. 端末で `sudo apt-get build-dep glfw3` を実行します。
+
+あるいは、
+
+1. 端末で `sudo apt-get install cmake xorg-dev libglu1-mesa-dev` を実行します。
+2. 端末で次のコマンドを実行します。
+
+```
+$ git clone https://github.com/glfw/glfw.git
+$ mkdir build
+$ cd build/
+$ cmake ..
+$ make -j 8
+$ sudo make install
+```
+
+OpenALを導入する手順は以下のとおりです。
+
+1. 端末で、 `sudo apt-get install libopenal-dev` を実行します。
+
+## TinyHSPソースコードの入手
+
+当ページの右のほうにある「Clone or Download」ボタンを押して、現れた吹き出しの「Download ZIP」を選択すると入手できます。
+
+参考画像：
+![downloadzip](https://cloud.githubusercontent.com/assets/13228693/22812768/0e262fa8-ef8a-11e6-9a4d-93729a206f2a.png)
+
+TinyHSP本体のソースコードは `_source` ディレクトリに入っています。
 
 ## コンパイル
 
+`tinyhsp.c` の先頭には、コンパイルフラグのための記号定数が記述されてあります。
+
+```c
+#define __HSPCUI__
+//#define __HSPSTD__
+//#define __HSPEXT__
+```
+
+それぞれ `__HSPCUI__` がコンソール版、 `__HSPSTD__` が標準版、 `_HSPEXT__` が拡張版を表しています。**どれか１つをコメントアウトしてください**。
+
 環境によりそれぞれ以下のようにコンパイルします。
 
-macOS: `$ clang tinyhsp.c -o tinyhsp -lglfw -framework OpenGL`
+※ `tinyhsp.c`の文字コードはUTF-8である必要があります。
 
-Linux: `$ gcc tinyhsp.c -o tinyhsp -lm -ldl -lglfw3 -lGL -lX11 -lXxf86vm -lXrandr -lXinerama -lXcursor -lpthread -lXi`
+### コンソール版のコンパイル
 
-MinGW: `$ gcc tinyhsp.c -o tinyhsp -lglfw3dll -lopengl32 -mwindows`
+- MinGW: `$ gcc tinyhsp.c -o tinyhsp_cui`
+- macOS: `$ clang tinyhsp.c -o tinyhsp_cui`
+- Linux: `$ gcc tinyhsp.c -o tinyhsp_cui`
 
-注記：`tinyhsp.c`の文字コードはUTF-8である必要があります。
+### 標準版のコンパイル
+
+- MinGW: `$ gcc tinyhsp.c -o tinyhsp -lglfw3dll -lopenal32 -mwindows`
+- macOS: `$ clang tinyhsp.c -o tinyhsp -lglfw -framework OpenGL`
+- Linux: `$ gcc tinyhsp.c -o tinyhsp -lm -ldl -lglfw3 -lGL -lX11 -lXxf86vm -lXrandr -lXinerama -lXcursor -lpthread -lXi`
+
+### 拡張版のコンパイル
+
+- MinGW: `$ gcc tinyhsp.c -o tinyhsp -lglfw3dll -lopengl32 -lopenal32 -mwindows`
+- macOS: `$ clang tinyhsp.c -o tinyhsp -lglfw -framework OpenGL`
+- Linux: `$ gcc tinyhsp.c -o tinyhsp -lm -ldl -lglfw3 -lGL -lX11 -lXxf86vm -lXrandr -lXinerama -lXcursor -lpthread -lXi -lopenal`
 
 ## 実行
 
-`$ ./tinyhsp` のようにコマンドラインのオプションに何も指定がない場合は、実行ファイルと同じディレクトリにある`start.hsp`を読み込みます。
+`$ ./tinyhsp_cui` のようにコマンドラインのオプションに何も指定がない場合は、実行ファイルと同じディレクトリにある `start.hsp` を読み込んで実行します。
 
-明示的に、`$ ./tinyhsp -f start.hsp` のように`-f`オプションを使って指定することもできます。
-
-## サンプル
-
-同封したサンプル`start.hsp`は簡易的なお絵かきスクリプトです。
+また `$ ./tinyhsp -f start.hsp` のように `-f` オプションを使って指定することもできます。
 
 ### サンプルスクリプト
+
+標準版・拡張版で動作するお絵かきスクリプトです。
 
 ```
 title "TinyPaint"
@@ -116,62 +273,12 @@ stop
 ### サンプルのスクリーンショット
 ![tinypaint](https://cloud.githubusercontent.com/assets/13228693/22679200/833b9b1e-ed43-11e6-80c2-94f5711863de.png)
 
-## おまけ：文字と画像を表示する
-
-TinyHSPを拡張して[文字と画像を表示できるようにしたバージョンも入手できます](https://github.com/dolphilia/tinyhsp/tree/master/prototype/11_neteruhsp_gui3)。
-
-コンパイル方法は通常版と同じです。
-
-[stbライブラリ](https://github.com/nothings/stb)と[M+フォント](http://mplus-fonts.osdn.jp)を使用しています。
-
-### 拡張された命令
-
-|-|書式|説明|
-|---|---|---|
-|mes|mes p1|カレントポジションに文字列p1を画面に描画します。描画後にカレントポジションを文字サイズ分Y方向にずらします|
-|font|font p1,p2,p3|フォントの設定をします。p1には使用するTTFファイルのパスを拡張子.ttfも含めて記述します。p2にはフォントサイズを指定します。フォントサイズは上限が100です。p3にはフォントのスムージングを行うか行わないかを指定します。0でスムージングを行わず、16でスムージングを行うように設定します|
-|picload|picload p1|カレントポジションにp1で指定した画像を描画します。p1には使用する画像ファイルのパスの拡張子も含めて記述します|
-
-### サンプルのスクリーンショット
-
-![011](https://cloud.githubusercontent.com/assets/13228693/22812773/138d0278-ef8a-11e6-9a83-944f5e9cf31d.png)
-
-## 更新履歴
-
-- 2017/04/01 TinyHSPのC言語移植版
-- 2017/03/31 neteruhspのC言語移植版
-- 2017/02/10 プロジェクト完了
-- 2017/02/09 neteruhspにGUIを実装する3
-- 2017/02/08 neteruhspにGUIを実装する2
-- 2017/02/07 neteruhspにGUIを実装する
-- 2017/02/05 stb\_image.hを使って画像を描画する
-- 2017/01/31 空白文字を考慮して文字列を描画する
-- 2017/01/30 Unicode文字列を描画するプロトタイプ
-- 2017/01/28 stb\_truetype.hを使って文字を描画するテスト／README.mdにイラストを追加
-- 2017/01/27 wait命令が使えるプロトタイプ
-- 2017/01/26 改行方式でpset命令も使えるプロトタイプ
-- 2017/01/25 改行方式でprint命令のみ使えるプロトタイプ
-- 2017/01/24 作り直しを始める／ヘッダー画像を追加／start.hspを読み込むだけのプロトタイプ
-- 2017/01/23 作り直しを検討／これ以前のプログラムを1つのディレクトリにまとめた
-- 2017/01/22 ディレクトリ構成を変更
-- 2017/01/21 README.mdにイラストを追加
-- 2017/01/18 パーサを修正
-- 2017/01/17 テスト用のMakefileを作成
-- 2017/01/16 パーサにテスト用コードを追加
-- 2017/01/15 命令トークンを識別するように変更
-- 2017/01/14 ピクセル操作のためのファイルを追加
-- 2017/01/13 字句解析器を修正（長い関数を分割）
-- 2017/01/12 ファイル読み込み用のユーティリティを追加
-- 2017/01/11 ディレクトリ構成およびMakefileの変更
-- 2017/01/10 字句解析器を修正／仕様を変更（wait命令を追加）
-- 2017/01/09 電卓を実装（未対応：丸括弧・負の数）
-- 2016/12/29 リポジトリを開設
-
 ## リンク
 
 - きっかけ
     - [TinyHSPの提案](http://hsp.tv/play/pforum.php?mode=all&num=77515)
-- 使用したライブラリ・フォント
+- 使用しているライブラリ・フォント
+    - [OpenAL](https://openal.org/)
     - [GLFW3](http://www.glfw.org)
     - [exrd / neteruhsp](https://github.com/exrd/neteruhsp)
     - [nothings / stb](https://github.com/nothings/stb)
