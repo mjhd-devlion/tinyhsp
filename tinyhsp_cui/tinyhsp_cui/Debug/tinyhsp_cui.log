@@ -1,7 +1,0 @@
-﻿  tinyhsp_cui.c
-c:\users\dolphilia\documents\github\tinyhsp\tinyhsp_cui\tinyhsp_cui\tinyhsp_cui.c(2070): warning C4244: '初期化中': 'double' から 'const int' への変換です。データが失われる可能性があります。
-c:\users\dolphilia\documents\github\tinyhsp\tinyhsp_cui\tinyhsp_cui\tinyhsp_cui.c(2143): warning C4244: '関数': 'double' から 'float' への変換です。データが失われる可能性があります。
-c:\users\dolphilia\documents\github\tinyhsp\tinyhsp_cui\tinyhsp_cui\tinyhsp_cui.c(3768): warning C4244: '関数': 'double' から 'int' への変換です。データが失われる可能性があります。
-c:\users\dolphilia\documents\github\tinyhsp\tinyhsp_cui\tinyhsp_cui\tinyhsp_cui.c(4572): warning C4716: '_aj': 値を返さなければいけません
-  tinyhsp_cui.vcxproj -> C:\Users\dolphilia\Documents\GitHub\tinyhsp\tinyhsp_cui\Debug\tinyhsp_cui.exe
-  tinyhsp_cui.vcxproj -> C:\Users\dolphilia\Documents\GitHub\tinyhsp\tinyhsp_cui\Debug\tinyhsp_cui.pdb (Partial PDB)
