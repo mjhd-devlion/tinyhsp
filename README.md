@@ -43,9 +43,9 @@ TinyHSPの本体は`tinyhsp.c`のみで構成されており、ソースコー�
 
 TinyHSPはコンパイルフラグにより３通りのバイナリを作ることができます。
 
-- __HSPCUI__ : コンソール版
-- __HSPSTD__ : 標準版
-- __HSPEXT__ : 拡張版
+- `__HSPCUI__` : コンソール版
+- `__HSPSTD__` : 標準版
+- `__HSPEXT__` : 拡張版
 
 [neteruhsp](https://github.com/exrd/neteruhsp)をベースにしており、文法や変数の規則などは基本的に同じです。
 
