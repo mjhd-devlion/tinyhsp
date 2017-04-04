@@ -1,6 +1,0 @@
-randomize
-repeat
-	title ""+rnd(100)
-	wait 5
-loop
-stop
