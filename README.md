@@ -6,9 +6,9 @@ TinyHSPは**最軽量のHSPを作成する**ことを目標にしたプロジェ
 
 ## 更新履歴
 
-- 2017/04/04 リポジトリを整理。[プロトタイプを専用リポジトリに移動](https://github.com/dolphilia/tinyhsp-prototype)。(v1.0.2)[https://github.com/dolphilia/tinyhsp/releases/tag/1.0.2]をリリース
-- 2017/04/03 (v1.0.1)[https://github.com/dolphilia/tinyhsp/releases/tag/1.0.1]をリリース
-- 2017/04/01 TinyHSPのC言語に移植。(v1.0.0)[https://github.com/dolphilia/tinyhsp/releases/tag/1.0.0]をリリース
+- 2017/04/04 リポジトリを整理。[プロトタイプを専用リポジトリに移動](https://github.com/dolphilia/tinyhsp-prototype)。v1.0.2をリリース
+- 2017/04/03 wave命令を修正。v1.0.1をリリース
+- 2017/04/01 TinyHSPのC言語に移植。v1.0.0をリリース
 - 2017/03/31 neteruhspをC言語に移植
 - 2017/02/10 プロジェクト完了
 - 2017/02/09 neteruhspにGUIを実装する3
