@@ -525,10 +525,14 @@ typedef enum
 	COMMAND_DIM,
 	COMMAND_DDIM,
 	COMMAND_SDIM,
-	COMMAND_MES,
-	COMMAND_INPUT,
 	COMMAND_RANDOMIZE,
 	COMMAND_BLOAD,
+#ifdef __HSPCUI__
+	COMMAND_INPUT,
+#endif
+#ifndef __HSPSTD__
+	COMMAND_MES,
+#endif
 #ifndef __HSPCUI__
 	COMMAND_WAIT,
 	COMMAND_STOP,
@@ -724,6 +728,7 @@ void fill_rect_rgb_slow(uint8_t *pixel_data,
 	}
 }
 
+#ifdef __HSPEXT__
 typedef struct {
 	int32_t width;
 	int32_t height;
@@ -781,6 +786,7 @@ load_image(char const *file_name,
 	free(image_pixels);
 	return image_size;
 }
+#endif
 
 void redraw()
 {
@@ -5199,17 +5205,21 @@ query_command(const char* s)
 			COMMAND_SDIM, "sdim",
 		},
 		{
-			COMMAND_MES, "mes",
-		},
-		{
-			COMMAND_INPUT, "input",
-		},
-		{
 			COMMAND_RANDOMIZE, "randomize",
 		},
 		{
 			COMMAND_BLOAD, "bload",
 		},
+#ifdef __HSPCUI__
+		{
+			COMMAND_INPUT, "input",
+		},
+#endif
+#ifndef __HSPSTD__
+		{
+			COMMAND_MES, "mes",
+		},
+#endif
 #ifndef __HSPCUI__
 		{
 			COMMAND_WAIT, "wait",
@@ -5272,10 +5282,14 @@ get_command_delegate(builtin_command_tag command)
 		&command_dim,
 		&command_ddim,
 		&command_sdim,
-		&command_mes,
-		&command_input,
 		&command_randomize,
 		&command_bload,
+#ifdef __HSPCUI__
+		&command_input,
+#endif
+#ifndef __HSPSTD__
+		&command_mes,
+#endif
 #ifndef __HSPCUI__
 		&command_wait,
 		&command_stop,
