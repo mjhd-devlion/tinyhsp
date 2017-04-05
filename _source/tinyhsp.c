@@ -4,9 +4,9 @@
 // $ gcc tinyhsp.c -o tinyhsp_ext -lopengl32 -lglfw3dll -lopenal32 -mwindows
 
 // 下記のどれか１つを定義すること
-//#define __HSPCUI__
+#define __HSPCUI__
 //#define __HSPSTD__
-#define __HSPEXT__
+//#define __HSPEXT__
 // __HSPCUI__ : コンソール版
 // __HSPSTD__ : 標準版
 // __HSPEXT__ : 拡張版
