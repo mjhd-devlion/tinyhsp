@@ -15,13 +15,15 @@
 
 #ifdef _WIN32
 #define __WINDOWS__
-#elif _WIN64
-#define __WINDOWS__
-#else
 #endif
+#ifdef _WIN64
+#define __WINDOWS__
+#endif
+
 #ifdef __APPLE__
 #define __MACOS__
 #endif
+
 #ifdef __linux
 #define __LINUX__
 #endif
@@ -45,32 +47,31 @@
 #include <math.h>
 
 #ifndef __HSPCUI__
-// OpenGL and GLFW3
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
 #else
 #include <GL/gl.h>
 #endif
 #include <GLFW/glfw3.h>
+#endif
 
 #ifdef __HSPEXT__
-// OpenAL
 #ifdef __WINDOWS__
 #include <al.h>
 #include <alc.h>
-#elif __MACOS__ // macOS
+#endif
+#ifdef __MACOS__
 #include <OpenAL/al.h>
 #include <OpenAL/alc.h>
-#else // Linux
+#endif
+#ifdef __LINUX__
 #include <AL/al.h>
 #include <AL/alc.h>
 #endif
-// stb library
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "stb_truetype.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-#endif
 #endif
 
 #define NHSP_CONFIG_MEMLEAK_DETECTION (0) // メモリリーク発見用ユーティリティを有効化
@@ -1025,7 +1026,7 @@ raise_error(const char* message, ...)
 
 #ifdef __WINDOWS__
 	MessageBox(NULL, TEXT(c), TEXT("エラー"), MB_OK | MB_ICONWARNING);
-#elif
+#else
 	fprintf(stderr, "%s", c);
 	printf("\n");
 #endif
@@ -1910,15 +1911,12 @@ command_wave(execute_environment_t* e, execute_status_t* s, int arg_num)
 	if (arg_num > 3) {
 		raise_error("wave：引数が多すぎます");
 	}
-	if (arg_num < 0) {
-		raise_error("wave：引数がたりません");
-	}
 
 	const int arg_start = -arg_num;
 
 	// 引数が省略された場合
 	if (arg_num > 3) {
-		const value_t* p4 = stack_peek(s->stack_, arg_start + 2);
+		const value_t* p4 = stack_peek(s->stack_, arg_start + 3);
 		volume = value_calc_int(p4);
 	}
 
@@ -1937,20 +1935,16 @@ command_wave(execute_environment_t* e, execute_status_t* s, int arg_num)
 		freq = value_calc_int(p1);
 	}
 
-
-
 	// 音を生成して再生
-	//printf("%d,%d,%d\n", freq, duration, waveform);
 	double f = freq;
 	double fs = 44100.0;
 	ALuint buffer;
 	ALuint source;
 	ALsizei size = round_one((int)fs * duration / 500);
-	//printf("%d ", size);
 	ALshort* data = (ALshort*)calloc(size, sizeof(ALshort));
 	alGenBuffers(1, &buffer); // 次の行は音のデータを作成している
 
-							  // 音の生成
+	// 音の生成
 	double n = 0.0;
 	ALshort tmp = 0;
 	for (int i = 0; i < size; i++) {
@@ -1994,7 +1988,7 @@ command_wave(execute_environment_t* e, execute_status_t* s, int arg_num)
 	alSourcei(source, AL_BUFFER, buffer); // ソースの値を設定
 	alSourcePlay(source); // ソースのバッファを再生
 
-						  // 再生が終了するまで待つ
+	// 再生が終了するまで待つ
 	glfwSetTime(0.0); // タイマーを初期化する
 	for (;;) { // ウィンドウを閉じるまで
 		if (glfwWindowShouldClose(window)) {
