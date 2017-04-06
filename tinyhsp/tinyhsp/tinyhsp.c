@@ -1024,8 +1024,13 @@ raise_error(const char* message, ...)
 	//vfprintf(stderr, message, args);
 	va_end(args);
 
+#ifndef __HSPCUI__
 #ifdef __WINDOWS__
 	MessageBox(NULL, TEXT(c), TEXT("エラー"), MB_OK | MB_ICONWARNING);
+#else
+	fprintf(stderr, "%s", c);
+	printf("\n");
+#endif
 #else
 	fprintf(stderr, "%s", c);
 	printf("\n");
