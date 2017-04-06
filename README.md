@@ -196,7 +196,6 @@ OpenALを導入する手順は以下のとおりです。
 
 当ページの右のほうにある「Clone or Download」ボタンを押して、現れた吹き出しの「Download ZIP」を選択すると入手できます。
 
-参考画像：
 ![downloadzip](https://cloud.githubusercontent.com/assets/13228693/22812768/0e262fa8-ef8a-11e6-9a4d-93729a206f2a.png)
 
 TinyHSP本体のソースコードは `_source` ディレクトリに入っています。
