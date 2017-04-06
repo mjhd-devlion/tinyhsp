@@ -1,16 +1,28 @@
-﻿// MinGW:
-// $ gcc tinyhsp.c -o tinyhsp_cui
-// $ gcc tinyhsp.c -o tinyhsp_std -lopengl32 -lglfw3dll -mwindows
-// $ gcc tinyhsp.c -o tinyhsp_ext -lopengl32 -lglfw3dll -lopenal32 -mwindows
-
-// 下記のどれか１つを定義すること
-#define __HSPCUI__
-//#define __HSPSTD__
+﻿// 下記のどれか１つを定義する
+//#define __HSPCUI__
+#define __HSPSTD__
 //#define __HSPEXT__
-// __HSPCUI__ : コンソール版
-// __HSPSTD__ : 標準版
-// __HSPEXT__ : 拡張版
 
+/*
+# 定義の説明
+__HSPCUI__ : コンソール版
+__HSPSTD__ : 標準版
+__HSPEXT__ : 拡張版
+
+# コンパイル方法
+MinGWの場合:
+- コンソール版: gcc tinyhsp.c -o tinyhsp_cui
+- 標準版: gcc tinyhsp.c -o tinyhsp_std -lopengl32 -lglfw3dll -mwindows
+- 拡張版: gcc tinyhsp.c -o tinyhsp_ext -lopengl32 -lglfw3dll -lopenal32 -mwindows
+
+
+# VisualStudioの設定
+- VisualStudioで __HSPCUI__ を定義する場合:
+  プロジェクト -> プロパティ -> 構成プロパティ -> リンカー -> サブシステム から「コンソール」を選択
+- VisualStudioで __HSPSTD__ または __HSPEXT__ を定義する場合:
+  プロジェクト -> プロパティ -> 構成プロパティ -> リンカー -> サブシステム から「Windows」を選択
+
+*/
 //=============================================================
 
 #ifdef _WIN32
@@ -26,6 +38,16 @@
 
 #ifdef __linux
 #define __LINUX__
+#endif
+
+#ifndef __HSPCUI__
+#define __HSPGUI__
+#endif
+
+#ifdef __HSPGUI__
+#ifdef __WINDOWS__
+#define __HSPGUI__WINDOWS__
+#endif
 #endif
 
 #ifdef __WINDOWS__
@@ -46,7 +68,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-#ifndef __HSPCUI__
+#ifdef __HSPGUI__
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
 #else
@@ -76,7 +98,7 @@
 
 #define NHSP_CONFIG_MEMLEAK_DETECTION (0) // メモリリーク発見用ユーティリティを有効化
 
-#ifndef __HSPCUI__
+#ifdef __HSPGUI__
 // グローバルな変数
 int current_pos_x;
 int current_pos_y;
@@ -442,7 +464,7 @@ typedef enum
 	SYSVAR_REFDVAL,
 	SYSVAR_REFSTR,
 	SYSVAR_STRSIZE,
-#ifndef __HSPCUI__
+#ifdef __HSPGUI__
 	SYSVAR_MOUSEX,
 	SYSVAR_MOUSEY,
 	SYSVAR_MOUSEL,
@@ -538,7 +560,7 @@ typedef enum
 #ifndef __HSPSTD__
 	COMMAND_MES,
 #endif
-#ifndef __HSPCUI__
+#ifdef __HSPGUI__
 	COMMAND_WAIT,
 	COMMAND_STOP,
 	COMMAND_TITLE,
@@ -583,7 +605,7 @@ void dump_stack(value_stack_t* stack);
 //========================================================
 // 描画系ユーティリティ
 
-#ifndef __HSPCUI__
+#ifdef __HSPGUI__
 typedef struct {
 	uint8_t red;
 	uint8_t green;
@@ -1024,13 +1046,8 @@ raise_error(const char* message, ...)
 	//vfprintf(stderr, message, args);
 	va_end(args);
 
-#ifndef __HSPCUI__
-#ifdef __WINDOWS__
+#ifdef __HSPGUI__WINDOWS__
 	MessageBox(NULL, TEXT(c), TEXT("エラー"), MB_OK | MB_ICONWARNING);
-#else
-	fprintf(stderr, "%s", c);
-	printf("\n");
-#endif
 #else
 	fprintf(stderr, "%s", c);
 	printf("\n");
@@ -1536,7 +1553,7 @@ command_bload(execute_environment_t* e, execute_status_t* s, int arg_num)
 	stack_pop(s->stack_, arg_num);
 }
 
-#ifndef __HSPCUI__
+#ifdef __HSPGUI__
 void
 command_wait(execute_environment_t* e, execute_status_t* s, int arg_num)
 {
@@ -4405,7 +4422,7 @@ query_sysvar(const char* s)
 		{
 			SYSVAR_STRSIZE, "strsize",
 		},
-#ifndef __HSPCUI__
+#ifdef __HSPGUI__
 		{
 			SYSVAR_MOUSEX, "mousex",
 		},
@@ -4928,7 +4945,7 @@ evaluate(execute_environment_t* e, execute_status_t* s, ast_node_t* n)
 				case SYSVAR_STRSIZE:
 					stack_push(s->stack_, create_value(s->strsize_));
 					break;
-#ifndef __HSPCUI__
+#ifdef __HSPGUI__
 					case SYSVAR_MOUSEX:
 						stack_push(s->stack_, create_value(current_mouse_x));
 						break;
@@ -5223,7 +5240,7 @@ query_command(const char* s)
 			COMMAND_MES, "mes",
 		},
 #endif
-#ifndef __HSPCUI__
+#ifdef __HSPGUI__
 		{
 			COMMAND_WAIT, "wait",
 		},
@@ -5293,7 +5310,7 @@ get_command_delegate(builtin_command_tag command)
 #ifndef __HSPSTD__
 		&command_mes,
 #endif
-#ifndef __HSPCUI__
+#ifdef __HSPGUI__
 		&command_wait,
 		&command_stop,
 		&command_title,
@@ -5509,7 +5526,7 @@ dump_stack(value_stack_t* stack)
 	printf("----\n");
 }
 
-#ifndef __HSPCUI__
+#ifdef __HSPGUI__
 void
 mouse_button_callback(GLFWwindow *window, int button, int action, int mods)
 {
@@ -5562,81 +5579,96 @@ key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
 }
 #endif
 
+#ifdef __HSPGUI__WINDOWS__
+int WINAPI 
+WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+#else
 int
 main(int argc, const char* argv[])
+#endif
 {
-
-	//#ifdef __WINDOWS__
-	//	char cdir[255];
-	//	GetCurrentDirectory(255, cdir);
-	//	printf("%s\n", cdir);
-	//#endif
-
 	// オプション
-	bool has_error = false;
 	const char* filename = NULL;
-	bool show_script = false;
 	bool show_ast = false;
-	bool show_execute_ast = false;
-	bool show_help = false;
+	//bool has_error = false;
+	//bool show_script = false;
+	//bool show_execute_ast = false;
+	//bool show_help = false;
 
-	// オプション解析
-	if (argc >= 2) {
-		for (int i = 1; i < argc; ++i) {
-			const char* arg = argv[i];
-			if (arg[0] == '-') {
-				switch (arg[1]) {
-				case 'f':
-					if (i + 1 < argc) {
-						++i;
-						filename = argv[i];
-					}
-					else {
-						printf("ERROR : cannot read script file path\n");
-						has_error = true;
-					}
-					break;
-				case 's':
-					show_script = true;
-					break;
-				case 'a':
-					show_ast = true;
-					break;
-				case 'e':
-					show_execute_ast = true;
-					break;
-				case 'h':
-					show_help = true;
-					break;
-				}
-			}
-			else {
-				printf("ERROR : cannot parse argument :%s\n", arg);
-				has_error = true;
-				break;
-			}
-		}
-		if (filename == NULL) {
-			printf("ERROR : have to specify script file\n");
-			has_error = true;
-		}
-		if (show_help || has_error) {
-			printf("neteruhsp : commandline tool options\n"
-				"        <bin> [<options>...] -f <SCRIPT_FILE>\n"
-				"                -f : specify file path to execute\n"
-				"\n"
-				"        options are followings\n"
-				"                -s : show loaded script file contents\n"
-				"                -a : show abstract-syntax-tree constructed from loaded "
-				"script\n"
-				"                -e : show abstract-syntax-tree for execution\n"
-				"                -h : show (this) help\n");
-			return (has_error ? -1 : 0);
-		}
+#ifdef __HSPGUI__WINDOWS__
+	if (lpCmdLine[0] != '\0') {
+		filename = lpCmdLine;
 	}
 	else {
 		filename = "start.hsp";
 	}
+#else
+	if (argc >= 2) {
+		filename = argv[1];
+	}
+	else {
+		filename = "start.hsp";
+	}
+#endif
+
+	//// オプション解析
+	//if (argc >= 2) {
+	//	for (int i = 1; i < argc; ++i) {
+	//		const char* arg = argv[i];
+	//		if (arg[0] == '-') {
+	//			switch (arg[1]) {
+	//			case 'f':
+	//				if (i + 1 < argc) {
+	//					++i;
+	//					filename = argv[i];
+	//				}
+	//				else {
+	//					printf("ERROR : cannot read script file path\n");
+	//					has_error = true;
+	//				}
+	//				break;
+	//			case 's':
+	//				show_script = true;
+	//				break;
+	//			case 'a':
+	//				show_ast = true;
+	//				break;
+	//			case 'e':
+	//				show_execute_ast = true;
+	//				break;
+	//			case 'h':
+	//				show_help = true;
+	//				break;
+	//			}
+	//		}
+	//		else {
+	//			printf("ERROR : cannot parse argument :%s\n", arg);
+	//			has_error = true;
+	//			break;
+	//		}
+	//	}
+	//	if (filename == NULL) {
+	//		printf("ERROR : have to specify script file\n");
+	//		has_error = true;
+	//	}
+	//	if (show_help || has_error) {
+	//		printf("neteruhsp : commandline tool options\n"
+	//			"        <bin> [<options>...] -f <SCRIPT_FILE>\n"
+	//			"                -f : specify file path to execute\n"
+	//			"\n"
+	//			"        options are followings\n"
+	//			"                -s : show loaded script file contents\n"
+	//			"                -a : show abstract-syntax-tree constructed from loaded "
+	//			"script\n"
+	//			"                -e : show abstract-syntax-tree for execution\n"
+	//			"                -h : show (this) help\n");
+	//		return (has_error ? -1 : 0);
+	//	}
+	//}
+	//else {
+	//	filename = "start.hsp";
+	//}
+
 	// システムここから
 	initialize_system();
 	// ファイル読み込み
@@ -5645,7 +5677,8 @@ main(int argc, const char* argv[])
 	{
 		FILE* file = fopen(filename, "r");
 		if (file == NULL) {
-			printf("ERROR : cannot read such file %s\n", filename);
+			raise_error("ファイルの読み込みに失敗しました [%s]", filename);
+			//printf("ERROR : cannot read such file %s\n", filename);
 			return -1;
 		}
 		fseek(file, 0, SEEK_END);
@@ -5669,9 +5702,9 @@ main(int argc, const char* argv[])
 		fclose(file);
 	}
 	assert(script != NULL);
-	if (show_script) {
-		printf("====LOADED SCRIPT FILE(%d bytes)\n----begin----\n%s\n----end----\n", script_size, script);
-	}
+	//if (show_script) {
+	//	printf("====LOADED SCRIPT FILE(%d bytes)\n----begin----\n%s\n----end----\n", script_size, script);
+	//}
 
 #ifdef __HSPEXT__
 	//フォントの初期化
@@ -5681,7 +5714,8 @@ main(int argc, const char* argv[])
 
 		FILE* fp = fopen("mplus-1c-regular.ttf", "rb");
 		if (fp == NULL) {
-			printf("ERROR : cannot read such file mplus-1c-regular.ttf\n");
+			raise_error("ファイルの読み込みに失敗しました [mplus-1c-regular.ttf]");
+			//printf("ERROR : cannot read such file mplus-1c-regular.ttf\n");
 			return -1;
 		}
 
@@ -5704,7 +5738,7 @@ main(int argc, const char* argv[])
 	}
 #endif
 
-#ifndef __HSPCUI__
+#ifdef __HSPGUI__
 	// 描画処理
 	{
 		current_color_r = 0;
@@ -5764,18 +5798,18 @@ main(int argc, const char* argv[])
 			load_arg_t la;
 			la.dump_ast_ = show_ast;
 			load_script(env, script, &la);
-			if (show_execute_ast) {
-				printf("====AST for execution\n");
-				dump_ast(env->statement_list_, true);
-				printf("----\n");
-			}
+			//if (show_execute_ast) {
+			//	printf("====AST for execution\n");
+			//	dump_ast(env->statement_list_, true);
+			//	printf("----\n");
+			//}
 			execute(env);
 			destroy_execute_environment(env);
 		}
 	}
 
 	// 各種解放
-#ifndef __HSPCUI__
+#ifdef __HSPGUI__
 	glfwTerminate(); //GLFW
 #ifdef __HSPEXT__
 	free(font_ttf_buffer); //フォントバッファを解放
