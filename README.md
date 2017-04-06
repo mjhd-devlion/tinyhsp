@@ -157,7 +157,7 @@ VisualStudioにOpenALを導入する方法は以下のとおりです。
 5. 「インクルードディレクトリ」項目を編集して `C:\Program Files (x86)\OpenAL 1.1 SDK\include` を追加します。
 6. 「ライブラリディレクトリ」項目を編集して `C:\Program Files (x86)\OpenAL 1.1 SDK\libs\Win32` を追加します。
 7. 「構成プロパティ」内の「リンカー」内の「入力」を選択します。
-8. 「追加の依存ファイル」項目を編集して `OpenGL32.lib` を追加します。
+8. 「追加の依存ファイル」項目を編集して `OpenAL32.lib` を追加します。
 
 #### macOSの場合
 
@@ -231,7 +231,7 @@ TinyHSP本体のソースコードは `_source` ディレクトリに入って�
 ### 拡張版のコンパイル
 
 - MinGW: `$ gcc tinyhsp.c -o tinyhsp -lglfw3dll -lopengl32 -lopenal32 -mwindows`
-- macOS: `$ clang tinyhsp.c -o tinyhsp -lglfw -framework OpenGL`
+- macOS: `$ clang tinyhsp.c -o tinyhsp -lglfw -framework OpenGL -framework OpenAL`
 - Linux: `$ gcc tinyhsp.c -o tinyhsp -lm -ldl -lglfw3 -lGL -lX11 -lXxf86vm -lXrandr -lXinerama -lXcursor -lpthread -lXi -lopenal`
 
 ## 実行
