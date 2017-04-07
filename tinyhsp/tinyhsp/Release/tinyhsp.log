@@ -1,6 +1,7 @@
-﻿  コード生成しています。
-  61 of 164 functions (37.2%) were compiled, the rest were copied from previous compilation.
-    4 functions were new in current compilation
-    16 functions had inline decision re-evaluated but remain unchanged
+﻿  tinyhsp.c
+  コード生成しています。
+  64 of 166 functions (38.6%) were compiled, the rest were copied from previous compilation.
+    3 functions were new in current compilation
+    15 functions had inline decision re-evaluated but remain unchanged
   コード生成が終了しました。
   tinyhsp.vcxproj -> C:\Users\dolphilia\Documents\GitHub\tinyhsp\tinyhsp\Release\tinyhsp.exe

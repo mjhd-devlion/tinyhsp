@@ -48,15 +48,22 @@ TinyHSPはコンパイルフラグにより３通りのバイナリを作るこ�
 - `__HSPSTD__` : 標準版
 - `__HSPEXT__` : 拡張版
 
-[neteruhsp](https://github.com/exrd/neteruhsp)をベースにしており、文法や変数の規則などは基本的に同じです。
+[exrd / neteruhsp](https://github.com/exrd/neteruhsp)をベースにしており、文法や変数の規則などは基本的に同じです。ウィンドウの表示などGUI処理は[GLFW3](http://www.glfw.org)を使用しています。画像・フォントの読み込みに[nothings / stb](https://github.com/nothings/stb)を使用しています。使用フォントは[M+ FONTS](http://mplus-fonts.osdn.jp)と[Mgen+](http://jikasei.me/font/mgenplus/)です。音声再生に[OpenAL](https://openal.org/)を使用しています。エラーメッセージの英文およびpoke命令・peek関数は[kikeroga3/tinyhsp](https://github.com/kikeroga3/tinyhsp)を使用しています。
 
-### 共通の追加命令
+### 共通の追加命令・関数
 
 ３種類のバイナリで共通に追加した命令です。
 
 |-|書式|説明|
 |---|---|---|
 |bload|bload p1, p2| p2で指定した変数にp1ファイルデータを読み込みます |
+|poke|-|-|
+
+３種類のバイナリで共通に追加した関数です。
+
+|-|書式|説明|
+|---|---|---|
+|peek|-|-|
 
 ### 標準版の命令
 
@@ -280,6 +287,7 @@ stop
 - 使用しているライブラリ・フォント
     - [OpenAL](https://openal.org/)
     - [GLFW3](http://www.glfw.org)
+    - [kikeroga3/tinyhsp](https://github.com/kikeroga3/tinyhsp)
     - [exrd / neteruhsp](https://github.com/exrd/neteruhsp)
     - [nothings / stb](https://github.com/nothings/stb)
     - [M+ FONTS](http://mplus-fonts.osdn.jp)
