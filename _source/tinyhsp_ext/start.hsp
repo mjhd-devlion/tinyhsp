@@ -1,2 +1,8 @@
-mes "HelloWorld"
+title "A"
+mes "kakikukeko"
+gosub *main
 stop
+
+*main
+    mes "aiueo"
+    return
