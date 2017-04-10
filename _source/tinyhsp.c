@@ -1,6 +1,6 @@
-﻿#define __HSPCUI__
+﻿//#define __HSPCUI__
 //#define __HSPSTD__
-//#define __HSPEXT__
+#define __HSPEXT__
 
 // 上記のどれか１つを定義する
 
@@ -19,9 +19,9 @@ MinGWの場合:
 
 # VisualStudioの設定
 - VisualStudioで __HSPCUI__ を定義する場合:
-  プロジェクト -> プロパティ -> 構成プロパティ -> リンカー -> サブシステム から「コンソール」を選択
+プロジェクト -> プロパティ -> 構成プロパティ -> リンカー -> サブシステム から「コンソール」を選択
 - VisualStudioで __HSPSTD__ または __HSPEXT__ を定義する場合:
-  プロジェクト -> プロパティ -> 構成プロパティ -> リンカー -> サブシステム から「Windows」を選択
+プロジェクト -> プロパティ -> 構成プロパティ -> リンカー -> サブシステム から「Windows」を選択
 
 */
 //=============================================================
@@ -139,13 +139,13 @@ int font_threshold = 128; //しきい値
 double font_half_space_ratio = 0.4; //半角スペースの比率
 double font_full_space_ratio = 0.8; //全角スペースの比率
 bool font_smooth = true; //フォントのアンチエイリアシング
-// OpenAL
+						 // OpenAL
 ALCdevice* al_device; // デバイス
 ALCcontext* al_context; // コンテキスト
 #endif
 #endif
 
-// 全体
+						// 全体
 void initialize_system();
 void destroy_system();
 
@@ -582,6 +582,7 @@ typedef enum
 	COMMAND_LINE,
 	COMMAND_BOXF,
 	COMMAND_STICK,
+	COMMAND_CIRCLE,
 #ifdef __HSPEXT__
 	COMMAND_FONT,
 	COMMAND_PICLOAD,
@@ -639,12 +640,12 @@ raise_error(const char* message, ...)
 
 	//fprintf(stderr, "%s", c);
 	printf("Error Occurred!\n");
-	vfprintf( stderr, message, args );
+	vfprintf(stderr, message, args);
 	printf("\nPress Enter key to continue...");
 	fgetc(stdin);
 #endif
 
-va_end(args);
+	va_end(args);
 
 	exit(-1);
 }
@@ -798,6 +799,109 @@ void fill_rect_rgb_slow(uint8_t *pixel_data,
 				minx + x, miny + y,
 				color_red, color_green, color_blue,
 				canvas_size_width, canvas_size_height);
+		}
+	}
+}
+
+void set_circle_rgb(uint8_t *pixel_data,
+	int32_t start_point_x, int32_t start_point_y,
+	int32_t end_point_x, int32_t end_point_y,
+	uint8_t color_red, uint8_t color_green, uint8_t color_blue,
+	int32_t canvas_size_width, int32_t canvas_size_height)
+{
+	if (start_point_x >= end_point_x || start_point_y >= end_point_y) {
+		return;
+	}
+
+	double ix1 = start_point_x;
+	double iy1 = start_point_y;
+	double ix2 = end_point_x;
+	double iy2 = end_point_y;
+
+	//幅の半径を求める
+	double widthRadius = (ix2 - ix1) / 2.0;
+	double heightRadius = (iy2 - iy1) / 2.0;//widthRadius / ratioHeight;
+
+											//幅と高さの比率を求める
+	double ratioWidth = 1.0;
+	double ratioHeight = (ix2 - ix1) / (iy2 - iy1);//1.0;
+	double ratioHeightSquare = ratioHeight *= ratioHeight;
+
+	//中心点を求める
+	int centerPointX = (int)(ix1 + widthRadius);
+	int centerPointY = (int)(iy1 + heightRadius);
+
+	int x = (int)(widthRadius / sqrt(ratioWidth));
+	int y = 0;
+	double d = sqrt(ratioWidth) * widthRadius;
+	int F = (int)(-2.0 * d) + ratioWidth + 2 * ratioHeightSquare;
+	int H = (int)(-4.0 * d) + 2 * ratioWidth + ratioHeightSquare;
+
+
+	while (x >= 0) {
+		set_pixel_rgb(pixel_data,
+			centerPointX + x, centerPointY + y,
+			color_red, color_green, color_blue,
+			canvas_size_width, canvas_size_height);
+		set_pixel_rgb(pixel_data,
+			centerPointX - x, centerPointY + y,
+			color_red, color_green, color_blue,
+			canvas_size_width, canvas_size_height);
+		set_pixel_rgb(pixel_data,
+			centerPointX + x, centerPointY - y,
+			color_red, color_green, color_blue,
+			canvas_size_width, canvas_size_height);
+		set_pixel_rgb(pixel_data,
+			centerPointX - x, centerPointY - y,
+			color_red, color_green, color_blue,
+			canvas_size_width, canvas_size_height);
+		if (F >= 0) {
+			--x;
+			F -= 4 * ratioWidth * x;
+			H -= 4 * ratioWidth * x - 2 * ratioWidth;
+		}
+		if (H < 0) {
+			++y;
+			F += 4 * ratioHeightSquare * y + 2 * ratioHeightSquare;
+			H += 4 * ratioHeightSquare * y;
+		}
+	}
+}
+
+void fill_circle_rgb(uint8_t *pixel_data,
+	int32_t start_point_x, int32_t start_point_y,
+	int32_t end_point_x, int32_t end_point_y,
+	uint8_t color_red, uint8_t color_green, uint8_t color_blue,
+	int32_t canvas_size_width, int32_t canvas_size_height)
+{
+	if (start_point_x >= end_point_x || start_point_y >= end_point_y) {
+		return;
+	}
+
+	double _x1 = start_point_x;
+	double _y1 = start_point_y;
+	double _x2 = end_point_x;
+	double _y2 = end_point_y;
+
+	//幅の半径を求める
+	double widthRadius = (_x2 - _x1) / 2.0;
+	double heightRadius = (_y2 - _y1) / 2.0;//widthRadius / ratioHeight;
+	double x, y;
+	double ratioHeightReverse = (_y2 - _y1) / (_x2 - _x1);
+
+	for (int iy = start_point_y; iy < end_point_y + heightRadius; iy++)
+	{
+		for (int ix = start_point_x; ix < end_point_x + widthRadius; ix++)
+		{
+			x = ix - start_point_x - widthRadius;
+			y = iy - start_point_y - heightRadius;
+			y /= ratioHeightReverse;
+			if (x * x + y * y < widthRadius * widthRadius) {
+				set_pixel_rgb(pixel_data,
+					ix, iy,
+					color_red, color_green, color_blue,
+					canvas_size_width, canvas_size_height);
+			}
 		}
 	}
 }
@@ -1869,6 +1973,52 @@ command_stick(execute_environment_t* e, execute_status_t* s, int arg_num)
 	stack_pop(s->stack_, arg_num);
 }
 
+void
+command_circle(execute_environment_t* e, execute_status_t* s, int arg_num)
+{
+	int is_fill = 1; // 0=線,1=塗りつぶし
+	if (arg_num < 4) {
+		raise_error("line: Invalid argument.");
+	}
+
+	const int arg_start = -arg_num;
+
+	// 引数が省略された場合
+	//if (arg_num > 4) {
+	//	const value_t* p5 = stack_peek(s->stack_, arg_start + 4);
+	//	is_fill = value_calc_int(p5);
+	//}
+	
+	const value_t* p1 = stack_peek(s->stack_, arg_start);
+	const int x0 = value_calc_int(p1);
+	const value_t* p2 = stack_peek(s->stack_, arg_start + 1);
+	const int y0 = value_calc_int(p2);
+	const value_t* p3 = stack_peek(s->stack_, arg_start + 2);
+	const int x1 = value_calc_int(p3);
+	const value_t* p4 = stack_peek(s->stack_, arg_start + 3);
+	const int y1 = value_calc_int(p4);
+
+	if (is_fill) {
+		fill_circle_rgb(
+			pixel_data,
+			x0, y0, x1, y1,
+			current_color_r, current_color_g, current_color_b,
+			screen_width, screen_height);
+	}
+	else {
+		set_circle_rgb(
+			pixel_data,
+			x0, y0, x1, y1,
+			current_color_r, current_color_g, current_color_b,
+			screen_width, screen_height);
+	}
+
+	if (redraw_flag) {
+		redraw();
+	}
+	stack_pop(s->stack_, arg_num);
+}
+
 #ifdef __HSPEXT__
 void
 command_font(execute_environment_t* e, execute_status_t* s, int arg_num)
@@ -1996,7 +2146,7 @@ command_wave(execute_environment_t* e, execute_status_t* s, int arg_num)
 	ALshort* data = (ALshort*)calloc(size, sizeof(ALshort));
 	alGenBuffers(1, &buffer); // 次の行は音のデータを作成している
 
-	// 音の生成
+							  // 音の生成
 	double n = 0.0;
 	double tmp = 0;
 	for (int i = 0; i < size; i++) {
@@ -2040,7 +2190,7 @@ command_wave(execute_environment_t* e, execute_status_t* s, int arg_num)
 	alSourcei(source, AL_BUFFER, buffer); // ソースの値を設定
 	alSourcePlay(source); // ソースのバッファを再生
 
-	// 再生が終了するまで待つ
+						  // 再生が終了するまで待つ
 	glfwSetTime(0.0); // タイマーを初期化する
 	for (;;) { // ウィンドウを閉じるまで
 		if (glfwWindowShouldClose(window)) {
@@ -2067,7 +2217,7 @@ command_wave(execute_environment_t* e, execute_status_t* s, int arg_num)
 void
 function_int(execute_environment_t* e, execute_status_t* s, int arg_num)
 {
-	if (arg_num != 0) {
+	if (arg_num != 1) {
 		raise_error("int: Invalid argument.");
 		//("int：引数がたりません");
 		//("int：引数が多すぎます@@ %d個渡されました", arg_num);
@@ -2095,7 +2245,7 @@ function_double(execute_environment_t* e, execute_status_t* s, int arg_num)
 void
 function_str(execute_environment_t* e, execute_status_t* s, int arg_num)
 {
-	if (arg_num != 0) {
+	if (arg_num != 1) {
 		raise_error("str: Invalid argument.");
 		//("str：引数がたりません");
 		//("str：引数が多すぎます@@ %d個渡されました", arg_num);
@@ -3151,7 +3301,7 @@ parse_control_safe(parse_context_t* /*&*/ c)
 					}
 					ast_node_t* statement = parse_statement(c);
 					if (statement == NULL) {
-						raise_error( "else contains statements that cannot be parsed.@@ %d to %d Row", nnf->appear_line_, ident->appear_line_ );
+						raise_error("else contains statements that cannot be parsed.@@ %d to %d Row", nnf->appear_line_, ident->appear_line_);
 						//("ifのelse文の解析中、解析できないステートメントに到達"
 						//	"しました@@ %d行目、%d行目から", nnf->appear_line_, ident->appear_line_);
 					}
@@ -5040,18 +5190,18 @@ evaluate(execute_environment_t* e, execute_status_t* s, ast_node_t* n)
 					stack_push(s->stack_, create_value(s->strsize_));
 					break;
 #ifdef __HSPGUI__
-					case SYSVAR_MOUSEX:
-						stack_push(s->stack_, create_value(current_mouse_x));
-						break;
-					case SYSVAR_MOUSEY:
-						stack_push(s->stack_, create_value(current_mouse_y));
-						break;
-					case SYSVAR_MOUSEL:
-						stack_push(s->stack_, create_value(current_mouse_down_left));
-						break;
-					case SYSVAR_MOUSER:
-						stack_push(s->stack_, create_value(current_mouse_down_right));
-						break;
+				case SYSVAR_MOUSEX:
+					stack_push(s->stack_, create_value(current_mouse_x));
+					break;
+				case SYSVAR_MOUSEY:
+					stack_push(s->stack_, create_value(current_mouse_y));
+					break;
+				case SYSVAR_MOUSEL:
+					stack_push(s->stack_, create_value(current_mouse_down_left));
+					break;
+				case SYSVAR_MOUSER:
+					stack_push(s->stack_, create_value(current_mouse_down_right));
+					break;
 #endif
 				default:
 					assert(false);
@@ -5378,6 +5528,9 @@ query_command(const char* s)
 		{
 			COMMAND_STICK, "stick",
 		},
+		{
+			COMMAND_CIRCLE, "circle",
+		},
 #ifdef __HSPEXT__
 		{
 			COMMAND_FONT, "font",
@@ -5429,6 +5582,7 @@ get_command_delegate(builtin_command_tag command)
 		&command_line,
 		&command_boxf,
 		&command_stick,
+		&command_circle,
 #ifdef __HSPEXT__
 		&command_font,
 		&command_picload,
@@ -5692,7 +5846,7 @@ key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
 #endif
 
 #ifdef __HSPGUI__WINDOWS__
-int WINAPI 
+int WINAPI
 WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 #else
 int
@@ -5932,7 +6086,7 @@ main(int argc, const char* argv[])
 	alcCloseDevice(al_device); // デバイスを閉じる(OpenAL)
 #endif
 #endif
-	
+
 	xfree(script);
 	destroy_system();
 	return 0;
