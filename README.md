@@ -290,7 +290,7 @@ stop
 - 使用しているライブラリ・フォント
     - [OpenAL](https://openal.org/)
     - [GLFW3](http://www.glfw.org)
-    - [kikeroga3/tinyhsp](https://github.com/kikeroga3/tinyhsp)
+    - [kikeroga3 / tinyhsp](https://github.com/kikeroga3/tinyhsp)
     - [exrd / neteruhsp](https://github.com/exrd/neteruhsp)
     - [nothings / stb](https://github.com/nothings/stb)
     - [M+ FONTS](http://mplus-fonts.osdn.jp)
