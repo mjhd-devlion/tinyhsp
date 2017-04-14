@@ -971,12 +971,62 @@ void redraw()
 	// 描画の準備
 	glClear(GL_COLOR_BUFFER_BIT);
 	glRasterPos2i(-1, -1);
-	// ピクセルを描画
+
+#ifdef __MACOS__
+    
+
+    int samplesPerPixel = 3;
+    int now_width, now_height;
+    glfwGetFramebufferSize(window, &now_width, &now_height);
+
+        if (now_width > 640) {
+            int width = screen_width;
+            int height = screen_height;
+            int h_mul = width * 2 * samplesPerPixel;
+            
+            uint8_t* retina_pixel_data = calloc(width * 2 * height * 2 * samplesPerPixel * 4, sizeof(uint8_t));
+            
+            int i = 0;
+            for (int y = 0; y < height * 2; y += 2) {
+                for (int x = 0; x < width * 2 * samplesPerPixel; x += 6) {
+                    memcpy(&retina_pixel_data[x + y * h_mul], &pixel_data[i],
+                           sizeof(uint8_t) * 3);
+                    memcpy(&retina_pixel_data[x + 3 + h_mul * y], &pixel_data[i],
+                           sizeof(uint8_t) * 3);
+                    memcpy(&retina_pixel_data[x + h_mul * (y + 1)], &pixel_data[i],
+                           sizeof(uint8_t) * 3);
+                    memcpy(&retina_pixel_data[x + 3 + h_mul * (y + 1)], &pixel_data[i],
+                           sizeof(uint8_t) * 3);
+                    i += 3;
+                }
+            }
+            
+            glDrawPixels(width * 2,
+		height * 2,
+		GL_RGB,
+		GL_UNSIGNED_BYTE,
+		retina_pixel_data);
+            
+            free(retina_pixel_data);
+    }
+    else {
+        // ピクセルを描画
 	glDrawPixels(screen_width,
 		screen_height,
 		GL_RGB,
 		GL_UNSIGNED_BYTE,
 		pixel_data);
+    }
+#else
+    // ピクセルを描画
+	glDrawPixels(screen_width,
+		screen_height,
+		GL_RGB,
+		GL_UNSIGNED_BYTE,
+		pixel_data);
+#endif	
+
+	
 	// フロントバッファとバックバッファを交換する
 	glfwSwapBuffers(window);
 }
@@ -6027,11 +6077,16 @@ main(int argc, const char* argv[])
 		{
 			//初期化して、ウインドウを生成する
 			glfwInit();
+
+		//macOS_Retina
+
+
 			window = glfwCreateWindow(screen_width,
 				screen_height,
 				window_title,
 				NULL,
-				NULL);
+				NULL);			
+
 			glfwMakeContextCurrent(window);
 		}
 
@@ -6042,6 +6097,8 @@ main(int argc, const char* argv[])
 
 		// １度だけスクリーンを初期化する
 		{
+		    redraw();
+		    /*
 			// 描画の準備
 			glClear(GL_COLOR_BUFFER_BIT);
 			glRasterPos2i(-1, -1);
@@ -6055,6 +6112,7 @@ main(int argc, const char* argv[])
 
 			// フロントバッファとバックバッファを交換する
 			glfwSwapBuffers(window);
+			*/
 		}
 	}
 #endif
