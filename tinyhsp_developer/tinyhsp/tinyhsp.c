@@ -255,7 +255,6 @@ void prepare_variable(variable_t* v, value_tag type, int granule_size, int lengt
 list_t* create_variable_table();
 void destroy_variable_table(list_t* table);
 variable_t* search_variable(list_t* table, const char* name);
-//移動
 
 // 値（即値）
 typedef struct value_tag__ value_t;
@@ -276,7 +275,6 @@ struct value_tag__
 	};
 };
 
-//移動
 void variable_set(list_t* table, const value_t* v, const char* name, int idx);
 void* variable_data_ptr(const variable_t* v, int idx);
 int variable_calc_int(const variable_t* r, int idx);
@@ -361,8 +359,6 @@ struct call_frame_tag
 	list_node_t* caller_;
 };
 
-#define MAX_CALL_FRAME (16)
-
 typedef struct loop_frame_tag loop_frame_t;
 struct loop_frame_tag
 {
@@ -371,8 +367,6 @@ struct loop_frame_tag
 	int max_;
 	int cnt_;
 };
-
-#define MAX_LOOP_FRAME (16)
 
 typedef struct execute_environment_tag execute_environment_t;
 struct execute_environment_tag
@@ -383,6 +377,9 @@ struct execute_environment_tag
 	list_t* label_table_;
 	list_t* variable_table_;
 };
+
+#define MAX_CALL_FRAME (16)
+#define MAX_LOOP_FRAME (16)
 
 typedef struct execute_status_tag execute_status_t;
 struct execute_status_tag
@@ -947,36 +944,16 @@ query_keyword(const char* s)
 		int tag_;
 		const char* word_;
 	} table[] = {
-		{
-			KEYWORD_END, "end",
-		},
-		{
-			KEYWORD_RETURN, "return",
-		},
-		{
-			KEYWORD_GOTO, "goto",
-		},
-		{
-			KEYWORD_GOSUB, "gosub",
-		},
-		{
-			KEYWORD_REPEAT, "repeat",
-		},
-		{
-			KEYWORD_LOOP, "loop",
-		},
-		{
-			KEYWORD_CONTINUE, "continue",
-		},
-		{
-			KEYWORD_BREAK, "break",
-		},
-		{
-			KEYWORD_IF, "if",
-		},
-		{
-			KEYWORD_ELSE, "else",
-		},
+		{ KEYWORD_END, "end" },
+		{ KEYWORD_RETURN, "return" },
+		{ KEYWORD_GOTO, "goto" },
+		{ KEYWORD_GOSUB, "gosub" },
+		{ KEYWORD_REPEAT, "repeat" },
+		{ KEYWORD_LOOP, "loop" },
+		{ KEYWORD_CONTINUE, "continue" },
+		{ KEYWORD_BREAK, "break" },
+		{ KEYWORD_IF, "if" },
+		{ KEYWORD_ELSE, "else" },
 		{ -1, NULL },
 	};
 	// 全探索
@@ -2990,21 +2967,11 @@ query_sysvar(const char* s)
 		int tag_;
 		const char* word_;
 	} table[] = {
-		{
-			SYSVAR_CNT, "cnt",
-		},
-		{
-			SYSVAR_STAT, "stat",
-		},
-		{
-			SYSVAR_REFDVAL, "refdval",
-		},
-		{
-			SYSVAR_REFSTR, "refstr",
-		},
-		{
-			SYSVAR_STRSIZE, "strsize",
-		},
+		{ SYSVAR_CNT, "cnt" },
+		{ SYSVAR_STAT, "stat" },
+		{ SYSVAR_REFDVAL, "refdval" },
+		{ SYSVAR_REFSTR, "refstr" },
+		{ SYSVAR_STRSIZE, "strsize" },
 		{ -1, NULL },
 	};
 	// 全探索
@@ -3750,24 +3717,12 @@ query_command(const char* s)
 		const char* word_;
 	} table[] = {
 		{ COMMAND_DEVTERM, "devterm" },
-		{
-			COMMAND_DIM, "dim",
-		},
-		{
-			COMMAND_DDIM, "ddim",
-		},
-		{
-			COMMAND_SDIM, "sdim",
-		},
-		{
-			COMMAND_RANDOMIZE, "randomize",
-		},
-		{
-			COMMAND_INPUT, "input",
-		},
-		{
-			COMMAND_MES, "mes",
-		},
+		{ COMMAND_DIM, "dim" },
+		{ COMMAND_DDIM, "ddim" },
+		{ COMMAND_SDIM, "sdim" },
+		{ COMMAND_RANDOMIZE, "randomize" },
+		{ COMMAND_INPUT, "input" },
+		{ COMMAND_MES, "mes" },
 		{ -1, NULL },
 	};
 	// 全探索
@@ -3803,21 +3758,11 @@ query_function(const char* s)
 		int tag_;
 		const char* word_;
 	} table[] = {
-		{
-			FUNCTION_INT, "int",
-		},
-		{
-			FUNCTION_DOUBLE, "double",
-		},
-		{
-			FUNCTION_STR, "str",
-		},
-		{
-			FUNCTION_RND, "rnd",
-		},
-		{
-			FUNCTION_ABS, "abs",
-		},
+		{ FUNCTION_INT, "int" },
+		{ FUNCTION_DOUBLE, "double" },
+		{ FUNCTION_STR, "str" },
+		{ FUNCTION_RND, "rnd" },
+		{ FUNCTION_ABS, "abs" },
 		{ -1, NULL },
 	};
 	// 全探索
@@ -3846,43 +3791,43 @@ get_function_delegate(builtin_function_tag function)
 int
 main(int argc, const char* argv[])
 {
-	// オプション
-	const char* filename = NULL;
-	bool show_ast = false;
-	if (argc >= 2) {
-		filename = argv[1];
-	}
-	else {
-		filename = "start.hsp";
-	}
-	// システムここから
-	// ファイル読み込み
 	char* script = NULL;
 	{
-		size_t script_size = 0;
+		// オプション
+		const char* filename = NULL;
+		if (argc >= 2) {
+			filename = argv[1];
+		}
+		else {
+			filename = "start.hsp";
+		}
+		// ファイル読み込み
 		FILE* file = fopen(filename, "r");
 		if (file == NULL) {
 			raise_error("ERROR : cannot read such file %s\n", filename);
 			return -1;
 		}
 		fseek(file, 0, SEEK_END);
-		const size_t initial_size = ftell(file);
+		size_t initial_size = ftell(file);
 		size_t buffer_size = initial_size + 4; // 初期バッファ
 		script = (char*)malloc(buffer_size + 1);
 		fseek(file, 0, SEEK_SET);
-		for (;;) {
-			const int c = fgetc(file);
-			if (c == EOF) {
-				break;
+		{
+			size_t script_size = 0;
+			for (;;) {
+				const int c = fgetc(file);
+				if (c == EOF) {
+					break;
+				}
+				const char ch = (char)c;
+				if (buffer_size <= script_size) {
+					buffer_size *= 2;
+					script = (char*)realloc(script, buffer_size);
+				}
+				script[script_size++] = ch;
 			}
-			const char ch = (char)c;
-			if (buffer_size <= script_size) {
-				buffer_size *= 2;
-				script = (char*)realloc(script, buffer_size);
-			}
-			script[script_size++] = ch;
+			script[script_size] = '\0';
 		}
-		script[script_size] = '\0';
 		fclose(file);
 	}
 	assert(script != NULL);
@@ -3894,7 +3839,7 @@ main(int argc, const char* argv[])
 		execute(env);
 		destroy_execute_environment(env);
 	}
-	// 各種解放
+	// 解放
 	free(script);
 	return 0;
 }
