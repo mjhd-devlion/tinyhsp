@@ -1,1 +1,1 @@
-mes "HelloWorld"
+mes "HelloWorld"+rnd(100)

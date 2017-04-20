@@ -1,4 +1,7 @@
-﻿#ifdef _WIN32
+﻿// 更に小さくする
+#define __SMALL__
+
+#ifdef _WIN32
 #define __WINDOWS__
 #endif
 #ifdef _WIN64
@@ -415,13 +418,15 @@ void execute(execute_environment_t* e);
 typedef void(*command_delegate)(execute_environment_t* e, execute_status_t* s, int arg_num);
 typedef enum
 {
-	COMMAND_DEVTERM = 0, // デバッグ用の隠し
+	COMMAND_MES = 0,
+	COMMAND_INPUT,
+#ifndef __SMALL__
+	COMMAND_DEVTERM, // デバッグ用の隠し
 	COMMAND_DIM,
 	COMMAND_DDIM,
 	COMMAND_SDIM,
 	COMMAND_RANDOMIZE,
-	COMMAND_INPUT,
-	COMMAND_MES,
+#endif
 	MAX_COMMAND,
 } builtin_command_tag;
 
@@ -430,11 +435,13 @@ command_delegate get_command_delegate(builtin_command_tag command);
 typedef void(*function_delegate)(execute_environment_t* e, execute_status_t* s, int arg_num);
 typedef enum
 {
-	FUNCTION_INT = 0,
+	FUNCTION_RND = 0,
+#ifndef __SMALL__
+	FUNCTION_INT,
 	FUNCTION_DOUBLE,
 	FUNCTION_STR,
-	FUNCTION_RND,
 	FUNCTION_ABS,
+#endif
 	MAX_FUNCTION,
 } builtin_function_tag;
 
@@ -578,6 +585,7 @@ search_label(execute_environment_t* e, const char* name)
 }
 
 // コマンド実体
+#ifndef __SMALL__
 void
 command_devterm(execute_environment_t* e, execute_status_t* s, int arg_num)
 {
@@ -655,6 +663,25 @@ command_sdim(execute_environment_t* e, execute_status_t* s, int arg_num)
 }
 
 void
+command_randomize(execute_environment_t* e, execute_status_t* s, int arg_num)
+{
+	if (arg_num > 1) {
+		raise_error("randomize: Invalid argument.");
+	}
+	unsigned int seed = 0;
+	if (arg_num == 0) {
+		seed = (unsigned int)time(NULL);
+	}
+	else {
+		const value_t* m = stack_peek(s->stack_, -1);
+		seed = value_calc_int(m);
+	}
+	srand(seed);
+	stack_pop(s->stack_, arg_num);
+}
+#endif
+
+void
 command_mes(execute_environment_t* e, execute_status_t* s, int arg_num)
 {
 	if (arg_num != 1) {
@@ -724,25 +751,8 @@ command_input(execute_environment_t* e, execute_status_t* s, int arg_num)
 	stack_pop(s->stack_, arg_num);
 }
 
-void
-command_randomize(execute_environment_t* e, execute_status_t* s, int arg_num)
-{
-	if (arg_num > 1) {
-		raise_error("randomize: Invalid argument.");
-	}
-	unsigned int seed = 0;
-	if (arg_num == 0) {
-		seed = (unsigned int)time(NULL);
-	}
-	else {
-		const value_t* m = stack_peek(s->stack_, -1);
-		seed = value_calc_int(m);
-	}
-	srand(seed);
-	stack_pop(s->stack_, arg_num);
-}
-
 // 関数実体
+#ifndef __SMALL__
 void
 function_int(execute_environment_t* e, execute_status_t* s, int arg_num)
 {
@@ -780,6 +790,20 @@ function_str(execute_environment_t* e, execute_status_t* s, int arg_num)
 }
 
 void
+function_abs(execute_environment_t* e, execute_status_t* s, int arg_num)
+{
+	if (arg_num != 1) {
+		raise_error("abs: Invalid argument.");
+	}
+	const value_t* m = stack_peek(s->stack_, -1);
+	const int r = value_calc_int(m);
+	stack_pop(s->stack_, arg_num);
+	const int res = (r < 0 ? -r : r);
+	stack_push(s->stack_, create_value(res));
+}
+#endif
+
+void
 function_rnd(execute_environment_t* e, execute_status_t* s, int arg_num)
 {
 	if (arg_num != 1) {
@@ -792,19 +816,6 @@ function_rnd(execute_environment_t* e, execute_status_t* s, int arg_num)
 	}
 	stack_pop(s->stack_, arg_num);
 	const int res = rand() % (r);
-	stack_push(s->stack_, create_value(res));
-}
-
-void
-function_abs(execute_environment_t* e, execute_status_t* s, int arg_num)
-{
-	if (arg_num != 1) {
-		raise_error("abs: Invalid argument.");
-	}
-	const value_t* m = stack_peek(s->stack_, -1);
-	const int r = value_calc_int(m);
-	stack_pop(s->stack_, arg_num);
-	const int res = (r < 0 ? -r : r);
 	stack_push(s->stack_, create_value(res));
 }
 
@@ -3716,13 +3727,15 @@ query_command(const char* s)
 		int tag_;
 		const char* word_;
 	} table[] = {
+#ifndef __SMALL__
 		{ COMMAND_DEVTERM, "devterm" },
 		{ COMMAND_DIM, "dim" },
 		{ COMMAND_DDIM, "ddim" },
 		{ COMMAND_SDIM, "sdim" },
 		{ COMMAND_RANDOMIZE, "randomize" },
-		{ COMMAND_INPUT, "input" },
+#endif
 		{ COMMAND_MES, "mes" },
+		{ COMMAND_INPUT, "input" },
 		{ -1, NULL },
 	};
 	// 全探索
@@ -3738,13 +3751,15 @@ command_delegate
 get_command_delegate(builtin_command_tag command)
 {
 	static const command_delegate commands[] = {
+#ifndef __SMALL__
 		&command_devterm,
 		&command_dim,
 		&command_ddim,
 		&command_sdim,
 		&command_randomize,
-		&command_input,
+#endif
 		&command_mes,
+		&command_input,
 		NULL,
 	};
 	return commands[command];
@@ -3758,11 +3773,13 @@ query_function(const char* s)
 		int tag_;
 		const char* word_;
 	} table[] = {
+#ifndef __SMALL__
 		{ FUNCTION_INT, "int" },
 		{ FUNCTION_DOUBLE, "double" },
 		{ FUNCTION_STR, "str" },
-		{ FUNCTION_RND, "rnd" },
 		{ FUNCTION_ABS, "abs" },
+#endif
+		{ FUNCTION_RND, "rnd" },
 		{ -1, NULL },
 	};
 	// 全探索
@@ -3778,11 +3795,13 @@ function_delegate
 get_function_delegate(builtin_function_tag function)
 {
 	static const function_delegate functions[] = {
+#ifndef __SMALL__
 		&function_int,
 		&function_double,
 		&function_str,
-		&function_rnd,
 		&function_abs,
+#endif
+		&function_rnd,
 		NULL,
 	};
 	return functions[function];
