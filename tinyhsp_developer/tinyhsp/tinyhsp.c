@@ -390,10 +390,6 @@ struct execute_status_tag
 	loop_frame_t loop_frame_[MAX_LOOP_FRAME];
 	int current_loop_frame_;
 	bool is_end_;
-	int stat_;
-	double refdval_;
-	char* refstr_;
-	int strsize_;
 };
 
 typedef struct load_arg_tag load_arg_t;
@@ -457,7 +453,6 @@ create_string(size_t len)
 {
 	return (char*)malloc(len + 1);
 }
-
 
 char*
 create_string2(const char* s, size_t len)
@@ -1890,7 +1885,7 @@ create_variable(const char* name)
 	res->granule_size_ = 0;
 	res->length_ = 0;
 	res->data_ = NULL;
-	prepare_variable(res, VALUE_INT, 64, 16);
+	prepare_variable(res, VALUE_INT, 64, 512);
 	return res;
 }
 
@@ -1991,7 +1986,7 @@ variable_set(list_t* table, const value_t* v, const char* name, int idx)
 		if (idx > 0) {
 			raise_error("Variable type is different.@@ %s(%d)", name, idx);
 		}
-		prepare_variable(var, v->type_, 64, 16);
+		prepare_variable(var, v->type_, 64, 512);
 	}
 	bool init_required = false;
 	int granule_size = 0;
@@ -2847,18 +2842,12 @@ initialize_execute_status(execute_status_t* s)
 	s->loop_frame_[0].max_ = 0;
 	s->loop_frame_[0].cnt_ = 0;
 	s->is_end_ = false;
-	s->stat_ = 0;
-	s->refdval_ = 0.0;
-	s->refstr_ = create_string3("");
-	s->strsize_ = 0;
 }
 
 void
 uninitialize_execute_status(execute_status_t* s)
 {
 	destroy_value_stack(s->stack_);
-	destroy_string(s->refstr_);
-	s->refstr_ = NULL;
 }
 
 ast_node_t*
@@ -3283,14 +3272,10 @@ evaluate(execute_environment_t* e, execute_status_t* s, ast_node_t* n)
 			const value_t* res = stack_peek(s->stack_, -1);
 			switch (value_get_primitive_tag(res)) {
 			case VALUE_INT:
-				s->stat_ = value_calc_int(res);
 				break;
 			case VALUE_DOUBLE:
-				s->refdval_ = value_calc_double(res);
 				break;
 			case VALUE_STRING:
-				destroy_string(s->refstr_);
-				s->refstr_ = value_calc_string(res);
 				break;
 			default:
 				assert(false);
@@ -3581,6 +3566,11 @@ main(int argc, const char* argv[])
 		fclose(file);
 	}
 	assert(script != NULL);
+	// 乱数の初期化
+	{
+		unsigned int seed = (unsigned int)time(NULL);
+		srand(seed);
+	}
 	// 実行
 	{
 		execute_environment_t* env = create_execute_environment();

@@ -1,1 +1,2 @@
-mes "HelloWorld"+rnd(100)
+a(200) = 100
+mes "HelloWorld"+a(200)
