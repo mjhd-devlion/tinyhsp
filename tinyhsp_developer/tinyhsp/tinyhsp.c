@@ -339,10 +339,6 @@ void stack_pop(value_stack_t* st, size_t n/* = 1*/); //※ 引数の初期値
 typedef enum
 {
 	SYSVAR_CNT,
-	SYSVAR_STAT,
-	SYSVAR_REFDVAL,
-	SYSVAR_REFSTR,
-	SYSVAR_STRSIZE,
 	MAX_SYSVAR,
 } sysvar_tag;
 
@@ -419,14 +415,6 @@ typedef void(*command_delegate)(execute_environment_t* e, execute_status_t* s, i
 typedef enum
 {
 	COMMAND_MES = 0,
-	COMMAND_INPUT,
-#ifndef __SMALL__
-	COMMAND_DEVTERM, // デバッグ用の隠し
-	COMMAND_DIM,
-	COMMAND_DDIM,
-	COMMAND_SDIM,
-	COMMAND_RANDOMIZE,
-#endif
 	MAX_COMMAND,
 } builtin_command_tag;
 
@@ -436,12 +424,6 @@ typedef void(*function_delegate)(execute_environment_t* e, execute_status_t* s, 
 typedef enum
 {
 	FUNCTION_RND = 0,
-#ifndef __SMALL__
-	FUNCTION_INT,
-	FUNCTION_DOUBLE,
-	FUNCTION_STR,
-	FUNCTION_ABS,
-#endif
 	MAX_FUNCTION,
 } builtin_function_tag;
 
@@ -585,102 +567,6 @@ search_label(execute_environment_t* e, const char* name)
 }
 
 // コマンド実体
-#ifndef __SMALL__
-void
-command_devterm(execute_environment_t* e, execute_status_t* s, int arg_num)
-{
-	stack_pop(s->stack_, arg_num);
-}
-
-void
-command_dim(execute_environment_t* e, execute_status_t* s, int arg_num)
-{
-	if (arg_num != 2) {
-		raise_error("dim: Array variable is one dimension only.");
-	}
-	const int arg_start = -arg_num;
-	const value_t* v = stack_peek(s->stack_, arg_start);
-	if (v->type_ != VALUE_VARIABLE) {
-		raise_error("dim: Argument should be a variable.");
-	}
-	if (v->index_ > 0) {
-		raise_error("dim: Array variables cannot be specified.");
-	}
-	const value_t* n = stack_peek(s->stack_, arg_start + 1);
-	const int num = value_calc_int(n);
-	if (num <= 0) {
-		raise_error("dim: Invalid value.");
-	}
-	prepare_variable(v->variable_, VALUE_INT, 64, num);
-	stack_pop(s->stack_, arg_num);
-}
-
-void
-command_ddim(execute_environment_t* e, execute_status_t* s, int arg_num)
-{
-	if (arg_num != 2) {
-		raise_error("ddim: Array variable is one dimension only.");
-	}
-	const int arg_start = -arg_num;
-	const value_t* v = stack_peek(s->stack_, arg_start);
-	if (v->type_ != VALUE_VARIABLE) {
-		raise_error("ddim: Argument should be a variable.");
-	}
-	if (v->index_ > 0) {
-		raise_error("ddim: Array variables cannot be specified.");
-	}
-	const value_t* n = stack_peek(s->stack_, arg_start + 1);
-	const int num = value_calc_int(n);
-	if (num <= 0) {
-		raise_error("ddim: Invalid value.");
-	}
-	prepare_variable(v->variable_, VALUE_DOUBLE, 64, num);
-	stack_pop(s->stack_, arg_num);
-}
-
-void
-command_sdim(execute_environment_t* e, execute_status_t* s, int arg_num)
-{
-	if (arg_num < 2 || arg_num > 3) {
-		raise_error("sdim: Array variable is one dimension only.");
-	}
-	const int arg_start = -arg_num;
-	const value_t* v = stack_peek(s->stack_, arg_start);
-	if (v->type_ != VALUE_VARIABLE) {
-		raise_error("sdim: Argument should be a variable.");
-	}
-	if (v->index_ > 0) {
-		raise_error("ddim: Array variables cannot be specified.");
-	}
-	const value_t* g = stack_peek(s->stack_, arg_start + 1);
-	const int granule = value_calc_int(g);
-	const int num = (arg_num > 2 ? value_calc_int(stack_peek(s->stack_, arg_start + 2)) : 1);
-	if (granule <= 0 || num <= 0) {
-		raise_error("ddim: Invalid value.");
-	}
-	prepare_variable(v->variable_, VALUE_STRING, granule, num);
-	stack_pop(s->stack_, arg_num);
-}
-
-void
-command_randomize(execute_environment_t* e, execute_status_t* s, int arg_num)
-{
-	if (arg_num > 1) {
-		raise_error("randomize: Invalid argument.");
-	}
-	unsigned int seed = 0;
-	if (arg_num == 0) {
-		seed = (unsigned int)time(NULL);
-	}
-	else {
-		const value_t* m = stack_peek(s->stack_, -1);
-		seed = value_calc_int(m);
-	}
-	srand(seed);
-	stack_pop(s->stack_, arg_num);
-}
-#endif
-
 void
 command_mes(execute_environment_t* e, execute_status_t* s, int arg_num)
 {
@@ -696,113 +582,7 @@ command_mes(execute_environment_t* e, execute_status_t* s, int arg_num)
 	stack_pop(s->stack_, arg_num);
 }
 
-void
-command_input(execute_environment_t* e, execute_status_t* s, int arg_num)
-{
-	if (arg_num < 2 || arg_num > 3) {
-		raise_error("input: Invalid argument.");
-	}
-	const int arg_start = -arg_num;
-	const value_t* v = stack_peek(s->stack_, arg_start);
-	if (v->type_ != VALUE_VARIABLE) {
-		raise_error("input: Argument should be a variable.");
-	}
-	if (v->index_ > 0) {
-		raise_error("input: Array variables cannot be specified.");
-	}
-	const value_t* n = stack_peek(s->stack_, arg_start + 1);
-	const int len = value_calc_int(n) + 1;
-	const int mode =
-		(arg_num > 2 ? value_calc_int(stack_peek(s->stack_, arg_start + 2)) : 0);
-	char* buf = create_string(len);
-	int w = 0;
-	for (;;) {
-		if (w >= len) {
-			break;
-		}
-		const char c = getchar();
-		if (c == EOF) {
-			break;
-		}
-		const char ch = (char)c;
-		if (mode == 1 && ch == '\n') {
-			break;
-		}
-		if (mode == 2) {
-			if (ch == '\r') {
-				const char nc = getchar();
-				if ((char)nc == '\n') {
-					break;
-				}
-				ungetc(nc, stdin);
-			}
-			else if (ch == '\n') {
-				break;
-			}
-		}
-		buf[w] = (char)ch;
-		++w;
-	}
-	buf[w] = '\0';
-	value_t* t = (value_t*)create_value_move(buf);
-	variable_set(e->variable_table_, t, v->variable_->name_, 0);
-	destroy_value((value_t*)t);
-	s->strsize_ = w;
-	stack_pop(s->stack_, arg_num);
-}
-
 // 関数実体
-#ifndef __SMALL__
-void
-function_int(execute_environment_t* e, execute_status_t* s, int arg_num)
-{
-	if (arg_num != 1) {
-		raise_error("int: Invalid argument.");
-	}
-	const value_t* m = stack_peek(s->stack_, -1);
-	const int r = value_calc_int(m);
-	stack_pop(s->stack_, arg_num);
-	stack_push(s->stack_, create_value(r));
-}
-
-void
-function_double(execute_environment_t* e, execute_status_t* s, int arg_num)
-{
-	if (arg_num != 1) {
-		raise_error("double: Invalid argument.");
-	}
-	const value_t* m = stack_peek(s->stack_, -1);
-	int r = (int)value_calc_double(m);
-	stack_pop(s->stack_, arg_num);
-	stack_push(s->stack_, create_value2(r));
-}
-
-void
-function_str(execute_environment_t* e, execute_status_t* s, int arg_num)
-{
-	if (arg_num != 1) {
-		raise_error("str: Invalid argument.");
-	}
-	const value_t* m = stack_peek(s->stack_, -1);
-	char* r = value_calc_string(m);
-	stack_pop(s->stack_, arg_num);
-	stack_push(s->stack_, create_value_move(r));
-}
-
-void
-function_abs(execute_environment_t* e, execute_status_t* s, int arg_num)
-{
-	if (arg_num != 1) {
-		raise_error("abs: Invalid argument.");
-	}
-	const value_t* m = stack_peek(s->stack_, -1);
-	const int r = value_calc_int(m);
-	stack_pop(s->stack_, arg_num);
-	const int res = (r < 0 ? -r : r);
-	stack_push(s->stack_, create_value(res));
-}
-#endif
-
 void
 function_rnd(execute_environment_t* e, execute_status_t* s, int arg_num)
 {
@@ -1802,8 +1582,7 @@ parse_variable_safe(parse_context_t* c)
 ast_node_t*
 parse_expression(parse_context_t* c)
 {
-	// ただの関数転送
-	return parse_borand(c);
+	return parse_borand(c); // ただの関数転送
 }
 
 ast_node_t*
@@ -2979,10 +2758,6 @@ query_sysvar(const char* s)
 		const char* word_;
 	} table[] = {
 		{ SYSVAR_CNT, "cnt" },
-		{ SYSVAR_STAT, "stat" },
-		{ SYSVAR_REFDVAL, "refdval" },
-		{ SYSVAR_REFSTR, "refstr" },
-		{ SYSVAR_STRSIZE, "strsize" },
 		{ -1, NULL },
 	};
 	// 全探索
@@ -3202,7 +2977,6 @@ walk(execute_environment_t* e, ast_node_t* node)
 			v->type_ = VALUE_INT;
 			v->ivalue_ = 0;
 			variable_set(e->variable_table_, v, var_name, 0);
-
 		}
 	}
 	if (node->left_ != NULL) {
@@ -3256,8 +3030,7 @@ load_script(execute_environment_t* e, const char* script, const load_arg_t* arg)
 void
 evaluate(execute_environment_t* e, execute_status_t* s, ast_node_t* n)
 {
-	// もう実行おわってる
-	if (s->is_end_) {
+	if (s->is_end_) { // もう実行おわってる
 		return;
 	}
 	switch (n->tag_) {
@@ -3472,18 +3245,6 @@ evaluate(execute_environment_t* e, execute_status_t* s, ast_node_t* n)
 						raise_error("System variable(cnt): cannot refer outside the repeat-loop.");
 					}
 					stack_push(s->stack_, create_value(s->loop_frame_[s->current_loop_frame_ - 1].cnt_));
-					break;
-				case SYSVAR_STAT:
-					stack_push(s->stack_, create_value(s->stat_));
-					break;
-				case SYSVAR_REFDVAL:
-					stack_push(s->stack_, create_value2(s->refdval_));
-					break;
-				case SYSVAR_REFSTR:
-					stack_push(s->stack_, create_value3(s->refstr_));
-					break;
-				case SYSVAR_STRSIZE:
-					stack_push(s->stack_, create_value(s->strsize_));
 					break;
 				default:
 					assert(false);
@@ -3706,13 +3467,11 @@ execute(execute_environment_t* e)
 		evaluate(e, &s, ex);
 		assert(top == s.stack_->top_);
 		if (s.is_end_) {
-			// もう実行終わったらしい、帰る
-			break;
+			break; // もう実行終わったらしい、帰る
 		}
 		s.node_cur_ = s.node_cur_->next_;
 		if (s.node_cur_ == NULL) {
-			// もう実行できるastがない、帰る
-			break;
+			break; // もう実行できるastがない、帰る
 		}
 	}
 	uninitialize_execute_status(&s);
@@ -3727,15 +3486,7 @@ query_command(const char* s)
 		int tag_;
 		const char* word_;
 	} table[] = {
-#ifndef __SMALL__
-		{ COMMAND_DEVTERM, "devterm" },
-		{ COMMAND_DIM, "dim" },
-		{ COMMAND_DDIM, "ddim" },
-		{ COMMAND_SDIM, "sdim" },
-		{ COMMAND_RANDOMIZE, "randomize" },
-#endif
 		{ COMMAND_MES, "mes" },
-		{ COMMAND_INPUT, "input" },
 		{ -1, NULL },
 	};
 	// 全探索
@@ -3751,15 +3502,7 @@ command_delegate
 get_command_delegate(builtin_command_tag command)
 {
 	static const command_delegate commands[] = {
-#ifndef __SMALL__
-		&command_devterm,
-		&command_dim,
-		&command_ddim,
-		&command_sdim,
-		&command_randomize,
-#endif
 		&command_mes,
-		&command_input,
 		NULL,
 	};
 	return commands[command];
@@ -3773,12 +3516,6 @@ query_function(const char* s)
 		int tag_;
 		const char* word_;
 	} table[] = {
-#ifndef __SMALL__
-		{ FUNCTION_INT, "int" },
-		{ FUNCTION_DOUBLE, "double" },
-		{ FUNCTION_STR, "str" },
-		{ FUNCTION_ABS, "abs" },
-#endif
 		{ FUNCTION_RND, "rnd" },
 		{ -1, NULL },
 	};
@@ -3795,12 +3532,6 @@ function_delegate
 get_function_delegate(builtin_function_tag function)
 {
 	static const function_delegate functions[] = {
-#ifndef __SMALL__
-		&function_int,
-		&function_double,
-		&function_str,
-		&function_abs,
-#endif
 		&function_rnd,
 		NULL,
 	};
