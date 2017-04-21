@@ -832,7 +832,6 @@ restart:
 	prev_p = p;
 	prev_cursor = p - c->script_;
 	res->appear_line_ = c->line_;
-
 	switch (p[0]) {
 		// EOF
 	case '\0':
@@ -1327,7 +1326,6 @@ parse_control_safe(parse_context_t* c)
 		unread_token(c, 1);
 		return NULL;
 	}
-
 	switch (keyword) {
 	case KEYWORD_END:
 		return create_ast_node(NODE_END, NULL, NULL);
@@ -1970,11 +1968,7 @@ search_variable(list_t* table, const char* name)
 void
 variable_set(list_t* table, const value_t* v, const char* name, int idx)
 {
-
 	variable_t* var = search_variable(table, name);
-
-
-
 	if (var == NULL) {
 		var = create_variable(name);
 		list_node_t* node = create_list_node();
@@ -2025,7 +2019,6 @@ variable_set(list_t* table, const value_t* v, const char* name, int idx)
 		assert(false);
 		break;
 	}
-
 }
 
 void*
