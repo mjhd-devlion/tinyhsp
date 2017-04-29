@@ -52,7 +52,7 @@ TinyHSPはコンパイルフラグにより３通りのバイナリを作るこ�
 - `__HSPSTD__` : 標準版
 - `__HSPEXT__` : 拡張版
 
-[exrd / neteruhsp](https://github.com/exrd/neteruhsp)をベースにしており、文法や変数の規則などは基本的に同じです。ウィンドウの表示などGUI処理は[GLFW3](http://www.glfw.org)を使用しています。画像・フォントの読み込みに[nothings / stb](https://github.com/nothings/stb)を使用しています。使用フォントは[M+ FONTS](http://mplus-fonts.osdn.jp)と[Mgen+](http://jikasei.me/font/mgenplus/)です。音声再生に[OpenAL](https://openal.org/)を使用しています。エラーメッセージの英文およびpoke命令・peek関数は[kikeroga3/tinyhsp](https://github.com/kikeroga3/tinyhsp)を使用しています。
+[exrd / neteruhsp](https://github.com/exrd/neteruhsp)をベースにしており、文法や変数の規則などは基本的に同じです。ウィンドウの表示などGUI処理は[GLFW3](http://www.glfw.org)を使用しています。画像・フォント・OGGファイルの読み込みに[nothings / stb](https://github.com/nothings/stb)を使用しています。使用フォントは[M+ FONTS](http://mplus-fonts.osdn.jp)と[Mgen+](http://jikasei.me/font/mgenplus/)です。音声再生に[OpenAL](https://openal.org/)を使用しています。エラーメッセージの英文およびpoke命令・peek関数は[kikeroga3/tinyhsp](https://github.com/kikeroga3/tinyhsp)を使用しています。WAVファイルの読み込みに[mackron / dr_libs](https://github.com/mackron/dr_libs)を使用しています。
 
 ### 共通の追加命令・関数
 
@@ -301,6 +301,7 @@ stop
     - [kikeroga3 / tinyhsp](https://github.com/kikeroga3/tinyhsp)
     - [exrd / neteruhsp](https://github.com/exrd/neteruhsp)
     - [nothings / stb](https://github.com/nothings/stb)
+    - [mackron / dr_libs](https://github.com/mackron/dr_libs)
     - [M+ FONTS](http://mplus-fonts.osdn.jp)
     - [Mgen+](http://jikasei.me/font/mgenplus/)
 
