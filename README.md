@@ -236,15 +236,21 @@ TinyHSP本体のソースコードは `_source` ディレクトリに入って�
 
 ### 標準版のコンパイル
 
-- MinGW: `$ gcc tinyhsp.c -o tinyhsp -lglfw3dll -lopenal32 -mwindows`
-- macOS: `$ clang tinyhsp.c -o tinyhsp -lglfw -framework OpenGL`
-- Linux: `$ gcc tinyhsp.c -o tinyhsp -lm -ldl -lglfw3 -lGL -lX11 -lXxf86vm -lXrandr -lXinerama -lXcursor -lpthread -lXi`
+- MinGW: `$ gcc tinyhsp.c -o tinyhsp_std -lglfw3dll -lopenal32 -mwindows`
+- macOS: `$ clang tinyhsp.c -o tinyhsp_std -lglfw -framework OpenGL`
+- Linux: `$ gcc tinyhsp.c -o tinyhsp_std -lm -ldl -lglfw3 -lGL -lX11 -lXxf86vm -lXrandr -lXinerama -lXcursor -lpthread -lXi`
 
 ### 拡張版のコンパイル
 
-- MinGW: `$ gcc tinyhsp.c -o tinyhsp -lglfw3dll -lopengl32 -lopenal32 -mwindows`
-- macOS: `$ clang tinyhsp.c -o tinyhsp -lglfw -framework OpenGL -framework OpenAL`
-- Linux: `$ gcc tinyhsp.c -o tinyhsp -lm -ldl -lglfw3 -lGL -lX11 -lXxf86vm -lXrandr -lXinerama -lXcursor -lpthread -lXi -lopenal`
+- MinGW:
+    - `$ gcc -c tinyhsp.c stb_vorbis.c`
+    - `$ gcc tinyhsp.o stb_vorbis.o -o tinyhsp_ext -lopengl32 -lglfw3dll -lopenal32 -mwindows`
+- macOS:
+    - `$ clang -c tinyhsp.c stb_vorbis.c`
+    - `$ clang tinyhsp.o stb_vorbis.o -o tinyhsp_ext -lglfw -framework OpenGL -framework OpenAL`
+- Linux:
+    - `$ gcc -c tinyhsp.c stb_vorbis.c`
+    - `$ gcc tinyhsp.o stb_vorbis.o -o tinyhsp_ext -lm -ldl -lglfw3 -lGL -lX11 -lXxf86vm -lXrandr -lXinerama -lXcursor -lpthread -lXi -lopenal`
 
 ## 実行
 
