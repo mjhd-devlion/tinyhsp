@@ -1,8 +1,5 @@
-title "A"
-mes "kakikukeko"
-gosub *main
+title "HelloWorld"
+mes "HelloWorld"
+mmload "test.ogg",1
+mmplay
 stop
-
-*main
-    mes "aiueo"
-    return

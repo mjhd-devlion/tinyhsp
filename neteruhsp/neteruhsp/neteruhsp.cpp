@@ -4875,6 +4875,9 @@ main(int argc, const char* argv[])
 	//		glfwSwapBuffers(window);
 	//	}
 	//}
+
+
+
 	// 実行
 	{
 		{
@@ -4887,11 +4890,22 @@ main(int argc, const char* argv[])
 				dump_ast(env->statement_list_, true);
 				printf("----\n");
 			}
+
+			clock_t start, end;
+			start = clock();
+
 			execute(env);
+
+			end = clock();
+			printf("%.2f秒かかりました\n", (double)(end - start) / CLOCKS_PER_SEC);
+
 			destroy_execute_environment(env);
 		}
 		//glfwTerminate();
 	}
+
+
+
 	xfree(script);
 	destroy_system();
 	return 0;

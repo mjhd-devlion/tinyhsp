@@ -1,3 +1,18 @@
+# コンパイル方法
+MinGWの場合:
+
+コンソール版:
+gcc tinyhsp.c -o tinyhsp_cui
+
+標準版:
+gcc tinyhsp.c -o tinyhsp_std -lopengl32 -lglfw3dll -mwindows
+
+拡張版:
+gcc -c tinyhsp.c stb_vorbis.c
+gcc tinyhsp.o stb_vorbis.o -o tinyhsp_ext -lopengl32 -lglfw3dll -lopenal32 -mwindows
+
+---
+
 TinyHSPは以下のライブラリを使用しています。
 
 GLFW3

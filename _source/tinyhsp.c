@@ -1,6 +1,6 @@
 ﻿//#define __HSPCUI__
-#define __HSPSTD__
-//#define __HSPEXT__
+//#define __HSPSTD__
+#define __HSPEXT__
 
 // 上記のどれか１つを定義する
 
@@ -12,9 +12,16 @@ __HSPEXT__ : 拡張版
 
 # コンパイル方法
 MinGWの場合:
-- コンソール版: gcc tinyhsp.c -o tinyhsp_cui
-- 標準版: gcc tinyhsp.c -o tinyhsp_std -lopengl32 -lglfw3dll -mwindows
-- 拡張版: gcc tinyhsp.c -o tinyhsp_ext -lopengl32 -lglfw3dll -lopenal32 -mwindows
+
+コンソール版:
+gcc tinyhsp.c -o tinyhsp_cui
+
+標準版:
+gcc tinyhsp.c -o tinyhsp_std -lopengl32 -lglfw3dll -mwindows
+
+拡張版:
+gcc -c tinyhsp.c stb_vorbis.c
+gcc tinyhsp.o stb_vorbis.o -o tinyhsp_ext -lopengl32 -lglfw3dll -lopenal32 -mwindows
 
 
 # VisualStudioの設定
@@ -104,6 +111,8 @@ MinGWの場合:
 #include "stb_truetype.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#define DR_WAV_IMPLEMENTATION
+#include "dr_wav.h"
 #endif
 
 #define NHSP_CONFIG_MEMLEAK_DETECTION (0) // メモリリーク発見用ユーティリティを有効化
@@ -139,13 +148,18 @@ int font_threshold = 128; //しきい値
 double font_half_space_ratio = 0.4; //半角スペースの比率
 double font_full_space_ratio = 0.8; //全角スペースの比率
 bool font_smooth = true; //フォントのアンチエイリアシング
-						 // OpenAL
+// OpenAL
 ALCdevice* al_device; // デバイス
 ALCcontext* al_context; // コンテキスト
+ALuint al_buffer;
+ALuint al_source;
+short* al_decoded;
+bool is_al_init;
+bool is_al_play;
 #endif
 #endif
 
-						// 全体
+// 全体
 void initialize_system();
 void destroy_system();
 
@@ -587,6 +601,9 @@ typedef enum
 	COMMAND_FONT,
 	COMMAND_PICLOAD,
 	COMMAND_WAVE,
+	COMMAND_MMLOAD,
+	COMMAND_MMPLAY,
+	COMMAND_MMSTOP,
 #endif
 #endif
 	MAX_COMMAND,
@@ -2260,6 +2277,159 @@ command_wave(execute_environment_t* e, execute_status_t* s, int arg_num)
 
 	stack_pop(s->stack_, arg_num);
 }
+
+//sのposからlen分をtに取り出して返す
+//文字列sのposからlen文字をtに取り出し、戻り値0を返す
+//posやlenが妥当な範囲に無いときは - 1を返す
+//全角文字には対応しない
+int
+substr(char *t, const char *s, int pos, int len)
+{
+	if (pos < 0 || len < 0 || len > strlen(s))
+		return -1;
+	for (s += pos; *s != '\0' && len > 0; len--)
+		*t++ = *s++;
+	*t = '\0';
+	return 0;
+}
+
+void
+command_mmload(execute_environment_t* e, execute_status_t* s, int arg_num)
+{
+	bool is_loop = false;
+	char* filename = "";
+
+	if (arg_num > 2) {
+		raise_error("mmload: Invalid argument."); // 引数が多すぎます
+	}
+
+	const int arg_start = -arg_num;
+
+	if (arg_num > 1) {
+		const value_t* p2 = stack_peek(s->stack_, arg_start + 1);
+		if (value_calc_int(p2) == 1) {
+			is_loop = true;
+		}
+		else if (value_calc_int(p2) == 0){
+			is_loop = false;
+		}
+		else {
+			raise_error("mmload: The number of available loop options are 0 or 1.");
+		}
+	}
+
+	if (arg_num > 0) {
+		const value_t* p1 = stack_peek(s->stack_, arg_start);
+		value_isolate(p1);
+		if (p1->type_ != VALUE_STRING) {
+			raise_error("mmload: Invalid value."); // 引数が文字列型ではありません
+		}
+		filename = p1->svalue_;
+	}
+
+	if (is_al_init) {
+		// すでに初期化されていた
+		if (is_al_play) {
+			// 現在再生中・・・
+			alSourceStop(al_source); // ソースのバッファを停止
+		}
+		alDeleteSources(1, &al_source); // ソースを消去
+		alDeleteBuffers(1, &al_buffer); //バッファを消去
+		free(al_decoded);
+	}
+
+	//拡張子を識別
+	char extension[256];
+	char* p = strchr(filename, '.');
+	if (p == NULL) {
+		raise_error("mmload: Missing extension."); //拡張子がありません
+	}
+	int index = p - filename + 1;
+	int length = strlen(filename) - index;
+	substr(extension, filename, index, length);
+
+	// ALバッファを作成する
+	alGenBuffers(1, &al_buffer);
+
+	//拡張子ごとに処理
+	if (strcmp(extension, "wav") == 0) {
+		drwav wav;
+		if (!drwav_init_file(&wav, filename)) {
+			raise_error("mmload: File not found [%s].", filename);
+		}
+		al_decoded = malloc(wav.totalSampleCount * sizeof(short));
+		size_t num_samples = drwav_read_s16(&wav, wav.totalSampleCount, al_decoded);
+		ALsizei size = round_one(wav.totalSampleCount);
+		if (wav.channels == 1) {
+			alBufferData(al_buffer, AL_FORMAT_MONO16, al_decoded, size * 2, wav.sampleRate); // バッファにデータを格納
+		}
+		else if (wav.channels == 2) {
+			alBufferData(al_buffer, AL_FORMAT_STEREO16, al_decoded, size * 2, wav.sampleRate); // バッファにデータを格納
+		}
+		else {
+			raise_error("mmload: The number of available channels is 1 or 2."); //使用可能なチャンネル数は1か2です
+		}
+	}
+	else if (strcmp(extension, "ogg") == 0) {
+		int channels, rate, len;
+		len = stb_vorbis_decode_filename(filename, &channels, &rate, &al_decoded);
+		ALsizei size = round_one(len);
+		if (channels == 1) {
+			alBufferData(al_buffer, AL_FORMAT_MONO16, al_decoded, size * 2, rate); // バッファにデータを格納
+		}
+		else if (channels == 2) {
+			alBufferData(al_buffer, AL_FORMAT_STEREO16, al_decoded, size * 2, rate); // バッファにデータを格納
+		}
+		else {
+			raise_error("mmload: The number of available channels is 1 or 2."); //使用可能なチャンネル数は1か2です
+		}
+	}
+	else {
+		raise_error("mmload: Available files are wav or ogg."); //使用可能なファイルはwavかoggです
+	}
+
+	// ソースを作成・設定する
+	alGenSources(1, &al_source); // ソースを生成
+	alSourcei(al_source, AL_BUFFER, al_buffer); // ソースの値を設定
+	if (is_loop) {
+		alSourcei(al_source, AL_LOOPING, 1); // ループ再生をオンにする
+	}
+
+	// 初期化済みフラグを立てる
+	is_al_init = true;
+	stack_pop(s->stack_, arg_num);
+}
+
+void
+command_mmplay(execute_environment_t* e, execute_status_t* s, int arg_num)
+{
+	if (!is_al_init) {
+		// 初期化されていない
+		raise_error("mmplay: Please use mmload."); //mmloadを使用してください
+	}
+	if (arg_num >= 1) {
+		raise_error("mmplay: Invalid argument."); //引数が多すぎます
+	}
+
+	if (!is_al_play) {
+		// 再生されていない
+		alSourcePlay(al_source); // ソースのバッファを再生
+	}
+	
+	is_al_play = true;
+	stack_pop(s->stack_, arg_num);
+}
+
+void
+command_mmstop(execute_environment_t* e, execute_status_t* s, int arg_num)
+{
+	if (is_al_play) {
+		// 再生中
+		alSourceStop(al_source);
+	}
+	is_al_play = false;
+	stack_pop(s->stack_, arg_num);
+}
 #endif
 #endif
 
@@ -2374,7 +2544,7 @@ function_peek(execute_environment_t* e, execute_status_t* s, int arg_num)
 	value_t* m = stack_peek(s->stack_, arg_start);
 	value_isolate(m);
 	char* p = m->svalue_;
-	const char r = p[i];
+	unsigned char r = p[i];
 
 	stack_pop(s->stack_, arg_num);
 	stack_push(s->stack_, create_value(r));
@@ -5591,6 +5761,15 @@ query_command(const char* s)
 		{
 			COMMAND_WAVE, "wave",
 		},
+		{
+			COMMAND_MMLOAD, "mmload",
+		},
+		{
+			COMMAND_MMPLAY, "mmplay",
+		},
+		{
+			COMMAND_MMSTOP, "mmstop",
+		},
 #endif
 #endif
 		{ -1, NULL },
@@ -5637,6 +5816,9 @@ get_command_delegate(builtin_command_tag command)
 		&command_font,
 		&command_picload,
 		&command_wave,
+		&command_mmload,
+		&command_mmplay,
+		&command_mmstop,
 #endif
 #endif
 		NULL,
@@ -6139,6 +6321,16 @@ main(int argc, const char* argv[])
 	glfwTerminate(); //GLFW
 #ifdef __HSPEXT__
 	free(font_ttf_buffer); //フォントバッファを解放
+	if (is_al_init) {
+		// すでに初期化されていた
+		if (is_al_play) {
+			// 現在再生中・・・
+			alSourceStop(al_source); // ソースのバッファを停止
+		}
+		alDeleteSources(1, &al_source); // ソースを消去
+		alDeleteBuffers(1, &al_buffer); //バッファを消去
+		free(al_decoded);
+	}
 	alcMakeContextCurrent(NULL); // 現在のコンテキストの解除(OpenAL)
 	alcDestroyContext(al_context); // コンテキストの消去(OpenAL)
 	alcCloseDevice(al_device); // デバイスを閉じる(OpenAL)
