@@ -7,13 +7,13 @@ tinyhsp.c(854): warning C4244: '初期化中': 'double' から 'int' への変�
 tinyhsp.c(855): warning C4244: '初期化中': 'double' から 'int' への変換です。データが失われる可能性があります。
 tinyhsp.c(2288): warning C4018: '>': signed と unsigned の数値を比較しようとしました。
 tinyhsp.c(2323): warning C4090: '関数': 異なる 'const' 修飾子です。
-tinyhsp.c(2360): warning C4244: '関数': 'dr_uint64' から '::size_t' への変換です。データが失われる可能性があります。
-tinyhsp.c(2362): warning C4244: '関数': 'dr_uint64' から 'int' への変換です。データが失われる可能性があります。
-tinyhsp.c(2375): warning C4013: 関数 'stb_vorbis_decode_filename' は定義されていません。int 型の値を返す外部関数と見なします。
-tinyhsp.c(2361): warning C4244: '初期化中': 'dr_uint64' から '::size_t' への変換です。データが失われる可能性があります。
+tinyhsp.c(2361): warning C4244: '関数': 'dr_uint64' から '::size_t' への変換です。データが失われる可能性があります。
+tinyhsp.c(2363): warning C4244: '関数': 'dr_uint64' から 'int' への変換です。データが失われる可能性があります。
+tinyhsp.c(2376): warning C4013: 関数 'stb_vorbis_decode_filename' は定義されていません。int 型の値を返す外部関数と見なします。
+tinyhsp.c(2362): warning C4244: '初期化中': 'dr_uint64' から '::size_t' への変換です。データが失われる可能性があります。
   コード生成しています。
-  77 of 526 functions (14.6%) were compiled, the rest were copied from previous compilation.
+  78 of 526 functions (14.8%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    20 functions had inline decision re-evaluated but remain unchanged
+    19 functions had inline decision re-evaluated but remain unchanged
   コード生成が終了しました。
   tinyhsp.vcxproj -> C:\Users\dolphilia\Documents\GitHub\tinyhsp\tinyhsp\Release\tinyhsp.exe

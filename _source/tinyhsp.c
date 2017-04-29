@@ -2332,6 +2332,7 @@ command_mmload(execute_environment_t* e, execute_status_t* s, int arg_num)
 		if (is_al_play) {
 			// 現在再生中・・・
 			alSourceStop(al_source); // ソースのバッファを停止
+			is_al_play = false;
 		}
 		alDeleteSources(1, &al_source); // ソースを消去
 		alDeleteBuffers(1, &al_buffer); //バッファを消去
