@@ -843,7 +843,6 @@ void set_circle_rgb(uint8_t *pixel_data,
 	int F = (int)(-2.0 * d) + ratioWidth + 2 * ratioHeightSquare;
 	int H = (int)(-4.0 * d) + 2 * ratioWidth + ratioHeightSquare;
 
-
 	while (x >= 0) {
 		set_pixel_rgb(pixel_data,
 			centerPointX + x, centerPointY + y,
@@ -1419,15 +1418,13 @@ command_sdim(execute_environment_t* e, execute_status_t* s, int arg_num)
 		raise_error("sdim: Argument should be a variable."); // sdim: 対象が変数ではありません
 	}
 	if (v->index_ > 0) {
-		raise_error("ddim: Array variables cannot be specified.");
-		// ddim: 対象の変数が配列として指定されています
+		raise_error("ddim: Array variables cannot be specified."); // ddim: 対象の変数が配列として指定されています
 	}
 	const value_t* g = stack_peek(s->stack_, arg_start + 1);
 	const int granule = value_calc_int(g);
 	const int num = (arg_num > 2 ? value_calc_int(stack_peek(s->stack_, arg_start + 2)) : 1);
 	if (granule <= 0 || num <= 0) {
-		raise_error("ddim: Invalid value.");
-		// ddim: 0以下のサイズの文字列または、0個以下の要素は確保できません
+		raise_error("ddim: Invalid value."); // ddim: 0以下のサイズの文字列または、0個以下の要素は確保できません
 	}
 	prepare_variable(v->variable_, VALUE_STRING, granule, num);
 	stack_pop(s->stack_, arg_num);
@@ -1438,15 +1435,12 @@ void
 command_mes(execute_environment_t* e, execute_status_t* s, int arg_num)
 {
 	if (arg_num != 1) {
-		raise_error("mes: Invalid argument.");
-		// mes：引数がたりません
-		// mes：引数が多すぎます@@ %d個渡されました", arg_num);
+		raise_error("mes: Invalid argument."); // mes：引数が足りないか、引数が多すぎます@@ %d個渡されました", arg_num);
 	}
 	value_t* m = stack_peek(s->stack_, -1);
 	value_isolate(m);
 	if (m->type_ != VALUE_STRING) {
-		raise_error("mes: Invalid value.");
-		// mes：引数が文字列型ではありません
+		raise_error("mes: Invalid value."); // mes：引数が文字列型ではありません
 	}
 	printf("%s\n", m->svalue_);
 	stack_pop(s->stack_, arg_num);
@@ -1459,17 +1453,13 @@ command_mes(execute_environment_t* e, execute_status_t* s, int arg_num)
 {
 
 	if (arg_num != 1) {
-		raise_error("mes: Invalid argument.");
-		// mes：引数がたりません
-		// mes：引数が多すぎます@@ %d個渡されました", arg_num);
+		raise_error("mes: Invalid argument."); // mes：引数が足りないか、多すぎます@@ %d個渡されました", arg_num);
 	}
 	value_t* m = stack_peek(s->stack_, -1);
 	value_isolate(m);
 	if (m->type_ != VALUE_STRING) {
-		raise_error("mes: Invalid value.");
-		// mes：引数が文字列型ではありません
+		raise_error("mes: Invalid value."); // mes：引数が文字列型ではありません
 	}
-	//printf("%s\n", m->svalue_);
 	// 文字列を描画
 	{
 		char* src_str = m->svalue_;
@@ -1565,19 +1555,15 @@ void
 command_input(execute_environment_t* e, execute_status_t* s, int arg_num)
 {
 	if (arg_num < 2 || arg_num > 3) {
-		raise_error("input: Invalid argument.");
-		// input：引数がたりません
-		// input：引数が多すぎます
+		raise_error("input: Invalid argument."); // input：引数が足りないか、引数が多すぎます
 	}
 	const int arg_start = -arg_num;
 	const value_t* v = stack_peek(s->stack_, arg_start);
 	if (v->type_ != VALUE_VARIABLE) {
-		raise_error("input: Argument should be a variable.");
-		// input：対象が変数ではありません
+		raise_error("input: Argument should be a variable."); // input：対象が変数ではありません
 	}
 	if (v->index_ > 0) {
-		raise_error("input: Array variables cannot be specified.");
-		// input：対象の変数が配列として指定されています
+		raise_error("input: Array variables cannot be specified."); // input：対象の変数が配列として指定されています
 	}
 	const value_t* n = stack_peek(s->stack_, arg_start + 1);
 	const int len = value_calc_int(n) + 1;
@@ -1625,8 +1611,7 @@ void
 command_randomize(execute_environment_t* e, execute_status_t* s, int arg_num)
 {
 	if (arg_num > 1) {
-		raise_error("randomize: Invalid argument.");
-		// randomize：引数が多すぎます
+		raise_error("randomize: Invalid argument."); // randomize：引数が多すぎます
 	}
 	unsigned int seed = 0;
 	if (arg_num == 0) {
@@ -1645,9 +1630,7 @@ command_bload(execute_environment_t* e, execute_status_t* s, int arg_num)
 {
 	// 引数の数をチェックする
 	if (arg_num != 2) {
-		raise_error("bload: Invalid argument.");
-		// bload：引数がたりません
-		// bload：引数が多すぎます
+		raise_error("bload: Invalid argument."); // bload：引数が足りないか、多すぎます
 	}
 
 	// １つ目の引数を取得する
@@ -1655,16 +1638,14 @@ command_bload(execute_environment_t* e, execute_status_t* s, int arg_num)
 	value_t* m = stack_peek(s->stack_, arg_start);
 	value_isolate(m);
 	if (m->type_ != VALUE_STRING) {
-		raise_error("bload: Argument should specify a string type.");
-		// bload：引数が文字列型ではありません
+		raise_error("bload: Argument should specify a string type."); // bload：引数が文字列型ではありません
 	}
 	char* filename = m->svalue_;
 
 	// ２つめの引数を取得する
 	const value_t* v = stack_peek(s->stack_, arg_start + 1);
 	if (v->type_ != VALUE_VARIABLE) {
-		raise_error("bload: Argument should be a variable.");
-		// bload：対象が変数ではありません
+		raise_error("bload: Argument should be a variable."); // bload：対象が変数ではありません
 	}
 
 	// ファイルをオープンする
@@ -1765,8 +1746,7 @@ void
 command_stop(execute_environment_t* e, execute_status_t* s, int arg_num)
 {
 	if (arg_num >= 1) {
-		raise_error("stop: Invalid argument.");
-		// stop：引数が多すぎます
+		raise_error("stop: Invalid argument."); // stop：引数が多すぎます
 	}
 	for (;;) { // ウィンドウを閉じるまで
 		if (glfwWindowShouldClose(window)) {
@@ -1782,15 +1762,12 @@ void
 command_title(execute_environment_t* e, execute_status_t* s, int arg_num)
 {
 	if (arg_num != 1) {
-		raise_error("title: Invalid argument.");
-		// title：引数がたりません
-		// title：引数が多すぎます@@ %d個渡されました", arg_num);
+		raise_error("title: Invalid argument."); // title：引数が足りないか、多すぎます@@ %d個渡されました", arg_num
 	}
 	value_t* m = stack_peek(s->stack_, -1);
 	value_isolate(m);
 	if (m->type_ != VALUE_STRING) {
-		raise_error("title: Argument should specify a string type.");
-		// title：引数が文字列型ではありません
+		raise_error("title: Argument should specify a string type."); // title：引数が文字列型ではありません
 	}
 	glfwSetWindowTitle(window, m->svalue_);
 	stack_pop(s->stack_, arg_num);
@@ -1800,8 +1777,7 @@ void
 command_pset(execute_environment_t* e, execute_status_t* s, int arg_num)
 {
 	if (arg_num > 2) {
-		raise_error("pset: Invalid argument.");
-		// pset：引数が多すぎます
+		raise_error("pset: Invalid argument."); // pset：引数が多すぎます
 	}
 	if (arg_num <= 0) { // 引数が省略されば場合
 		set_pixel_rgb(pixel_data,
@@ -1830,8 +1806,7 @@ void
 command_redraw(execute_environment_t* e, execute_status_t* s, int arg_num)
 {
 	if (arg_num > 1) {
-		raise_error("redraw: Invalid argument.");
-		// redraw：引数が多すぎます
+		raise_error("redraw: Invalid argument."); // redraw：引数が多すぎます
 	}
 	if (arg_num <= 0) { // 引数が省略された
 		redraw_flag = true;
@@ -1848,8 +1823,7 @@ command_redraw(execute_environment_t* e, execute_status_t* s, int arg_num)
 		redraw();
 	}
 	else {
-		raise_error("redraw: Argument values only 0 or 1.");
-		// redraw：引数の値は0か1のみをサポートしています
+		raise_error("redraw: Argument values only 0 or 1."); // redraw：引数の値は0か1のみをサポートしています
 	}
 	stack_pop(s->stack_, arg_num);
 }
@@ -1858,9 +1832,7 @@ void
 command_pos(execute_environment_t* e, execute_status_t* s, int arg_num)
 {
 	if (arg_num != 2) {
-		raise_error("pos: Invalid argument.");
-		// pos：引数が足りません
-		// pos：引数が多すぎます
+		raise_error("pos: Invalid argument."); // pos：引数が足りないか、多すぎます
 	}
 	const int arg_start = -arg_num;
 	const value_t* p1 = stack_peek(s->stack_, arg_start);
@@ -1876,8 +1848,7 @@ void
 command_color(execute_environment_t* e, execute_status_t* s, int arg_num)
 {
 	if (arg_num > 3) {
-		raise_error("color: Invalid argument.");
-		// color：引数が多すぎます
+		raise_error("color: Invalid argument."); // color：引数が多すぎます
 	}
 	if (arg_num <= 0) { // 引数が省略された場合
 		current_color_r = 0;
@@ -1903,9 +1874,7 @@ void
 command_line(execute_environment_t* e, execute_status_t* s, int arg_num)
 {
 	if (arg_num != 4) {
-		raise_error("line: Invalid argument.");
-		// line：引数が足りません
-		// line：引数が多すぎます
+		raise_error("line: Invalid argument."); // line：引数が足りないか、引数が多すぎます
 	}
 	const int arg_start = -arg_num;
 	const value_t* p1 = stack_peek(s->stack_, arg_start);
@@ -1931,9 +1900,7 @@ void
 command_boxf(execute_environment_t* e, execute_status_t* s, int arg_num)
 {
 	if (arg_num != 4) {
-		raise_error("line: Invalid argument.");
-		// line：引数が足りません
-		// line：引数が多すぎます
+		raise_error("line: Invalid argument."); // line：引数が足りないか、多すぎます
 	}
 	const int arg_start = -arg_num;
 	const value_t* p1 = stack_peek(s->stack_, arg_start);
@@ -1959,19 +1926,15 @@ void
 command_stick(execute_environment_t* e, execute_status_t* s, int arg_num)
 {
 	if (arg_num < 1 || arg_num > 2) {
-		raise_error("stick: Invalid argument.");
-		// stick：引数がたりません
-		// stick：引数が多すぎます
+		raise_error("stick: Invalid argument."); // stick：引数が足りないか、引数が多すぎます
 	}
 	const int arg_start = -arg_num;
 	const value_t* v = stack_peek(s->stack_, arg_start);
 	if (v->type_ != VALUE_VARIABLE) {
-		raise_error("stick: Argument should be a variable.");
-		// stick：対象が変数ではありません
+		raise_error("stick: Argument should be a variable."); // stick：対象が変数ではありません
 	}
 	if (v->index_ > 0) {
-		raise_error("stick: Array variables cannot be specified.");
-		// stick：対象の変数が配列として指定されています
+		raise_error("stick: Array variables cannot be specified."); // stick：対象の変数が配列として指定されています
 	}
 
 	int key = 0;
@@ -2023,15 +1986,7 @@ command_circle(execute_environment_t* e, execute_status_t* s, int arg_num)
 	if (arg_num < 4) {
 		raise_error("line: Invalid argument.");
 	}
-
 	const int arg_start = -arg_num;
-
-	// 引数が省略された場合
-	//if (arg_num > 4) {
-	//	const value_t* p5 = stack_peek(s->stack_, arg_start + 4);
-	//	is_fill = value_calc_int(p5);
-	//}
-	
 	const value_t* p1 = stack_peek(s->stack_, arg_start);
 	const int x0 = value_calc_int(p1);
 	const value_t* p2 = stack_peek(s->stack_, arg_start + 1);
@@ -2067,9 +2022,8 @@ void
 command_font(execute_environment_t* e, execute_status_t* s, int arg_num)
 {
 	if (arg_num > 3 || arg_num <= 0) {
-		raise_error("font: Invalid argument.");
-		// font：引数が多すぎます@@ %d個渡されました", arg_num);
-		// font：引数がたりません
+		raise_error("font: Invalid argument."); // font：引数が足りないか、多すぎます@@ %d個渡されました", arg_num
+		
 	}
 	char* name = (char*)"";
 	int size = font_size;
@@ -2079,8 +2033,7 @@ command_font(execute_environment_t* e, execute_status_t* s, int arg_num)
 		value_t* n = stack_peek(s->stack_, arg_start);
 		value_isolate(n);
 		if (n->type_ != VALUE_STRING) {
-			raise_error("font: Invalid value.");
-			// font：引数が文字列型ではありません
+			raise_error("font: Invalid value."); // font：引数が文字列型ではありません
 		}
 		name = n->svalue_;
 	}
@@ -2096,8 +2049,7 @@ command_font(execute_environment_t* e, execute_status_t* s, int arg_num)
 		memset(font_ttf_buffer, 0, 4500000);
 		FILE* fp = fopen(name, "rb");
 		if (fp == NULL) {
-			raise_error("font: Font %s cannot be opened.", name);
-			// font：フォントファイル%sをオープンできませんでした", name);
+			raise_error("font: Font %s cannot be opened.", name); // font：フォントファイル%sをオープンできませんでした", name
 		}
 		fread(font_ttf_buffer, 1, 4500000, fp);
 		fclose(fp);
@@ -2107,8 +2059,7 @@ command_font(execute_environment_t* e, execute_status_t* s, int arg_num)
 	if (font_size != size) { // フォント情報の生成
 		font_size = size;
 		if (font_size > 100) {
-			raise_error("font：Maximum font size is 100.");
-			// font：フォントサイズの上限は100です
+			raise_error("font：Maximum font size is 100."); // font：フォントサイズの上限は100です
 		}
 		font_scale = stbtt_ScaleForPixelHeight(&font, (float)font_size);
 		stbtt_GetFontVMetrics(&font, &font_ascent, 0, 0);
@@ -2127,15 +2078,12 @@ void
 command_picload(execute_environment_t* e, execute_status_t* s, int arg_num)
 {
 	if (arg_num != 1) {
-		raise_error("picload: Invalid argument.");
-		// picload：引数がたりません
-		// picload：引数が多すぎます@@ %d個渡されました", arg_num);
+		raise_error("picload: Invalid argument."); // picload：引数が足りないか、多すぎます@@ %d個渡されました", arg_num);
 	}
 	value_t* m = stack_peek(s->stack_, -1);
 	value_isolate(m);
 	if (m->type_ != VALUE_STRING) {
-		raise_error("picload: Invalid value.");
-		// picload：引数が文字列型ではありません
+		raise_error("picload: Invalid value."); // picload：引数が文字列型ではありません
 	}
 	// 画像を読み込む
 	load_image(m->svalue_, pixel_data,
@@ -2153,8 +2101,7 @@ command_wave(execute_environment_t* e, execute_status_t* s, int arg_num)
 	int16_t volume = 3000;
 
 	if (arg_num > 4 || arg_num < 0) {
-		raise_error("wave: Invalid argument.");
-		// wave：引数が多すぎます
+		raise_error("wave: Invalid argument."); // wave：引数が多すぎます
 	}
 
 	const int arg_start = -arg_num;
@@ -2415,9 +2362,7 @@ void
 function_int(execute_environment_t* e, execute_status_t* s, int arg_num)
 {
 	if (arg_num != 1) {
-		raise_error("int: Invalid argument.");
-		// int：引数がたりません
-		// int：引数が多すぎます@@ %d個渡されました", arg_num);
+		raise_error("int: Invalid argument."); // int：引数が足りないか、多すぎます@@ %d個渡されました", arg_num
 	}
 	const value_t* m = stack_peek(s->stack_, -1);
 	const int r = value_calc_int(m);
@@ -2429,9 +2374,7 @@ void
 function_double(execute_environment_t* e, execute_status_t* s, int arg_num)
 {
 	if (arg_num != 1) {
-		raise_error("double: Invalid argument.");
-		// double：引数がたりません
-		// double：引数が多すぎます@@ %d個渡されました", arg_num);
+		raise_error("double: Invalid argument."); // double：引数が足りないか、多すぎます@@ %d個渡されました", arg_num
 	}
 	const value_t* m = stack_peek(s->stack_, -1);
 	int r = (int)value_calc_double(m);
@@ -2443,9 +2386,7 @@ void
 function_str(execute_environment_t* e, execute_status_t* s, int arg_num)
 {
 	if (arg_num != 1) {
-		raise_error("str: Invalid argument.");
-		// str：引数がたりません
-		// str：引数が多すぎます@@ %d個渡されました", arg_num);
+		raise_error("str: Invalid argument."); // str：引数が足りないか、多すぎます@@ %d個渡されました", arg_num
 	}
 	const value_t* m = stack_peek(s->stack_, -1);
 	char* r = value_calc_string(m);
@@ -2457,15 +2398,12 @@ void
 function_rnd(execute_environment_t* e, execute_status_t* s, int arg_num)
 {
 	if (arg_num != 1) {
-		raise_error("rnd: Invalid argument.");
-		// rnd：引数がたりません
-		// rnd：引数が多すぎます@@ %d個渡されました", arg_num);
+		raise_error("rnd: Invalid argument."); // rnd：引数が足りないか、多すぎます@@ %d個渡されました", arg_num
 	}
 	const value_t* m = stack_peek(s->stack_, -1);
 	const int r = value_calc_int(m);
 	if (r < 1) {
-		raise_error("rnd: Please specify 1 or more.@@ %d", r);
-		// rnd：引数は1以上である必要があります@@ %d", r);
+		raise_error("rnd: Please specify 1 or more.@@ %d", r); // rnd：引数は1以上である必要があります@@ %d", r
 	}
 	stack_pop(s->stack_, arg_num);
 	const int res = rand() % (r);
@@ -2476,9 +2414,7 @@ void
 function_abs(execute_environment_t* e, execute_status_t* s, int arg_num)
 {
 	if (arg_num != 1) {
-		raise_error("abs: Invalid argument.");
-		// abs：引数がたりません
-		// abs：引数が多すぎます@@ %d個渡されました", arg_num);
+		raise_error("abs: Invalid argument."); // abs：引数が足りないか、多すぎます@@ %d個渡されました", arg_num
 	}
 	const value_t* m = stack_peek(s->stack_, -1);
 	const int r = value_calc_int(m);
@@ -2491,18 +2427,13 @@ void
 function_powf(execute_environment_t* e, execute_status_t* s, int arg_num)
 {
 	if (arg_num != 2) {
-		raise_error("powf: Invalid argument.");
-		// pofw：引数がたりません
-		// pofw：引数が多すぎます@@ %d個渡されました", arg_num);
+		raise_error("powf: Invalid argument."); // pofw：引数が足りないか、多すぎます@@ %d個渡されました", arg_num
 	}
-
 	const int arg_start = -arg_num;
-
 	const value_t* p1 = stack_peek(s->stack_, arg_start);
 	double x = value_calc_double(p1);
 	const value_t* p2 = stack_peek(s->stack_, arg_start + 1);
 	double y = value_calc_double(p2);
-
 	stack_pop(s->stack_, arg_num);
 	stack_push(s->stack_, create_value2(powf((float)x, (float)y)));
 }
@@ -2736,36 +2667,16 @@ query_keyword(const char* s)
 		int tag_;
 		const char* word_;
 	} table[] = {
-		{
-			KEYWORD_END, "end",
-		},
-		{
-			KEYWORD_RETURN, "return",
-		},
-		{
-			KEYWORD_GOTO, "goto",
-		},
-		{
-			KEYWORD_GOSUB, "gosub",
-		},
-		{
-			KEYWORD_REPEAT, "repeat",
-		},
-		{
-			KEYWORD_LOOP, "loop",
-		},
-		{
-			KEYWORD_CONTINUE, "continue",
-		},
-		{
-			KEYWORD_BREAK, "break",
-		},
-		{
-			KEYWORD_IF, "if",
-		},
-		{
-			KEYWORD_ELSE, "else",
-		},
+		{ KEYWORD_END, "end", },
+		{ KEYWORD_RETURN, "return", },
+		{ KEYWORD_GOTO, "goto", },
+		{ KEYWORD_GOSUB, "gosub", },
+		{ KEYWORD_REPEAT, "repeat", },
+		{ KEYWORD_LOOP, "loop", },
+		{ KEYWORD_CONTINUE, "continue", },
+		{ KEYWORD_BREAK, "break", },
+		{ KEYWORD_IF, "if", },
+		{ KEYWORD_ELSE, "else", },
 		{ -1, NULL },
 	};
 	// 全探索
@@ -3092,8 +3003,7 @@ create_token_string(const char* str, size_t len)
 				res[w] = '\"';
 				break;
 			default:
-				raise_error("Unknown escape sequence@@ %c%c", str[i], str[i + 1]);
-				// 読み取れないエスケープシーケンス@@ %c%c", str[i], str[i + 1]);
+				raise_error("Unknown escape sequence@@ %c%c", str[i], str[i + 1]); // 読み取れないエスケープシーケンス
 				break;
 			}
 			++i;
@@ -3255,8 +3165,7 @@ parse_script(parse_context_t* c)
 	{
 		const token_t* token = read_token(c);
 		if (token->tag_ != TOKEN_EOF) {
-			raise_error("Script couldn't be parsed successfully.@@ %d Row", token->appear_line_);
-			// スクリプトを最後まで正しくパースできませんでした@@ %d行目", token->appear_line_);
+			raise_error("Script couldn't be parsed successfully.@@ %d Row", token->appear_line_); // スクリプトを最後まで正しくパースできませんでした
 		}
 	}
 	return res;
@@ -3377,8 +3286,7 @@ parse_control_safe(parse_context_t* c)
 	case KEYWORD_GOSUB: {
 		ast_node_t* label = parse_label_safe(c);
 		if (label == NULL) {
-			raise_error("Labels must be specified for goto or gosub.@@ %d Row", ident->appear_line_);
-			// gotoまたはgosubにはラベルの指定が必須です@@ %d行目", ident->appear_line_);
+			raise_error("Labels must be specified for goto or gosub.@@ %d Row", ident->appear_line_); // gotoまたはgosubにはラベルの指定が必須です
 		}
 		node_tag tmp = keyword == KEYWORD_GOTO ? NODE_GOTO : NODE_GOSUB;
 		return create_ast_node(tmp, label, NULL);
@@ -3413,9 +3321,7 @@ parse_control_safe(parse_context_t* c)
 				}
 				ast_node_t* statement = parse_statement(c);
 				if (statement == NULL) {
-					raise_error("if contains statements that cannot be parsed.@@ %d to %d Row", pp->appear_line_, ident->appear_line_);
-					// if文の解析中、解析できないステートメントに到達しました"
-					//	"@@ %d行目、%d行目から", pp->appear_line_, ident->appear_line_);
+					raise_error("if contains statements that cannot be parsed.@@ %d to %d Row", pp->appear_line_, ident->appear_line_); // if文の解析中、解析できないステートメントに到達しました
 				}
 				true_statements =
 					create_ast_node(NODE_BLOCK_STATEMENTS, true_statements, statement);
@@ -3426,8 +3332,7 @@ parse_control_safe(parse_context_t* c)
 			{
 				const token_t* nn = read_token(c);
 				if (nn->tag_ != TOKEN_EOS) {
-					raise_error("After if conditional, only { or : @@ %d Row", nn->appear_line_);
-					// if文の解析中：ifの条件式の後は { か : しか置けません@@ %d行目", nn->appear_line_);
+					raise_error("After if conditional, only { or : @@ %d Row", nn->appear_line_); // if文の解析中：ifの条件式の後は { か : しか置けません
 				}
 			}
 			for (;;) {
@@ -3444,9 +3349,7 @@ parse_control_safe(parse_context_t* c)
 				}
 				ast_node_t* statement = parse_statement(c);
 				if (statement == NULL) {
-					raise_error("if contains statements that cannot be parsed.@@ %d to %d Row", nn->appear_line_, ident->appear_line_);
-					// if文の解析中、解析できないステートメントに到達しました"
-					//	"@@ %d行目、%d行目から", nn->appear_line_, ident->appear_line_);
+					raise_error("if contains statements that cannot be parsed.@@ %d to %d Row", nn->appear_line_, ident->appear_line_); // if文の解析中、解析できないステートメントに到達しました
 				}
 				true_statements =
 					create_ast_node(NODE_BLOCK_STATEMENTS, true_statements, statement);
@@ -3467,9 +3370,7 @@ parse_control_safe(parse_context_t* c)
 					}
 					ast_node_t* statement = parse_statement(c);
 					if (statement == NULL) {
-						raise_error("else contains statements that cannot be parsed.@@ %d to %d Row", nn->appear_line_, ident->appear_line_);
-						// ifのelse文の解析中、解析できないステートメントに到達"
-						//	"しました@@ %d行目、%d行目から", nn->appear_line_, ident->appear_line_);
+						raise_error("else contains statements that cannot be parsed.@@ %d to %d Row", nn->appear_line_, ident->appear_line_); // ifのelse文の解析中、解析できないステートメントに到達しました
 					}
 					false_statements = create_ast_node(NODE_BLOCK_STATEMENTS, false_statements, statement);
 				}
@@ -3479,9 +3380,7 @@ parse_control_safe(parse_context_t* c)
 				{
 					const token_t* nnf = read_token(c);
 					if (nnf->tag_ != TOKEN_EOS) {
-						raise_error("After else, only { or : @@ %d Row", nnf->appear_line_);
-						// ifのelse文の解析中：elseの後は { か : しか置けません@@ "
-						//	"%d行目", nnf->appear_line_);
+						raise_error("After else, only { or : @@ %d Row", nnf->appear_line_); // ifのelse文の解析中：elseの後は { か : しか置けません
 					}
 				}
 				for (;;) {
@@ -3498,9 +3397,7 @@ parse_control_safe(parse_context_t* c)
 					}
 					ast_node_t* statement = parse_statement(c);
 					if (statement == NULL) {
-						raise_error("else contains statements that cannot be parsed.@@ %d to %d Row", nnf->appear_line_, ident->appear_line_);
-						// ifのelse文の解析中、解析できないステートメントに到達"
-						//	"しました@@ %d行目、%d行目から", nnf->appear_line_, ident->appear_line_);
+						raise_error("else contains statements that cannot be parsed.@@ %d to %d Row", nnf->appear_line_, ident->appear_line_); // ifのelse文の解析中、解析できないステートメントに到達しました
 					}
 					false_statements = create_ast_node(NODE_BLOCK_STATEMENTS, false_statements, statement);
 				}
@@ -3518,8 +3415,7 @@ parse_control_safe(parse_context_t* c)
 		return create_ast_node(NODE_IF, expr, dispatcher);
 	}
 	case KEYWORD_ELSE:
-		raise_error("Detected an unprocessed else.@@ %d Row", ident->appear_line_);
-		// ハンドルされないelseを検出しました@@ %d行目", ident->appear_line_);
+		raise_error("Detected an unprocessed else.@@ %d Row", ident->appear_line_); // ハンドルされないelseを検出しました
 		break;
 	}
 	unread_token(c, 1);
@@ -3588,8 +3484,7 @@ parse_assign_safe(parse_context_t* c)
 	}
 	const token_t* next = read_token(c);
 	if (next->tag_ != TOKEN_ASSIGN) {
-		raise_error("Value substitution: = is required.@@ %d Row", next->appear_line_);
-		// 代入 : =が必要です@@ %d行目", next->appear_line_);
+		raise_error("Value substitution: = is required.@@ %d Row", next->appear_line_); // 代入 : =が必要です
 	}
 	ast_node_t* expr = parse_expression(c);
 	ast_node_t* assign = create_ast_node(NODE_ASSIGN, variable, expr);
@@ -3614,11 +3509,9 @@ parse_variable_safe(parse_context_t* c)
 	if (nn->tag_ != TOKEN_RPARENTHESIS) {
 		// 多そうなので個別対処
 		if (nn->tag_ == TOKEN_COMMA) {
-			raise_error("Array variable is one dimension only.@@ %d Row", nn->appear_line_);
-			// 配列変数 : 二次元以上の配列はサポートしていません@@ %d行目", nn->appear_line_);
+			raise_error("Array variable is one dimension only.@@ %d Row", nn->appear_line_); // 配列変数 : 二次元以上の配列はサポートしていません
 		}
-		raise_error("Array variable: Parentheses are not closed.@@ %d Row", nn->appear_line_);
-		// 配列変数 : 括弧が正しく閉じられていません@@ %d行目", nn->appear_line_);
+		raise_error("Array variable: Parentheses are not closed.@@ %d Row", nn->appear_line_); // 配列変数 : 括弧が正しく閉じられていません
 	}
 	return create_ast_node2(NODE_VARIABLE, ident, idx);
 }
@@ -3642,8 +3535,7 @@ parse_borand(parse_context_t* c)
 		case TOKEN_OP_BAND: {
 			ast_node_t* r = parse_eqneq(c);
 			if (r == NULL) {
-				raise_error("|,& Operator analysis failed.@@ %d Row", token->appear_line_);
-				// |,&の演算子で、右項の解析が出来ません@@ %d行目", token->appear_line_);
+				raise_error("|,& Operator analysis failed.@@ %d Row", token->appear_line_); // |,&の演算子で、右項の解析が出来ません
 			}
 			switch (token->tag_) {
 			case TOKEN_OP_BOR:
@@ -3683,8 +3575,7 @@ parse_eqneq(parse_context_t* c)
 		case TOKEN_ASSIGN: {
 			ast_node_t* r = parse_gtlt(c);
 			if (r == NULL) {
-				raise_error("==,!= Operator analysis failed.@@ %d Row", token->appear_line_);
-				// ==,!=の演算子で、右項の解析が出来ません@@ %d行目", token->appear_line_);
+				raise_error("==,!= Operator analysis failed.@@ %d Row", token->appear_line_); // ==,!=の演算子で、右項の解析が出来ません
 			}
 			switch (token->tag_) {
 			case TOKEN_OP_EQ:
@@ -3726,8 +3617,7 @@ parse_gtlt(parse_context_t* c)
 		case TOKEN_OP_LTOE: {
 			ast_node_t* r = parse_addsub(c);
 			if (r == NULL) {
-				raise_error(">,>=,<,<= Operator analysis failed.@@ %d Row", token->appear_line_);
-				// >,>=,<,<=の演算子で、右項の解析が出来ません@@ %d行目", token->appear_line_);
+				raise_error(">,>=,<,<= Operator analysis failed.@@ %d Row", token->appear_line_); // >,>=,<,<=の演算子で、右項の解析が出来ません
 			}
 			switch (token->tag_) {
 			case TOKEN_OP_GT:
@@ -3772,8 +3662,7 @@ parse_addsub(parse_context_t* c)
 		case TOKEN_OP_SUB: {
 			ast_node_t* r = parse_muldivmod(c);
 			if (r == NULL) {
-				raise_error("+- Operator analysis failed.@@ %d Row", token->appear_line_);
-				// +-の演算子で、右項の解析が出来ません@@ %d行目", token->appear_line_);
+				raise_error("+- Operator analysis failed.@@ %d Row", token->appear_line_); // +-の演算子で、右項の解析が出来ません
 			}
 			switch (token->tag_) {
 			case TOKEN_OP_ADD:
@@ -3813,8 +3702,7 @@ parse_muldivmod(parse_context_t* c)
 		case TOKEN_OP_MOD: {
 			ast_node_t* r = parse_term(c);
 			if (r == NULL) {
-				raise_error("*/\\ Operator analysis failed.@@ %d Row", token->appear_line_);
-				// */\\の演算子で、右項の解析が出来ません@@ %d行目", token->appear_line_);
+				raise_error("*/\\ Operator analysis failed.@@ %d Row", token->appear_line_); // */\\の演算子で、右項の解析が出来ません
 			}
 			switch (token->tag_) {
 			case TOKEN_OP_MUL:
@@ -3867,8 +3755,7 @@ parse_primitive(parse_context_t* c)
 		ast_node_t* node = parse_expression(c);
 		const token_t* next = read_token(c);
 		if (next->tag_ != TOKEN_RPARENTHESIS) {
-			raise_error("Parentheses are not closed.@@ %d Row", token->appear_line_);
-			// 括弧が閉じられていません@@ %d行目", token->appear_line_);
+			raise_error("Parentheses are not closed.@@ %d Row", token->appear_line_); // 括弧が閉じられていません
 		}
 		return create_ast_node(NODE_EXPRESSION, node, NULL);
 	}
@@ -3880,27 +3767,23 @@ parse_primitive(parse_context_t* c)
 		unread_token(c, 1);
 		ast_node_t* label = parse_label_safe(c);
 		if (label == NULL) {
-			raise_error("Label cannot be parsed.@@ %d Row", token->appear_line_);
-			// ラベルが正しく解析できませんでした@@ %d行目", token->appear_line_);
+			raise_error("Label cannot be parsed.@@ %d Row", token->appear_line_); // ラベルが正しく解析できませんでした
 		}
-		raise_error("Labels cannot be used for expressions.@@ %d Row", token->appear_line_);
-		// 式中にラベル型を使うことはできません@@ %d行目", token->appear_line_);
+		raise_error("Labels cannot be used for expressions.@@ %d Row", token->appear_line_); // 式中にラベル型を使うことはできません
 		return label;
 	}
 	case TOKEN_IDENTIFIER: {
 		unread_token(c, 1);
 		ast_node_t* expr = parse_identifier_expression(c);
 		if (expr == NULL) {
-			raise_error("Function or Variable cannot be parsed.@@ %d Row", token->appear_line_);
-			// 関数または変数を正しく解析できませんでした@@ %d行目", token->appear_line_);
+			raise_error("Function or Variable cannot be parsed.@@ %d Row", token->appear_line_); // 関数または変数を正しく解析できませんでした
 		}
 		return expr;
 	}
 	default:
 		break;
 	}
-	raise_error("Primitive values cannot be acquired.@@ %d Row[%s]", token->appear_line_, token->content_);
-	// プリミティブな値を取得できません@@ %d行目[%s]", token->appear_line_, token->content_);
+	raise_error("Primitive values cannot be acquired.@@ %d Row[%s]", token->appear_line_, token->content_); // プリミティブな値を取得できません
 	return NULL;
 }
 
@@ -3929,8 +3812,7 @@ parse_identifier_expression(parse_context_t* c)
 	ast_node_t* idx = parse_arguments(c);
 	const token_t* nn = read_token(c);
 	if (nn->tag_ != TOKEN_RPARENTHESIS) {
-		raise_error("Function or Array variable: Parentheses are not closed.@@ %d Row", nn->appear_line_);
-		// 関数または配列変数 : 括弧が正しく閉じられていません@@ %d行目", nn->appear_line_);
+		raise_error("Function or Array variable: Parentheses are not closed.@@ %d Row", nn->appear_line_); // 関数または配列変数 : 括弧が正しく閉じられていません
 	}
 	return create_ast_node2(NODE_IDENTIFIER_EXPR, ident, idx);
 }
@@ -4031,11 +3913,7 @@ search_variable(list_t* table, const char* name)
 void
 variable_set(list_t* table, const value_t* v, const char* name, int idx)
 {
-
 	variable_t* var = search_variable(table, name);
-
-
-
 	if (var == NULL) {
 		var = create_variable(name);
 		list_node_t* node = create_list_node();
@@ -4045,8 +3923,7 @@ variable_set(list_t* table, const value_t* v, const char* name, int idx)
 	assert(var != NULL);
 	if (var->type_ != v->type_) {
 		if (idx > 0) {
-			raise_error("Variable type is different.@@ %s(%d)", name, idx);
-			// 型の異なる変数への代入@@ %s(%d)", name, idx);
+			raise_error("Variable type is different.@@ %s(%d)", name, idx); // 型の異なる変数への代入
 		}
 		prepare_variable(var, v->type_, 64, 16);
 	}
@@ -4060,62 +3937,46 @@ variable_set(list_t* table, const value_t* v, const char* name, int idx)
 	}
 	int len = var->length_;
 	if (idx < 0 || len <= idx) {
-		raise_error("Invalid value.@@ %s(%d)", name, idx);
-		// 負の添え字は無効です@@ %s(%d)", name, idx);
-		// 存在しない添え字への代入@@ %s(%d)", name, idx);
+		raise_error("Invalid value.@@ %s(%d)", name, idx); // 負の添え字、あるいは存在しない添え字への代入
 	}
 	if (init_required) {
 		prepare_variable(var, v->type_, granule_size, len);
 	}
-
 	assert(var->type_ == v->type_);
 	void* data_ptr = variable_data_ptr(var, idx);
-
-
 	switch (var->type_) {
 	case VALUE_INT: {
-
 		int* tmp = (int*)data_ptr;
 		tmp[0] = v->ivalue_;
-		//reinterpret_cast<int*>(data_ptr)[0] = v.ivalue_;
 		break;
 	}
 	case VALUE_DOUBLE: {
 		double* tmp = (double*)data_ptr;
 		tmp[0] = v->dvalue_;
-		//reinterpret_cast<double*>(data_ptr)[0] = v.dvalue_;
 		break;
 	}
 	case VALUE_STRING: {
 		char* tmp = (char*)data_ptr;
 		strcpy(tmp, v->svalue_);
-		//strcpy(reinterpret_cast<char*>(data_ptr), v.svalue_);
 		break;
 	}
 	default:
 		assert(false);
 		break;
 	}
-
 }
-
-int count;
 
 void*
 variable_data_ptr(const variable_t* v, int idx)
 {
-	//count++;
 	if (v == NULL) {
-		//return NULL;
 		if (idx < 0 || idx >= 0) {
-			raise_error("Variable is out of range.@@ %s(%d)", "???", idx);
-			// 変数への配列アクセスが範囲外です@@ %s(%d)", "???", idx);
+			raise_error("Variable is out of range.@@ %s(%d)", "???", idx); // 変数への配列アクセスが範囲外です
 		}
 	}
 	else {
 		if (idx < 0 || idx >= v->length_) {
-			raise_error("Variable is out of range.@@ %s(%d)", v->name_, idx);
-			// 変数への配列アクセスが範囲外です@@ %s(%d)", v->name_, idx);
+			raise_error("Variable is out of range.@@ %s(%d)", v->name_, idx); // 変数への配列アクセスが範囲外です
 		}
 	}
 	switch (v->type_) {
@@ -4253,8 +4114,7 @@ create_value5(const value_t* v)
 		res->index_ = v->index_;
 		break;
 	default:
-		raise_error("Copying an empty value and failed.@@ ptr=%p", &v);
-		// 中身が入ってない値をコピーして作ろうとしました@@ ptr=%p", &v);
+		raise_error("Copying an empty value and failed.@@ ptr=%p", &v); // 中身が入ってない値をコピーして作ろうとしました
 	}
 	return res;
 }
@@ -4465,13 +4325,11 @@ value_bor(value_t* v, const value_t* r)
 		value_set(v, v->ivalue_ | t->ivalue_);
 		break;
 	case VALUE_DOUBLE: {
-		raise_error("| operator for the floating point is not defined.");
-		// 浮動小数点同士の|演算子は挙動が定義されていません
+		raise_error("| operator for the floating point is not defined."); // 浮動小数点同士の|演算子は挙動が定義されていません
 		break;
 	}
 	case VALUE_STRING: {
-		raise_error("| operator for the string is not defined.");
-		// 文字列同士の|演算子は挙動が定義されていません
+		raise_error("| operator for the string is not defined."); // 文字列同士の|演算子は挙動が定義されていません
 		break;
 	}
 	default:
@@ -4490,13 +4348,11 @@ value_band(value_t* v, const value_t* r)
 		value_set(v, v->ivalue_ & t->ivalue_);
 		break;
 	case VALUE_DOUBLE: {
-		raise_error("& operator for the floating point is not defined.");
-		// 浮動小数点同士の&演算子は挙動が定義されていません
+		raise_error("& operator for the floating point is not defined."); // 浮動小数点同士の&演算子は挙動が定義されていません
 		break;
 	}
 	case VALUE_STRING: {
-		raise_error("& operator for the string is not defined.");
-		// 文字列同士の&演算子は挙動が定義されていません
+		raise_error("& operator for the string is not defined."); // 文字列同士の&演算子は挙動が定義されていません
 		break;
 	}
 	default:
@@ -4560,8 +4416,7 @@ value_gt(value_t* v, const value_t* r)
 		value_set(v, v->dvalue_ > t->dvalue_ ? 1 : 0);
 		break;
 	case VALUE_STRING: {
-		raise_error("> operator for the string is not defined.");
-		// 文字列同士の>演算子は挙動が定義されていません
+		raise_error("> operator for the string is not defined."); // 文字列同士の>演算子は挙動が定義されていません
 		break;
 	}
 	default:
@@ -4583,8 +4438,7 @@ value_gtoe(value_t* v, const value_t* r)
 		value_set(v, v->dvalue_ >= t->dvalue_ ? 1 : 0);
 		break;
 	case VALUE_STRING: {
-		raise_error(">= operator for the string is not defined.");
-		// 文字列同士の>=演算子は挙動が定義されていません
+		raise_error(">= operator for the string is not defined."); // 文字列同士の>=演算子は挙動が定義されていません
 		break;
 	}
 	default:
@@ -4606,8 +4460,7 @@ value_lt(value_t* v, const value_t* r)
 		value_set(v, v->dvalue_ < t->dvalue_ ? 1 : 0);
 		break;
 	case VALUE_STRING: {
-		raise_error("< operator for the string is not defined.");
-		// 文字列同士の<演算子は挙動が定義されていません
+		raise_error("< operator for the string is not defined."); // 文字列同士の<演算子は挙動が定義されていません
 		break;
 	}
 	default:
@@ -4629,8 +4482,7 @@ value_ltoe(value_t* v, const value_t* r)
 		value_set(v, v->dvalue_ <= t->dvalue_ ? 1 : 0);
 		break;
 	case VALUE_STRING: {
-		raise_error("<= operator for the string is not defined.");
-		// 文字列同士の<=演算子は挙動が定義されていません
+		raise_error("<= operator for the string is not defined."); // 文字列同士の<=演算子は挙動が定義されていません
 		break;
 	}
 	default:
@@ -4679,8 +4531,7 @@ value_sub(value_t* v, const value_t* r)
 		v->dvalue_ -= t->dvalue_;
 		break;
 	case VALUE_STRING: {
-		raise_error("- operator for the string is not defined.");
-		// 文字列同士の-演算子は挙動が定義されていません
+		raise_error("- operator for the string is not defined."); // 文字列同士の-演算子は挙動が定義されていません
 		break;
 	}
 	default:
@@ -4702,8 +4553,7 @@ value_mul(value_t* v, const value_t* r)
 		v->dvalue_ *= t->dvalue_;
 		break;
 	case VALUE_STRING: {
-		raise_error("* operator for the string is not defined.");
-		// 文字列同士の*演算子は挙動が定義されていません
+		raise_error("* operator for the string is not defined."); // 文字列同士の*演算子は挙動が定義されていません
 		break;
 	}
 	default:
@@ -4725,8 +4575,7 @@ value_div(value_t* v, const value_t* r)
 		v->dvalue_ /= t->dvalue_;
 		break;
 	case VALUE_STRING: {
-		raise_error("/ operator for the string is not defined.");
-		// 文字列同士の/演算子は挙動が定義されていません
+		raise_error("/ operator for the string is not defined."); // 文字列同士の/演算子は挙動が定義されていません
 		break;
 	}
 	default:
@@ -4745,13 +4594,11 @@ value_mod(value_t* v, const value_t* r)
 		v->ivalue_ %= t->ivalue_;
 		break;
 	case VALUE_DOUBLE: {
-		raise_error("\\ operator for the double is not defined.");
-		// double同士の\\演算子は挙動が定義されていません
+		raise_error("\\ operator for the double is not defined."); // double同士の\\演算子は挙動が定義されていません
 		break;
 	}
 	case VALUE_STRING: {
-		raise_error("\\ operator for the string is not defined.");
-		// 文字列同士の\\演算子は挙動が定義されていません
+		raise_error("\\ operator for the string is not defined."); // 文字列同士の\\演算子は挙動が定義されていません
 		break;
 	}
 	default:
@@ -4843,34 +4690,16 @@ query_sysvar(const char* s)
 		int tag_;
 		const char* word_;
 	} table[] = {
-		{
-			SYSVAR_CNT, "cnt",
-		},
-		{
-			SYSVAR_STAT, "stat",
-		},
-		{
-			SYSVAR_REFDVAL, "refdval",
-		},
-		{
-			SYSVAR_REFSTR, "refstr",
-		},
-		{
-			SYSVAR_STRSIZE, "strsize",
-		},
+		{ SYSVAR_CNT, "cnt", },
+		{ SYSVAR_STAT, "stat", },
+		{ SYSVAR_REFDVAL, "refdval", },
+		{ SYSVAR_REFSTR, "refstr", },
+		{ SYSVAR_STRSIZE, "strsize", },
 #ifdef __HSPGUI__
-		{
-			SYSVAR_MOUSEX, "mousex",
-		},
-		{
-			SYSVAR_MOUSEY, "mousey",
-		},
-		{
-			SYSVAR_MOUSEL, "mousel",
-		},
-		{
-			SYSVAR_MOUSER, "mouser",
-		},
+		{ SYSVAR_MOUSEX, "mousex", },
+		{ SYSVAR_MOUSEY, "mousey", },
+		{ SYSVAR_MOUSEL, "mousel", },
+		{ SYSVAR_MOUSER, "mouser", },
 #endif
 		{ -1, NULL },
 	};
@@ -5173,8 +5002,7 @@ evaluate(execute_environment_t* e, execute_status_t* s, ast_node_t* n)
 		const char* command_name = n->token_->content_;
 		const int command = query_command(command_name);
 		if (command == -1) {
-			raise_error("Command not found:%s", command_name);
-			// コマンドが見つかりません：%s", command_name);
+			raise_error("Command not found:%s", command_name); // コマンドが見つかりません
 		}
 		const command_delegate delegate = get_command_delegate((builtin_command_tag)command);
 		assert(delegate != NULL);
@@ -5201,8 +5029,7 @@ evaluate(execute_environment_t* e, execute_status_t* s, ast_node_t* n)
 		evaluate(e, s, n->right_);
 		value_t* var = stack_peek(s->stack_, -2);
 		if (var->type_ != VALUE_VARIABLE) {
-			raise_error("Substitution: Please specify a variable.");
-			// 変数代入：代入先が変数ではありませんでした
+			raise_error("Substitution: Please specify a variable."); // 変数代入：代入先が変数ではありませんでした
 		}
 		value_t* v = stack_peek(s->stack_, -1);
 
@@ -5313,8 +5140,7 @@ evaluate(execute_environment_t* e, execute_status_t* s, ast_node_t* n)
 			v->dvalue_ = -v->dvalue_;
 			break;
 		case VALUE_STRING:
-			raise_error("no minus value in the string.[%s]", v->svalue_);
-			// 文字列に負値は存在しません[%s]", v->svalue_);
+			raise_error("no minus value in the string.[%s]", v->svalue_); // 文字列に負値は存在しません
 			break;
 		default:
 			assert(false);
@@ -5361,16 +5187,14 @@ evaluate(execute_environment_t* e, execute_status_t* s, ast_node_t* n)
 			const int sysvar = query_sysvar(ident);
 			if (sysvar >= 0) {
 				if (arg_num > 0) {
-					raise_error("cannot arrays in the system variable.", ident);
-					// システム変数に添え字はありません", ident);
+					raise_error("cannot arrays in the system variable.", ident); // システム変数に添え字はありません
 				}
 				// 後々のことも考えて、一応
 				stack_pop(s->stack_, arg_num);
 				switch (sysvar) {
 				case SYSVAR_CNT:
 					if (s->current_loop_frame_ <= 0) {
-						raise_error("System variable(cnt): cannot refer outside the repeat-loop.");
-						// システム変数cnt：repeat-loop中でないのに参照しました
+						raise_error("System variable(cnt): cannot refer outside the repeat-loop."); // システム変数cnt：repeat-loop中でないのに参照しました
 					}
 					stack_push(s->stack_, create_value(s->loop_frame_[s->current_loop_frame_ - 1].cnt_));
 					break;
@@ -5409,8 +5233,7 @@ evaluate(execute_environment_t* e, execute_status_t* s, ast_node_t* n)
 			else {
 				// 配列変数
 				if (arg_num > 1) {
-					raise_error("Function not found, Array variable is one dimension only.@@ %s", ident);
-					// 関数がみつかりません、配列変数の添え字は1次元までです@@ %s", ident);
+					raise_error("Function not found, Array variable is one dimension only.@@ %s", ident); // 関数がみつかりません、配列変数の添え字は1次元までです
 				}
 				variable_t* var = search_variable(e->variable_table_, ident);
 				assert(var != NULL);
@@ -5431,8 +5254,7 @@ evaluate(execute_environment_t* e, execute_status_t* s, ast_node_t* n)
 		break;
 	case NODE_RETURN: {
 		if (s->current_call_frame_ <= 0) {
-			raise_error("Return from outside the subroutine is invalid.");
-			// サブルーチン外からのreturnは無効です
+			raise_error("Return from outside the subroutine is invalid."); // サブルーチン外からのreturnは無効です
 		}
 		if (n->left_) {
 			evaluate(e, s, n->left_);
@@ -5455,8 +5277,6 @@ evaluate(execute_environment_t* e, execute_status_t* s, ast_node_t* n)
 			stack_pop(s->stack_, 1);
 		}
 		--s->current_call_frame_;
-		//call_frame_t frame = s->call_frame_[s->current_call_frame_];
-		//s->node_cur_ = frame.caller_;
 		s->node_cur_ = s->call_frame_[s->current_call_frame_].caller_;
 		break;
 	}
@@ -5467,8 +5287,7 @@ evaluate(execute_environment_t* e, execute_status_t* s, ast_node_t* n)
 		const char* label_name = label_node->token_->content_;
 		list_node_t* label = search_label(e, label_name);
 		if (label == NULL) {
-			raise_error("goto: Label not found.@@ %s", label_name);
-			// goto：ラベルがみつかりません@@ %s", label_name);
+			raise_error("goto: Label not found.@@ %s", label_name); // goto：ラベルがみつかりません
 		}
 		s->node_cur_ = label;
 		break;
@@ -5480,34 +5299,24 @@ evaluate(execute_environment_t* e, execute_status_t* s, ast_node_t* n)
 		const char* label_name = label_node->token_->content_;
 		list_node_t* label = search_label(e, label_name);
 		if (label == NULL) {
-			raise_error("gosub: Label not found.@@ %s", label_name);
-			// gosub：ラベルがみつかりません@@ %s", label_name);
+			raise_error("gosub: Label not found.@@ %s", label_name); // gosub：ラベルがみつかりません
 		}
 		if ((s->current_call_frame_ + 1) >= MAX_CALL_FRAME) {
-			raise_error("gosub: Nesting is too deep.");
-			// gosub：ネストが深すぎます
+			raise_error("gosub: Nesting is too deep."); // gosub：ネストが深すぎます
 		}
-		//call_frame_t frame = s->call_frame_[s->current_call_frame_];
 		++s->current_call_frame_;
-		//frame.caller_ = s->node_cur_;
 		s->call_frame_[s->current_call_frame_ - 1].caller_ = s->node_cur_;
 		s->node_cur_ = label;
 		break;
 	}
 	case NODE_REPEAT: {
 		if (s->current_loop_frame_ + 1 >= MAX_LOOP_FRAME) {
-			raise_error("repeat: Nesting is too deep.");
-			// repeat：ネストが深すぎます
+			raise_error("repeat: Nesting is too deep."); // repeat：ネストが深すぎます
 		}
-		//loop_frame_t frame = s->loop_frame_[s->current_loop_frame_];
 		++s->current_loop_frame_;
-		//frame.start_ = s->node_cur_;
 		s->loop_frame_[s->current_loop_frame_ - 1].start_ = s->node_cur_;
-		//frame.cnt_ = 0;
 		s->loop_frame_[s->current_loop_frame_ - 1].cnt_ = 0;
-		//frame.counter_ = 0;
 		s->loop_frame_[s->current_loop_frame_ - 1].counter_ = 0;
-		//frame.max_ = 0;
 		s->loop_frame_[s->current_loop_frame_ - 1].max_ = 0;
 		int loop_num = -1;
 		if (n->left_) {
@@ -5516,13 +5325,11 @@ evaluate(execute_environment_t* e, execute_status_t* s, ast_node_t* n)
 			loop_num = value_calc_int(v);
 			stack_pop(s->stack_, 1);
 		}
-		//frame.max_ = loop_num;
 		s->loop_frame_[s->current_loop_frame_ - 1].max_ = loop_num;
 		break;
 	}
 	case NODE_REPEAT_CHECK: {
 		assert(s->current_loop_frame_ > 0);
-		//loop_frame_t frame = s->loop_frame_[s->current_loop_frame_ - 1];
 		if (s->loop_frame_[s->current_loop_frame_ - 1].max_ >= 0 &&
 			s->loop_frame_[s->current_loop_frame_ - 1].counter_ >= s->loop_frame_[s->current_loop_frame_ - 1].max_) {
 			int depth = 0;
@@ -5546,10 +5353,8 @@ evaluate(execute_environment_t* e, execute_status_t* s, ast_node_t* n)
 	case NODE_LOOP:
 	case NODE_CONTINUE: {
 		if (s->current_loop_frame_ <= 0) {
-			raise_error("loop,continue: is not in repeat-loop.");
-			// loop,continue：repeat-loopの中にありません
+			raise_error("loop,continue: is not in repeat-loop."); // loop,continue：repeat-loopの中にありません
 		}
-		//loop_frame_t frame = s->loop_frame_[s->current_loop_frame_ - 1];
 		++s->loop_frame_[s->current_loop_frame_ - 1].counter_;
 		++s->loop_frame_[s->current_loop_frame_ - 1].cnt_;
 		s->node_cur_ = s->loop_frame_[s->current_loop_frame_ - 1].start_;
@@ -5557,8 +5362,7 @@ evaluate(execute_environment_t* e, execute_status_t* s, ast_node_t* n)
 	}
 	case NODE_BREAK: {
 		if (s->current_loop_frame_ <= 0) {
-			raise_error("break: is not in repeat-loop.");
-			// break：repeat-loopの中にありません
+			raise_error("break: is not in repeat-loop."); // break：repeat-loopの中にありません
 		}
 		int depth = 0;
 		while (s->node_cur_ != NULL) {
@@ -5574,9 +5378,7 @@ evaluate(execute_environment_t* e, execute_status_t* s, ast_node_t* n)
 			s->node_cur_ = s->node_cur_->next_;
 		}
 		if (s->node_cur_ == NULL) {
-			raise_error("break: couldn't repeat-loop in goto, and break.");
-			// break：repeat-loopをうまく抜けられませんでした、repeat-"
-			//	"loop間でのgoto後にbreakなどはできません
+			raise_error("break: couldn't repeat-loop in goto, and break."); // break：repeat-loopをうまく抜けられませんでした、repeat-loop間でのgoto後にbreakなどはできません
 		}
 		--s->current_loop_frame_;
 		break;
@@ -5635,8 +5437,7 @@ execute(execute_environment_t* e)
 	initialize_execute_status(&s);
 	s.node_cur_ = e->statement_list_->head_;
 	if (s.node_cur_ == NULL) {
-		raise_error("No executable node.@@ [%p]", e);
-		// 実行できるノードがありません@@ [%p]", e);
+		raise_error("No executable node.@@ [%p]", e); // 実行できるノードがありません
 	}
 	for (;;) {
 		ast_node_t* ex = (ast_node_t*)s.node_cur_->value_;
@@ -5666,87 +5467,37 @@ query_command(const char* s)
 		const char* word_;
 	} table[] = {
 		{ COMMAND_DEVTERM, "devterm" },
-		{
-			COMMAND_DIM, "dim",
-		},
-		{
-			COMMAND_DDIM, "ddim",
-		},
-		{
-			COMMAND_SDIM, "sdim",
-		},
-		{
-			COMMAND_RANDOMIZE, "randomize",
-		},
-		{
-			COMMAND_BLOAD, "bload",
-		},
-		{
-			COMMAND_POKE, "poke",
-		},
+		{ COMMAND_DIM, "dim", },
+		{ COMMAND_DDIM, "ddim", },
+		{ COMMAND_SDIM, "sdim", },
+		{ COMMAND_RANDOMIZE, "randomize", },
+		{ COMMAND_BLOAD, "bload", },
+		{ COMMAND_POKE, "poke", },
 #ifdef __HSPCUI__
-		{
-			COMMAND_INPUT, "input",
-		},
+		{ COMMAND_INPUT, "input", },
 #endif
 #ifndef __HSPSTD__
-		{
-			COMMAND_MES, "mes",
-		},
+		{ COMMAND_MES, "mes", },
 #endif
 #ifdef __HSPGUI__
-		{
-			COMMAND_WAIT, "wait",
-		},
-		{
-			COMMAND_STOP, "stop",
-		},
-		{
-			COMMAND_TITLE, "title",
-		},
-		{
-			COMMAND_PSET, "pset",
-		},
-		{
-			COMMAND_REDRAW, "redraw",
-		},
-		{
-			COMMAND_POS, "pos",
-		},
-		{
-			COMMAND_COLOR, "color",
-		},
-		{
-			COMMAND_LINE, "line",
-		},
-		{
-			COMMAND_BOXF, "boxf",
-		},
-		{
-			COMMAND_STICK, "stick",
-		},
-		{
-			COMMAND_CIRCLE, "circle",
-		},
+		{ COMMAND_WAIT, "wait", },
+		{ COMMAND_STOP, "stop", },
+		{ COMMAND_TITLE, "title", },
+		{ COMMAND_PSET, "pset", },
+		{ COMMAND_REDRAW, "redraw", },
+		{ COMMAND_POS, "pos", },
+		{ COMMAND_COLOR, "color", },
+		{ COMMAND_LINE, "line", },
+		{ COMMAND_BOXF, "boxf", },
+		{ COMMAND_STICK, "stick", },
+		{ COMMAND_CIRCLE, "circle", },
 #ifdef __HSPEXT__
-		{
-			COMMAND_FONT, "font",
-		},
-		{
-			COMMAND_PICLOAD, "picload",
-		},
-		{
-			COMMAND_WAVE, "wave",
-		},
-		{
-			COMMAND_MMLOAD, "mmload",
-		},
-		{
-			COMMAND_MMPLAY, "mmplay",
-		},
-		{
-			COMMAND_MMSTOP, "mmstop",
-		},
+		{ COMMAND_FONT, "font", },
+		{ COMMAND_PICLOAD, "picload", },
+		{ COMMAND_WAVE, "wave", },
+		{ COMMAND_MMLOAD, "mmload", },
+		{ COMMAND_MMPLAY, "mmplay", },
+		{ COMMAND_MMSTOP, "mmstop", },
 #endif
 #endif
 		{ -1, NULL },
@@ -5811,27 +5562,13 @@ query_function(const char* s)
 		int tag_;
 		const char* word_;
 	} table[] = {
-		{
-			FUNCTION_INT, "int",
-		},
-		{
-			FUNCTION_DOUBLE, "double",
-		},
-		{
-			FUNCTION_STR, "str",
-		},
-		{
-			FUNCTION_RND, "rnd",
-		},
-		{
-			FUNCTION_ABS, "abs",
-		},
-		{
-			FUNCTION_POWF, "powf",
-		},
-		{
-			FUNCTION_PEEK, "peek",
-		},
+		{ FUNCTION_INT, "int", },
+		{ FUNCTION_DOUBLE, "double", },
+		{ FUNCTION_STR, "str", },
+		{ FUNCTION_RND, "rnd", },
+		{ FUNCTION_ABS, "abs", },
+		{ FUNCTION_POWF, "powf", },
+		{ FUNCTION_PEEK, "peek", },
 		{ -1, NULL },
 	};
 	// 全探索
@@ -6065,10 +5802,6 @@ main(int argc, const char* argv[])
 	// オプション
 	const char* filename = NULL;
 	bool show_ast = false;
-	//bool has_error = false;
-	//bool show_script = false;
-	//bool show_execute_ast = false;
-	//bool show_help = false;
 
 #ifdef __HSPGUI__WINDOWS__
 	if (lpCmdLine[0] != '\0') {
@@ -6086,64 +5819,6 @@ main(int argc, const char* argv[])
 	}
 #endif
 
-	//// オプション解析
-	//if (argc >= 2) {
-	//	for (int i = 1; i < argc; ++i) {
-	//		const char* arg = argv[i];
-	//		if (arg[0] == '-') {
-	//			switch (arg[1]) {
-	//			case 'f':
-	//				if (i + 1 < argc) {
-	//					++i;
-	//					filename = argv[i];
-	//				}
-	//				else {
-	//					printf("ERROR : cannot read script file path\n");
-	//					has_error = true;
-	//				}
-	//				break;
-	//			case 's':
-	//				show_script = true;
-	//				break;
-	//			case 'a':
-	//				show_ast = true;
-	//				break;
-	//			case 'e':
-	//				show_execute_ast = true;
-	//				break;
-	//			case 'h':
-	//				show_help = true;
-	//				break;
-	//			}
-	//		}
-	//		else {
-	//			printf("ERROR : cannot parse argument :%s\n", arg);
-	//			has_error = true;
-	//			break;
-	//		}
-	//	}
-	//	if (filename == NULL) {
-	//		printf("ERROR : have to specify script file\n");
-	//		has_error = true;
-	//	}
-	//	if (show_help || has_error) {
-	//		printf("neteruhsp : commandline tool options\n"
-	//			"        <bin> [<options>...] -f <SCRIPT_FILE>\n"
-	//			"                -f : specify file path to execute\n"
-	//			"\n"
-	//			"        options are followings\n"
-	//			"                -s : show loaded script file contents\n"
-	//			"                -a : show abstract-syntax-tree constructed from loaded "
-	//			"script\n"
-	//			"                -e : show abstract-syntax-tree for execution\n"
-	//			"                -h : show (this) help\n");
-	//		return (has_error ? -1 : 0);
-	//	}
-	//}
-	//else {
-	//	filename = "start.hsp";
-	//}
-
 	// システムここから
 	initialize_system();
 	// ファイル読み込み
@@ -6152,9 +5827,7 @@ main(int argc, const char* argv[])
 	{
 		FILE* file = fopen(filename, "r");
 		if (file == NULL) {
-			raise_error("ERROR : cannot read such file %s\n", filename);
-			// ファイルの読み込みに失敗しました [%s]", filename);
-			//printf("ERROR : cannot read such file %s\n", filename);
+			raise_error("ERROR : cannot read such file %s\n", filename); // ファイルの読み込みに失敗しました
 			return -1;
 		}
 		fseek(file, 0, SEEK_END);
@@ -6178,9 +5851,6 @@ main(int argc, const char* argv[])
 		fclose(file);
 	}
 	assert(script != NULL);
-	//if (show_script) {
-	//	printf("====LOADED SCRIPT FILE(%d bytes)\n----begin----\n%s\n----end----\n", script_size, script);
-	//}
 
 #ifdef __HSPEXT__
 	//フォントの初期化
@@ -6190,9 +5860,7 @@ main(int argc, const char* argv[])
 
 		FILE* fp = fopen("mplus-1c-regular.ttf", "rb");
 		if (fp == NULL) {
-			raise_error("ERROR : cannot read such file .ttf\n");
-			// ファイルの読み込みに失敗しました [mplus-1c-regular.ttf]");
-			//printf("ERROR : cannot read such file mplus-1c-regular.ttf\n");
+			raise_error("ERROR : cannot read such file .ttf\n"); // ファイルの読み込みに失敗しました [mplus-1c-regular.ttf]
 			return -1;
 		}
 
@@ -6236,16 +5904,11 @@ main(int argc, const char* argv[])
 		{
 			//初期化して、ウインドウを生成する
 			glfwInit();
-
-		//macOS_Retina
-
-
 			window = glfwCreateWindow(screen_width,
 				screen_height,
 				window_title,
 				NULL,
 				NULL);			
-
 			glfwMakeContextCurrent(window);
 		}
 
@@ -6257,21 +5920,6 @@ main(int argc, const char* argv[])
 		// １度だけスクリーンを初期化する
 		{
 		    redraw();
-		    /*
-			// 描画の準備
-			glClear(GL_COLOR_BUFFER_BIT);
-			glRasterPos2i(-1, -1);
-
-			// ピクセルを描画
-			glDrawPixels(screen_width,
-				screen_height,
-				GL_RGB,
-				GL_UNSIGNED_BYTE,
-				pixel_data);
-
-			// フロントバッファとバックバッファを交換する
-			glfwSwapBuffers(window);
-			*/
 		}
 	}
 #endif
@@ -6283,11 +5931,6 @@ main(int argc, const char* argv[])
 			load_arg_t la;
 			la.dump_ast_ = show_ast;
 			load_script(env, script, &la);
-			//if (show_execute_ast) {
-			//	printf("====AST for execution\n");
-			//	dump_ast(env->statement_list_, true);
-			//	printf("----\n");
-			//}
 			execute(env);
 			destroy_execute_environment(env);
 		}
@@ -6313,7 +5956,6 @@ main(int argc, const char* argv[])
 	alcCloseDevice(al_device); // デバイスを閉じる(OpenAL)
 #endif
 #endif
-
 	xfree(script);
 	destroy_system();
 	return 0;
