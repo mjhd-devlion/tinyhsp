@@ -5818,7 +5818,6 @@ main(int argc, const char* argv[])
 		filename = "start.hsp";
 	}
 #endif
-
 	// システムここから
 	initialize_system();
 	// ファイル読み込み
@@ -5857,24 +5856,19 @@ main(int argc, const char* argv[])
 	{
 		//フォントバッファを確保
 		font_ttf_buffer = (char*)calloc(4500000, sizeof(char));
-
 		FILE* fp = fopen("mplus-1c-regular.ttf", "rb");
 		if (fp == NULL) {
 			raise_error("ERROR : cannot read such file .ttf\n"); // ファイルの読み込みに失敗しました [mplus-1c-regular.ttf]
 			return -1;
 		}
-
 		fread(font_ttf_buffer, 1, 4500000, fp);
 		fclose(fp);
-
 		int offset = stbtt_GetFontOffsetForIndex(font_ttf_buffer, 0);
 		stbtt_InitFont(&font, font_ttf_buffer, offset);
-
 		font_scale = stbtt_ScaleForPixelHeight(&font, (float)font_size);
 		stbtt_GetFontVMetrics(&font, &font_ascent, 0, 0);
 		font_baseline = (int)(font_ascent * font_scale);
 	}
-
 	// OpenALを準備する
 	{
 		al_device = alcOpenDevice(NULL); // デバイスを開く
@@ -5882,7 +5876,6 @@ main(int argc, const char* argv[])
 		alcMakeContextCurrent(al_context); // コンテキストをカレントにする
 	}
 #endif
-
 #ifdef __HSPGUI__
 	// 描画処理
 	{
@@ -5899,7 +5892,6 @@ main(int argc, const char* argv[])
 		for (int i = 0; i < screen_width * screen_height * 3; i++) {
 			pixel_data[i] = 255;
 		}
-
 		// GLFWライブラリの初期化
 		{
 			//初期化して、ウインドウを生成する
@@ -5911,19 +5903,14 @@ main(int argc, const char* argv[])
 				NULL);			
 			glfwMakeContextCurrent(window);
 		}
-
 		// コールバック関数を登録する
 		glfwSetMouseButtonCallback(window, mouse_button_callback);
 		glfwSetCursorPosCallback(window, cursor_position_callback);
 		glfwSetKeyCallback(window, key_callback);
-
 		// １度だけスクリーンを初期化する
-		{
-		    redraw();
-		}
+		redraw();
 	}
 #endif
-
 	// 実行
 	{
 		{
@@ -5935,7 +5922,6 @@ main(int argc, const char* argv[])
 			destroy_execute_environment(env);
 		}
 	}
-
 	// 各種解放
 #ifdef __HSPGUI__
 	glfwTerminate(); //GLFW
