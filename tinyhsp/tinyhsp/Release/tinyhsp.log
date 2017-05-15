@@ -1,19 +1,19 @@
 ﻿  tinyhsp.c
-tinyhsp.c(865): warning C4244: '-=': 'double' から 'int' への変換です。データが失われる可能性があります。
-tinyhsp.c(866): warning C4244: '-=': 'double' から 'int' への変換です。データが失われる可能性があります。
-tinyhsp.c(870): warning C4244: '+=': 'double' から 'int' への変換です。データが失われる可能性があります。
-tinyhsp.c(871): warning C4244: '+=': 'double' から 'int' への変換です。データが失われる可能性があります。
-tinyhsp.c(843): warning C4244: '初期化中': 'double' から 'int' への変換です。データが失われる可能性があります。
-tinyhsp.c(844): warning C4244: '初期化中': 'double' から 'int' への変換です。データが失われる可能性があります。
-tinyhsp.c(2211): warning C4018: '>': signed と unsigned の数値を比較しようとしました。
-tinyhsp.c(2246): warning C4090: '関数': 異なる 'const' 修飾子です。
-tinyhsp.c(2284): warning C4244: '関数': 'dr_uint64' から '::size_t' への変換です。データが失われる可能性があります。
-tinyhsp.c(2286): warning C4244: '関数': 'dr_uint64' から 'int' への変換です。データが失われる可能性があります。
-tinyhsp.c(2299): warning C4013: 関数 'stb_vorbis_decode_filename' は定義されていません。int 型の値を返す外部関数と見なします。
-tinyhsp.c(2285): warning C4244: '初期化中': 'dr_uint64' から '::size_t' への変換です。データが失われる可能性があります。
+tinyhsp.c(856): warning C4244: '-=': 'double' から 'int' への変換です。データが失われる可能性があります。
+tinyhsp.c(857): warning C4244: '-=': 'double' から 'int' への変換です。データが失われる可能性があります。
+tinyhsp.c(861): warning C4244: '+=': 'double' から 'int' への変換です。データが失われる可能性があります。
+tinyhsp.c(862): warning C4244: '+=': 'double' から 'int' への変換です。データが失われる可能性があります。
+tinyhsp.c(834): warning C4244: '初期化中': 'double' から 'int' への変換です。データが失われる可能性があります。
+tinyhsp.c(835): warning C4244: '初期化中': 'double' から 'int' への変換です。データが失われる可能性があります。
+tinyhsp.c(2185): warning C4018: '>': signed と unsigned の数値を比較しようとしました。
+tinyhsp.c(2220): warning C4090: '関数': 異なる 'const' 修飾子です。
+tinyhsp.c(2258): warning C4244: '関数': 'dr_uint64' から '::size_t' への変換です。データが失われる可能性があります。
+tinyhsp.c(2260): warning C4244: '関数': 'dr_uint64' から 'int' への変換です。データが失われる可能性があります。
+tinyhsp.c(2273): warning C4013: 関数 'stb_vorbis_decode_filename' は定義されていません。int 型の値を返す外部関数と見なします。
+tinyhsp.c(2259): warning C4244: '初期化中': 'dr_uint64' から '::size_t' への変換です。データが失われる可能性があります。
   コード生成しています。
-  91 of 526 functions (17.3%) were compiled, the rest were copied from previous compilation.
+  77 of 518 functions (14.9%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    15 functions had inline decision re-evaluated but remain unchanged
+    20 functions had inline decision re-evaluated but remain unchanged
   コード生成が終了しました。
   tinyhsp.vcxproj -> C:\Users\dolphilia\Documents\GitHub\tinyhsp\tinyhsp\Release\tinyhsp.exe

@@ -159,15 +159,6 @@ bool is_al_play;
 #endif
 #endif
 
-// 全体
-void initialize_system();
-void destroy_system();
-
-// メモリ
-void* xmalloc(size_t size, const char* block_name/* = nullptr*/); //※ 引数の初期値
-void xfree(void* ptr);
-void* xrealloc(void* ptr, size_t size);
-
 // リスト
 typedef struct list_node_tag list_node_t;
 struct list_node_tag
@@ -1191,23 +1182,6 @@ static list_t* s_memory_map_ = nullptr;
 #endif
 
 // メモリ
-void*
-zmalloc(size_t size)
-{
-	return malloc(size);
-}
-
-void
-zfree(void* ptr)
-{
-	free(ptr);
-}
-
-void*
-zrealloc(void* ptr, size_t size)
-{
-	return realloc(ptr, size);
-}
 
 void
 zregister_memory(void* ptr)
@@ -1215,7 +1189,7 @@ zregister_memory(void* ptr)
 #if NHSP_CONFIG_MEMLEAK_DETECTION
 	assert(s_memory_map_ != nullptr);
 	const auto node =
-		reinterpret_cast<list_node_t*>(zmalloc(sizeof(list_node_t)));
+		reinterpret_cast<list_node_t*>(malloc(sizeof(list_node_t)));
 	node->next_ = node->prev_ = nullptr;
 	node->value_ = ptr;
 	list_append(*s_memory_map_, node);
@@ -1232,7 +1206,7 @@ zunregister_memory(void* ptr)
 	const auto node = list_find(*s_memory_map_, ptr);
 	assert(node != nullptr);
 	list_erase(*s_memory_map_, node);
-	zfree(node);
+	free(node);
 #else
 	NHSP_UNUSE(ptr);
 #endif
@@ -1242,7 +1216,7 @@ zunregister_memory(void* ptr)
 char*
 create_string(size_t len)
 {
-	return (char*)xmalloc(len + 1, NULL);
+	return (char*)malloc(len + 1);
 }
 
 
@@ -1269,7 +1243,7 @@ create_string3(const char* s)
 void
 destroy_string(char* s)
 {
-	xfree(s);
+	free(s);
 }
 
 char*
@@ -2460,83 +2434,11 @@ function_peek(execute_environment_t* e, execute_status_t* s, int arg_num)
 
 // 外部リンケージを持つ人たち、ここから
 
-// 全体
-void
-initialize_system()
-{
-#if NHSP_CONFIG_MEMLEAK_DETECTION
-	if (s_memory_map_ == nullptr) {
-		s_memory_map_ = reinterpret_cast<list_t*>(zmalloc(sizeof(list_t)));
-		s_memory_map_->head_ = s_memory_map_->tail_ = nullptr;
-	}
-#endif
-}
-
-void
-destroy_system()
-{
-#if NHSP_CONFIG_MEMLEAK_DETECTION
-	if (s_memory_map_ != nullptr) {
-		printf("====leaked memories\n");
-		auto node = s_memory_map_->head_;
-		while (node != nullptr) {
-			printf("[%p]\n", node->value_);
-			node = node->next_;
-		}
-		printf("----");
-	}
-#endif
-}
-
-// メモリ
-void*
-xmalloc(size_t size, const char* block_name)
-{
-	NHSP_UNUSE(block_name);
-	void* res = zmalloc(size);
-#if NHSP_CONFIG_MEMLEAK_DETECTION
-	{
-		// printf( "xmalloc[%p] %s\n", res, block_name==nullptr?"undef":"" );
-		zregister_memory(res);
-	}
-#endif
-	return res;
-}
-
-void
-xfree(void* ptr)
-{
-#if NHSP_CONFIG_MEMLEAK_DETECTION
-	{
-		// printf( "xfree[%p]\n", ptr );
-		zunregister_memory(ptr);
-	}
-#endif
-	zfree(ptr);
-}
-
-void*
-xrealloc(void* ptr, size_t size)
-{
-	void* res = zrealloc(ptr, size);
-#if NHSP_CONFIG_MEMLEAK_DETECTION
-	{
-		// printf( "xrealloc[%p->%p]\n", ptr, res );
-		if (res != ptr) {
-			zunregister_memory(ptr);
-			zregister_memory(res);
-		}
-	}
-#endif
-	return res;
-}
-
 // リスト
 list_node_t*
 create_list_node()
 {
-	list_node_t* res =
-		(list_node_t*)xmalloc(sizeof(list_node_t), "");
+	list_node_t* res = (list_node_t*)malloc(sizeof(list_node_t));
 	res->prev_ = res->next_ = NULL;
 	res->value_ = NULL;
 	return res;
@@ -2546,7 +2448,7 @@ void
 destroy_list_node(list_node_t* node)
 {
 	unlink_list_node(node);
-	xfree(node);
+	free(node);
 }
 
 void
@@ -2586,7 +2488,7 @@ unlink_list_node(list_node_t* node)
 list_t*
 create_list()
 {
-	list_t* res = (list_t*)xmalloc(sizeof(list_t), "");
+	list_t* res = (list_t*)malloc(sizeof(list_t));
 	res->head_ = res->tail_ = NULL;
 	return res;
 }
@@ -2594,7 +2496,7 @@ create_list()
 void
 destroy_list(list_t* list)
 {
-	xfree(list);
+	free(list);
 }
 
 void
@@ -2653,7 +2555,7 @@ list_free_all(list_t* list)
 	while (node != NULL) {
 		list_node_t* next = node->next_;
 		list_erase(list, node);
-		xfree(node);
+		free(node);
 		node = next;
 	}
 }
@@ -2754,7 +2656,7 @@ is_rest_ident(char c)
 token_t*
 get_token(tokenize_context_t* c)
 {
-	token_t* res = (token_t*)xmalloc(sizeof(token_t), "");
+	token_t* res = (token_t*)malloc(sizeof(token_t));
 	res->tag_ = TOKEN_UNKNOWN;
 	res->content_ = NULL;
 	res->cursor_begin_ = c->cursor_;
@@ -2982,7 +2884,7 @@ destroy_token(token_t* t)
 		destroy_string(t->content_);
 		t->content_ = NULL;
 	}
-	xfree(t);
+	free(t);
 }
 
 char*
@@ -3021,14 +2923,14 @@ parse_context_t*
 create_parse_context()
 {
 	parse_context_t* res =
-		(parse_context_t*)xmalloc(sizeof(parse_context_t), "");
+		(parse_context_t*)malloc(sizeof(parse_context_t));
 	return res;
 }
 
 void
 destroy_parse_context(parse_context_t* p)
 {
-	xfree(p);
+	free(p);
 }
 
 void
@@ -3106,7 +3008,7 @@ prev_token(parse_context_t* c, size_t num)
 ast_node_t*
 create_ast_node(node_tag tag, ast_node_t* left, ast_node_t* right)
 {
-	ast_node_t* res = (ast_node_t*)xmalloc(sizeof(ast_node_t), "");
+	ast_node_t* res = (ast_node_t*)malloc(sizeof(ast_node_t));
 	res->tag_ = tag;
 	res->token_ = NULL;
 	res->left_ = left;
@@ -3119,7 +3021,7 @@ create_ast_node(node_tag tag, ast_node_t* left, ast_node_t* right)
 ast_node_t*
 create_ast_node2(node_tag tag, token_t* token, ast_node_t* left)
 {
-	ast_node_t* res = (ast_node_t*)xmalloc(sizeof(ast_node_t), "");
+	ast_node_t* res = (ast_node_t*)malloc(sizeof(ast_node_t));
 	res->tag_ = tag;
 	res->token_ = token;
 	res->left_ = left;
@@ -3139,7 +3041,7 @@ destroy_ast_node(ast_node_t* node)
 	if (node->right_ != NULL) {
 		destroy_ast_node(node->right_);
 	}
-	xfree(node);
+	free(node);
 }
 
 bool
@@ -3822,7 +3724,7 @@ variable_t*
 create_variable(const char* name)
 {
 
-	variable_t* res = (variable_t*)xmalloc(sizeof(variable_t), "");
+	variable_t* res = (variable_t*)malloc(sizeof(variable_t));
 	res->name_ = create_string3(name);
 	res->type_ = VALUE_NONE;
 	res->granule_size_ = 0;
@@ -3835,16 +3737,16 @@ create_variable(const char* name)
 void
 destroy_variable(variable_t* v)
 {
-	xfree(v->name_);
-	xfree(v->data_);
-	xfree(v);
+	free(v->name_);
+	free(v->data_);
+	free(v);
 }
 
 void
 prepare_variable(variable_t* v, value_tag type, int granule_size, int length)
 {
 	if (v->data_ != NULL) {
-		xfree(v->data_);
+		free(v->data_);
 		v->data_ = NULL;
 	}
 	v->type_ = type;
@@ -3866,7 +3768,7 @@ prepare_variable(variable_t* v, value_tag type, int granule_size, int length)
 		break;
 	}
 	assert(areasize > 0);
-	v->data_ = xmalloc(areasize, "");
+	v->data_ = malloc(areasize);
 	memset(v->data_, 0, areasize);
 }
 
@@ -4054,7 +3956,7 @@ variable_calc_string(const variable_t* r, int idx)
 static value_t*
 alloc_value()
 {
-	return (value_t*)xmalloc(sizeof(value_t), "");
+	return (value_t*)malloc(sizeof(value_t));
 }
 
 value_t*
@@ -4134,7 +4036,7 @@ destroy_value(value_t* t)
 	clear_value(t);
 	t->type_ = VALUE_NONE;
 	t->value_ = 0;
-	xfree(t);
+	free(t);
 }
 
 void
@@ -4612,7 +4514,7 @@ value_mod(value_t* v, const value_t* r)
 value_stack_t*
 create_value_stack()
 {
-	value_stack_t* res = (value_stack_t*)xmalloc(sizeof(value_stack_t), "");
+	value_stack_t* res = (value_stack_t*)malloc(sizeof(value_stack_t));
 	initialize_value_stack(res);
 	return res;
 }
@@ -4621,14 +4523,14 @@ void
 destroy_value_stack(value_stack_t* st)
 {
 	uninitialize_value_stack(st);
-	xfree(st);
+	free(st);
 }
 
 void
 initialize_value_stack(value_stack_t* st)
 {
 	const int l = 16; // 初期サイズ
-	st->stack_ = (value_t**)xmalloc(sizeof(value_t*) * l, "");
+	st->stack_ = (value_t**)malloc(sizeof(value_t*) * l);
 	st->top_ = 0;
 	st->max_ = l;
 }
@@ -4637,7 +4539,7 @@ void
 uninitialize_value_stack(value_stack_t* st)
 {
 	stack_pop(st, st->top_);
-	xfree(st->stack_);
+	free(st->stack_);
 	st->stack_ = NULL;
 	st->top_ = 0;
 	st->max_ = 0;
@@ -4648,7 +4550,7 @@ stack_push(value_stack_t* st, value_t* v)
 {
 	if (st->top_ + 1 > st->max_) {
 		st->max_ = st->max_ * 2; // 貪欲
-		st->stack_ = (value_t**)xrealloc(st->stack_, sizeof(value_t*) * st->max_);
+		st->stack_ = (value_t**)realloc(st->stack_, sizeof(value_t*) * st->max_);
 	}
 	st->stack_[st->top_] = v;
 	++st->top_;
@@ -4716,7 +4618,7 @@ query_sysvar(const char* s)
 execute_environment_t*
 create_execute_environment()
 {
-	execute_environment_t* res = (execute_environment_t*)xmalloc(sizeof(execute_environment_t), "");
+	execute_environment_t* res = (execute_environment_t*)malloc(sizeof(execute_environment_t));
 	res->parser_list_ = create_list();
 	res->ast_list_ = create_list();
 	res->statement_list_ = create_list();
@@ -4766,8 +4668,8 @@ destroy_execute_environment(execute_environment_t* e)
 		list_node_t* node = e->label_table_->head_;
 		while (node != NULL) {
 			label_node_t* label_node = (label_node_t*)node->value_;
-			xfree(label_node->name_);
-			xfree(label_node);
+			free(label_node->name_);
+			free(label_node);
 			node->value_ = NULL;
 			node = node->next_;
 		}
@@ -4775,7 +4677,7 @@ destroy_execute_environment(execute_environment_t* e)
 		destroy_list(e->label_table_);
 	}
 	destroy_variable_table(e->variable_table_);
-	xfree(e);
+	free(e);
 }
 
 void
@@ -4890,8 +4792,7 @@ flatten(execute_environment_t* e, ast_node_t* node)
 		list_append(e->statement_list_, list_node);
 		if (node->tag_ == NODE_LABEL) {
 			list_node_t* label_node = create_list_node();
-			label_node_t* label =
-				(label_node_t*)xmalloc(sizeof(label_node_t), "");
+			label_node_t* label = (label_node_t*)malloc(sizeof(label_node_t));
 			label->name_ = create_string3(node->token_->content_);
 			label->statement_ = list_node;
 			label_node->value_ = label;
@@ -5819,7 +5720,6 @@ main(int argc, const char* argv[])
 	}
 #endif
 	// システムここから
-	initialize_system();
 	// ファイル読み込み
 	size_t script_size = 0;
 	char* script = NULL;
@@ -5832,7 +5732,7 @@ main(int argc, const char* argv[])
 		fseek(file, 0, SEEK_END);
 		const size_t initial_size = ftell(file);
 		size_t buffer_size = initial_size + 4; // 初期バッファ
-		script = (char*)xmalloc(buffer_size + 1, "");
+		script = (char*)malloc(buffer_size + 1);
 		fseek(file, 0, SEEK_SET);
 		for (;;) {
 			const int c = fgetc(file);
@@ -5842,7 +5742,7 @@ main(int argc, const char* argv[])
 			const char ch = (char)c;
 			if (buffer_size <= script_size) {
 				buffer_size *= 2;
-				script = (char*)xrealloc(script, buffer_size);
+				script = (char*)realloc(script, buffer_size);
 			}
 			script[script_size++] = ch;
 		}
@@ -5942,7 +5842,6 @@ main(int argc, const char* argv[])
 	alcCloseDevice(al_device); // デバイスを閉じる(OpenAL)
 #endif
 #endif
-	xfree(script);
-	destroy_system();
+	free(script);
 	return 0;
 }
