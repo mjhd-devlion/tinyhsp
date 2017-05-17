@@ -17,11 +17,11 @@ MinGWの場合:
 gcc tinyhsp.c -o tinyhsp_cui
 
 標準版:
-gcc tinyhsp.c -o tinyhsp_std -lopengl32 -lglfw3dll -mwindows
+gcc tinyhsp.c -o tinyhsp_std -lopengl32 -lglfw3dll -mwindows -Wl,-stack,16777216
 
 拡張版:
 gcc -c tinyhsp.c stb_vorbis.c
-gcc tinyhsp.o stb_vorbis.o -o tinyhsp_ext -lopengl32 -lglfw3dll -lopenal32 -mwindows
+gcc tinyhsp.o stb_vorbis.o -o tinyhsp_ext -lopengl32 -lglfw3dll -lopenal32 -mwindows -Wl,-stack,16777216
 
 
 # VisualStudioの設定
@@ -577,6 +577,7 @@ typedef enum
 	COMMAND_BOXF,
 	COMMAND_STICK,
 	COMMAND_CIRCLE,
+	COMMAND_PAINT,
 #ifdef __HSPEXT__
 	COMMAND_FONT,
 	COMMAND_PICLOAD,
@@ -1888,6 +1889,89 @@ command_circle(execute_environment_t* e, execute_status_t* s, int arg_num)
 			screen_width, screen_height);
 	}
 
+	if (redraw_flag) {
+		redraw();
+	}
+	stack_pop(s->stack_, arg_num);
+}
+
+//グローバル変数
+int paint_buffer[640][480];
+
+bool is_equal_color(color_t color_a, color_t color_b) {
+	if (color_a.red == color_b.red &&
+		color_a.green == color_b.green &&
+		color_a.blue == color_b.blue) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+void set_paint(int x, int y, color_t paint_color) {
+	if (x < 0 || y < 0 || x > screen_width || y > screen_height) {
+		return;
+	}
+	// 点を打つ、バッファも打つ
+	set_pixel_rgb(pixel_data, x, y, current_color_r, current_color_g, current_color_b, screen_width, screen_height);
+	paint_buffer[x][y] = 1;
+	// 左マス
+	if (x - 1 >= 0) {
+		if (is_equal_color(paint_color, get_pixel_color(pixel_data, x - 1, y, screen_width, screen_height)) &&
+			paint_buffer[x - 1][y] == 0) {
+			set_paint(x - 1, y, paint_color);
+		}
+	}
+	// 上マス
+	if (y - 1 >= 0) {
+		if (is_equal_color(paint_color, get_pixel_color(pixel_data, x, y - 1, screen_width, screen_height)) &&
+			paint_buffer[x][y - 1] == 0) {
+			set_paint(x, y - 1, paint_color);
+		}
+	}
+	// 右マス
+	if (x + 1 <= screen_width) {
+		if (is_equal_color(paint_color, get_pixel_color(pixel_data, x + 1, y, screen_width, screen_height)) &&
+			paint_buffer[x + 1][y] == 0) {
+			set_paint(x + 1, y, paint_color);
+		}
+	}
+	// 下マス
+	if (y + 1 <= screen_height) {
+		if (is_equal_color(paint_color, get_pixel_color(pixel_data, x, y + 1, screen_width, screen_height)) &&
+			paint_buffer[x][y + 1] == 0) {
+			set_paint(x, y + 1, paint_color);
+		}
+	}
+}
+
+void
+command_paint(execute_environment_t* e, execute_status_t* s, int arg_num)
+{
+	if (arg_num != 2) {
+		raise_error("pos: Invalid argument."); // pos：引数が足りないか、多すぎます
+	}
+	const int arg_start = -arg_num;
+	const value_t* p1 = stack_peek(s->stack_, arg_start);
+	const int x = value_calc_int(p1);
+	const value_t* p2 = stack_peek(s->stack_, arg_start + 1);
+	const int y = value_calc_int(p2);
+	// 塗りつぶし用バッファを初期化
+	for (int y = 0; y < 480; y++) {
+		for (int x = 0; x < 640; x++) {
+			paint_buffer[x][y] = 0;
+		}
+	}
+	// 塗りつぶす対象の色を特定
+	color_t paint_color = get_pixel_color(pixel_data, x, y, screen_width, screen_height);
+	// 塗りつぶす色を指定
+	color_t current_color;
+	current_color.red = current_color_r;
+	current_color.green = current_color_g;
+	current_color.blue = current_color_b;
+	// 塗りつぶし
+	set_paint(x, y, paint_color);
 	if (redraw_flag) {
 		redraw();
 	}
@@ -5246,6 +5330,7 @@ query_command(const char* s)
 		{ COMMAND_BOXF, "boxf", },
 		{ COMMAND_STICK, "stick", },
 		{ COMMAND_CIRCLE, "circle", },
+		{ COMMAND_PAINT, "paint", },
 #ifdef __HSPEXT__
 		{ COMMAND_FONT, "font", },
 		{ COMMAND_PICLOAD, "picload", },
@@ -5295,6 +5380,7 @@ get_command_delegate(builtin_command_tag command)
 		&command_boxf,
 		&command_stick,
 		&command_circle,
+		&command_paint,
 #ifdef __HSPEXT__
 		&command_font,
 		&command_picload,

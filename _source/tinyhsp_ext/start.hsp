@@ -6,4 +6,5 @@ wait 300
 mmstop
 mmload "test.wav"
 mmplay
+paint 50,50
 stop
