@@ -1,3 +1,10 @@
 title "HelloWorld"
-paint 50,50
+color 255,0,0
+line 30,30,300,30
+line 30,30,30,300
+line 300,30,30,300
+color 0,255,0
+paint 40,40
+color 0,0,255
+paint 1,1
 stop

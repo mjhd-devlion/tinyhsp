@@ -1969,7 +1969,7 @@ command_paint(execute_environment_t* e, execute_status_t* s, int arg_num)
 	color_t current_color;
 	current_color.red = current_color_r;
 	current_color.green = current_color_g;
-	current_color.blue = current_color_b;
+	current_color.blue = current_color_b;	
 	// 塗りつぶし
 	set_paint(x, y, paint_color);
 	if (redraw_flag) {
