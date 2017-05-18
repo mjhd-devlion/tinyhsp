@@ -115,8 +115,6 @@ gcc tinyhsp.o stb_vorbis.o -o tinyhsp_ext -lopengl32 -lglfw3dll -lopenal32 -mwin
 #include "dr_wav.h"
 #endif
 
-#define NHSP_CONFIG_MEMLEAK_DETECTION (0) // メモリリーク発見用ユーティリティを有効化
-
 #ifdef __HSPGUI__
 // グローバルな変数
 int current_pos_x;
