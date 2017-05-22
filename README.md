@@ -240,7 +240,7 @@ TinyHSP本体のソースコードは `_source` ディレクトリに入って�
 
 ### 標準版のコンパイル
 
-- MinGW: `$ gcc tinyhsp.c -o tinyhsp_std -lopengl32 -lglfw3dll -mwindows -Wl,-stack,16777216`
+- MinGW: `$ gcc tinyhsp.c -o tinyhsp_std -lopengl32 -lglfw3dll -mwindows -Wl,-stack,33554432`
 - macOS: `$ clang tinyhsp.c -o tinyhsp_std -lglfw -framework OpenGL`
 - Linux: `$ gcc tinyhsp.c -o tinyhsp_std -lm -ldl -lglfw3 -lGL -lX11 -lXxf86vm -lXrandr -lXinerama -lXcursor -lpthread -lXi`
 
@@ -248,7 +248,7 @@ TinyHSP本体のソースコードは `_source` ディレクトリに入って�
 
 - MinGW:
     - `$ gcc -c tinyhsp.c stb_vorbis.c`
-    - `$ gcc tinyhsp.o stb_vorbis.o -o tinyhsp_ext -lopengl32 -lglfw3dll -lopenal32 -mwindows -Wl,-stack,16777216`
+    - `$ gcc tinyhsp.o stb_vorbis.o -o tinyhsp_ext -lopengl32 -lglfw3dll -lopenal32 -mwindows -Wl,-stack,33554432`
 - macOS:
     - `$ clang -c tinyhsp.c stb_vorbis.c`
     - `$ clang tinyhsp.o stb_vorbis.o -o tinyhsp_ext -lglfw -framework OpenGL -framework OpenAL`
