@@ -88,6 +88,7 @@ TinyHSPはコンパイルフラグにより３通りのバイナリを作るこ�
 |pos|pos p1,p2|位置p1,p2をカレントポジションに設定する|
 |color|color p1,p2,p3|RGBカラーp1,p2,p3をカレントカラーに設定する|
 |stick|stick p1|数値変数p1にキー情報を格納する。本家HSPの stick p1,1+2+4+8+16+32+64+128+256+512+1024 相当の動作をする|
+|paint|paint p1,p2|p1,p2にで指定した領域をカレントカラーで塗りつぶす|
 
 以下は標準版で省かれる命令です。
 
@@ -242,7 +243,7 @@ TinyHSP本体のソースコードは `_source` ディレクトリに入って�
 
 ### 標準版のコンパイル
 
-- MinGW: `$ gcc tinyhsp.c -o tinyhsp_std -lopengl32 -lglfw3dll -mwindows -Wl,-stack,33554432`
+- MinGW: `$ gcc tinyhsp.c -o tinyhsp_std -lopengl32 -lglfw3dll -mwindows`
 - macOS: `$ clang tinyhsp.c -o tinyhsp_std -lglfw -framework OpenGL`
 - Linux: `$ gcc tinyhsp.c -o tinyhsp_std -lm -ldl -lglfw3 -lGL -lX11 -lXxf86vm -lXrandr -lXinerama -lXcursor -lpthread -lXi`
 
@@ -250,7 +251,7 @@ TinyHSP本体のソースコードは `_source` ディレクトリに入って�
 
 - MinGW:
     - `$ gcc -c tinyhsp.c stb_vorbis.c`
-    - `$ gcc tinyhsp.o stb_vorbis.o -o tinyhsp_ext -lopengl32 -lglfw3dll -lopenal32 -mwindows -Wl,-stack,33554432`
+    - `$ gcc tinyhsp.o stb_vorbis.o -o tinyhsp_ext -lopengl32 -lglfw3dll -lopenal32 -mwindows`
 - macOS:
     - `$ clang -c tinyhsp.c stb_vorbis.c`
     - `$ clang tinyhsp.o stb_vorbis.o -o tinyhsp_ext -lglfw -framework OpenGL -framework OpenAL`
