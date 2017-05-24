@@ -17,11 +17,13 @@ MinGWの場合:
 gcc tinyhsp.c -o tinyhsp_cui
 
 標準版:
-gcc tinyhsp.c -o tinyhsp_std -lopengl32 -lglfw3dll -mwindows -Wl,-stack,16777216
+gcc tinyhsp.c -o tinyhsp_std -lopengl32 -lglfw3dll -mwindows
 
 拡張版:
 gcc -c tinyhsp.c stb_vorbis.c
-gcc tinyhsp.o stb_vorbis.o -o tinyhsp_ext -lopengl32 -lglfw3dll -lopenal32 -mwindows -Wl,-stack,16777216
+gcc tinyhsp.o stb_vorbis.o -o tinyhsp_ext -lopengl32 -lglfw3dll -lopenal32 -mwindows
+
+必要に応じて  -Wl,-stack,0x2000000 オプションなどを入れる
 
 
 # VisualStudioの設定
@@ -701,7 +703,7 @@ void set_pixel_rgb_protect_alpha(uint8_t *pixel_data,
 		color.green = (uint8_t)((color_green * srcA + color.green * dstA * (1 - srcA)) / newA + 0.5);
 		color.blue = (uint8_t)((color_blue * srcA + color.blue * dstA * (1 - srcA)) / newA + 0.5);
 	}
-	int index = (canvas_size_height - point_y) * canvas_size_width * 3 + point_x * 3;
+	int index = (canvas_size_height - 1 - point_y) * canvas_size_width * 3 + point_x * 3;
 	pixel_data[index] = color.red;
 	pixel_data[index + 1] = color.green;
 	pixel_data[index + 2] = color.blue;
@@ -943,55 +945,18 @@ void redraw()
 	// 描画の準備
 	glClear(GL_COLOR_BUFFER_BIT);
 	glRasterPos2i(-1, -1);
+	
+	int mag = MAGNIFICATION; // mag = magnification = 倍率
+
 #ifdef __MACOS__
-    int samplesPerPixel = 3;
     int now_width, now_height;
     glfwGetFramebufferSize(window, &now_width, &now_height);
-    if (now_width > 640) {
-        int width = SCREEN_WIDTH;
-        int height = SCREEN_HEIGHT;
-        int h_mul = width * 2 * samplesPerPixel;
-        uint8_t* retina_pixel_data = calloc(width * 2 * height * 2 * samplesPerPixel * 4, sizeof(uint8_t));
-        int i = 0;
-        for (int y = 0; y < height * 2; y += 2) {
-            for (int x = 0; x < width * 2 * samplesPerPixel; x += 6) {
-                memcpy(&retina_pixel_data[x + y * h_mul], &pixel_data[i],
-                       sizeof(uint8_t) * 3);
-                memcpy(&retina_pixel_data[x + 3 + h_mul * y], &pixel_data[i],
-                       sizeof(uint8_t) * 3);
-                memcpy(&retina_pixel_data[x + h_mul * (y + 1)], &pixel_data[i],
-                       sizeof(uint8_t) * 3);
-                memcpy(&retina_pixel_data[x + 3 + h_mul * (y + 1)], &pixel_data[i],
-                       sizeof(uint8_t) * 3);
-                i += 3;
-            }
-        }
-        glDrawPixels(width * 2,
-		height * 2,
-		GL_RGB,
-		GL_UNSIGNED_BYTE,
-		retina_pixel_data);
-        free(retina_pixel_data);
+    if (now_width > WINDOW_WIDTH) {
+        mag = MAGNIFICATION * 2;
     }
-    else {
-        // ピクセルを描画
-	glDrawPixels(SCREEN_WIDTH,
-		SCREEN_HEIGHT,
-		GL_RGB,
-		GL_UNSIGNED_BYTE,
-		pixel_data);
-    }
-#else
-    // ピクセルを描画
-	
-	//glDrawPixels(
-	//	SCREEN_WIDTH,
-	//	SCREEN_HEIGHT,
-	//	GL_RGB,
-	//	GL_UNSIGNED_BYTE,
-	//	pixel_data);
+#endif
 
-	int mag = MAGNIFICATION; // mag = magnification = 倍率
+    // ピクセルを描画
 	int mag_width = mag * SCREEN_WIDTH;
 	int mag_height = mag * SCREEN_HEIGHT;
 	int h_mul = mag_width * SAMPLES_PER_PIXEL;
@@ -1013,7 +978,7 @@ void redraw()
 	
 	glDrawPixels(mag_width, mag_height, GL_RGB, GL_UNSIGNED_BYTE, mag_pixel_data);
 	free(mag_pixel_data);
-#endif	
+
 	// フロントバッファとバックバッファを交換する
 	glfwSwapBuffers(window);
 }
