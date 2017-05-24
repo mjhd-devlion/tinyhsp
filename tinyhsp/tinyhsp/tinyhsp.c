@@ -116,6 +116,14 @@ gcc tinyhsp.o stb_vorbis.o -o tinyhsp_ext -lopengl32 -lglfw3dll -lopenal32 -mwin
 #endif
 
 #ifdef __HSPGUI__
+// 定数
+#define WINDOW_TITLE "Untitled" // ウィンドウの初期状態のタイトル
+#define WINDOW_WIDTH 640 // ウィンドウの幅と高さ
+#define WINDOW_HEIGHT 480
+#define SCREEN_WIDTH 160 // 画面解像度の幅と高さ
+#define SCREEN_HEIGHT 120
+#define MAGNIFICATION 4 // 倍率 = WINDOW_WIDTH / SCREEN_WIDTH
+#define SAMPLES_PER_PIXEL 3 // 3=RGBカラー, 4=RGBAカラー
 // グローバルな変数
 int current_pos_x;
 int current_pos_y;
@@ -126,14 +134,10 @@ int current_mouse_x;
 int current_mouse_y;
 int current_mouse_down_left;
 int current_mouse_down_right;
-int screen_width;
-int screen_height;
-char* window_title;
-unsigned char pixel_data[640 * 480 * 3 * 2];
+unsigned char pixel_data[SCREEN_WIDTH * SCREEN_HEIGHT * SAMPLES_PER_PIXEL * 2];
 bool redraw_flag;
 bool close_flag;
-// GLFW
-GLFWwindow* window;
+GLFWwindow* window; // GLFW
 #ifdef __HSPEXT__
 // Extra
 stbtt_fontinfo font; //フォント情報
@@ -648,7 +652,7 @@ color_t get_pixel_color(uint8_t *pixel_data,
 	int32_t point_x, int32_t point_y,
 	int32_t canvas_size_width, int32_t canvas_size_height)
 {
-	int index = (canvas_size_height - point_y) * canvas_size_width * 3 + point_x * 3;
+	int index = (canvas_size_height - 1 - point_y) * canvas_size_width * SAMPLES_PER_PIXEL + point_x * SAMPLES_PER_PIXEL;
 	color_t color;
 	color.red = pixel_data[index];
 	color.green = pixel_data[index + 1];
@@ -669,7 +673,8 @@ void set_pixel_rgb(uint8_t *pixel_data,
 	{
 		return;
 	}
-	int index = (480 - point_y) * canvas_size_width * 3 + point_x * 3;
+
+	int index = (canvas_size_height - 1 - point_y) * canvas_size_width * SAMPLES_PER_PIXEL + point_x * SAMPLES_PER_PIXEL;
 	pixel_data[index] = color_red;
 	pixel_data[index + 1] = color_green;
 	pixel_data[index + 2] = color_blue;
@@ -769,8 +774,8 @@ void fill_rect_rgb_slow(uint8_t *pixel_data,
 	int miny = MIN(start_point_y, end_point_y);
 	int diffx = MAX(start_point_x, end_point_x) - MIN(start_point_x, end_point_x) + 1;
 	int diffy = MAX(start_point_y, end_point_y) - MIN(start_point_y, end_point_y) + 1;
-	for (int y = 0; y<diffy; y++) {
-		for (int x = 0; x<diffx; x++) {
+	for (int y = 0; y < diffy; y++) {
+		for (int x = 0; x < diffx; x++) {
 			set_pixel_rgb(pixel_data,
 				minx + x, miny + y,
 				color_red, color_green, color_blue,
@@ -911,7 +916,7 @@ load_image(char const *file_name,
 				set_pixel_rgb(pixel_data,
 					current_pos_x + x, current_pos_y + y,
 					r, g, b,
-					screen_width, screen_height);
+					SCREEN_WIDTH, SCREEN_HEIGHT);
 				i += 3;
 			}
 			else {
@@ -922,7 +927,7 @@ load_image(char const *file_name,
 				set_pixel_rgb_protect_alpha(pixel_data,
 					current_pos_x + x, current_pos_y + y,
 					r, g, b,
-					screen_width, screen_height,
+					SCREEN_WIDTH, SCREEN_HEIGHT,
 					a);
 				i += 4;
 			}
@@ -943,8 +948,8 @@ void redraw()
     int now_width, now_height;
     glfwGetFramebufferSize(window, &now_width, &now_height);
     if (now_width > 640) {
-        int width = screen_width;
-        int height = screen_height;
+        int width = SCREEN_WIDTH;
+        int height = SCREEN_HEIGHT;
         int h_mul = width * 2 * samplesPerPixel;
         uint8_t* retina_pixel_data = calloc(width * 2 * height * 2 * samplesPerPixel * 4, sizeof(uint8_t));
         int i = 0;
@@ -970,19 +975,44 @@ void redraw()
     }
     else {
         // ピクセルを描画
-	glDrawPixels(screen_width,
-		screen_height,
+	glDrawPixels(SCREEN_WIDTH,
+		SCREEN_HEIGHT,
 		GL_RGB,
 		GL_UNSIGNED_BYTE,
 		pixel_data);
     }
 #else
     // ピクセルを描画
-	glDrawPixels(screen_width,
-		screen_height,
-		GL_RGB,
-		GL_UNSIGNED_BYTE,
-		pixel_data);
+	
+	//glDrawPixels(
+	//	SCREEN_WIDTH,
+	//	SCREEN_HEIGHT,
+	//	GL_RGB,
+	//	GL_UNSIGNED_BYTE,
+	//	pixel_data);
+
+	int mag = MAGNIFICATION; // mag = magnification = 倍率
+	int mag_width = mag * SCREEN_WIDTH;
+	int mag_height = mag * SCREEN_HEIGHT;
+	int h_mul = mag_width * SAMPLES_PER_PIXEL;
+	uint8_t* mag_pixel_data = calloc(mag_width * mag_height * SAMPLES_PER_PIXEL * 4, sizeof(uint8_t));
+	
+	int i = 0;
+	for (int y = 0; y < mag_height; y += mag) {
+		for (int x = 0; x < mag_width * SAMPLES_PER_PIXEL; x += mag * SAMPLES_PER_PIXEL) {
+			for (int m = 0; m < mag; m++) {
+				for (int n = 0; n < mag; n++) {
+					for (int p = 0; p < SAMPLES_PER_PIXEL; p++) {
+						mag_pixel_data[x + (y + m) * mag_width * SAMPLES_PER_PIXEL + n * SAMPLES_PER_PIXEL + p] = pixel_data[i + p];
+					}
+				}
+			}
+			i += SAMPLES_PER_PIXEL;
+		}
+	}
+	
+	glDrawPixels(mag_width, mag_height, GL_RGB, GL_UNSIGNED_BYTE, mag_pixel_data);
+	free(mag_pixel_data);
 #endif	
 	// フロントバッファとバックバッファを交換する
 	glfwSwapBuffers(window);
@@ -1425,7 +1455,7 @@ command_mes(execute_environment_t* e, execute_status_t* s, int arg_num)
 						set_pixel_rgb_protect_alpha(pixel_data,
 							current_pos_x + pos_x + x, current_pos_y + y,
 							current_color_r, current_color_g, current_color_b,
-							screen_width, screen_height,
+							SCREEN_WIDTH, SCREEN_HEIGHT,
 							font_buffer[y][x]);
 					}
 					else {
@@ -1433,7 +1463,7 @@ command_mes(execute_environment_t* e, execute_status_t* s, int arg_num)
 							set_pixel_rgb(pixel_data,
 								current_pos_x + pos_x + x, current_pos_y + y,
 								current_color_r, current_color_g, current_color_b,
-								screen_width, screen_height);
+								SCREEN_WIDTH, SCREEN_HEIGHT);
 						}
 					}
 				}
@@ -1662,7 +1692,7 @@ command_pset(execute_environment_t* e, execute_status_t* s, int arg_num)
 		set_pixel_rgb(pixel_data,
 			current_pos_x, current_pos_y,
 			current_color_r, current_color_g, current_color_b,
-			screen_width, screen_height);
+			SCREEN_WIDTH, SCREEN_HEIGHT);
 	}
 	else {
 		const int arg_start = -arg_num;
@@ -1673,7 +1703,7 @@ command_pset(execute_environment_t* e, execute_status_t* s, int arg_num)
 		set_pixel_rgb(pixel_data,
 			x, y,
 			current_color_r, current_color_g, current_color_b,
-			screen_width, screen_height);
+			SCREEN_WIDTH, SCREEN_HEIGHT);
 	}
 	if (redraw_flag) {
 		redraw();
@@ -1752,6 +1782,7 @@ command_color(execute_environment_t* e, execute_status_t* s, int arg_num)
 void
 command_line(execute_environment_t* e, execute_status_t* s, int arg_num)
 {
+
 	if (arg_num != 4) {
 		raise_error("line: Invalid argument."); // line：引数が足りないか、引数が多すぎます
 	}
@@ -1764,11 +1795,12 @@ command_line(execute_environment_t* e, execute_status_t* s, int arg_num)
 	const int ex = value_calc_int(p3);
 	const value_t* p4 = stack_peek(s->stack_, arg_start + 3);
 	const int ey = value_calc_int(p4);
-	set_line_rgb(pixel_data,
+	set_line_rgb(
+		pixel_data,
 		sx, sy,
 		ex, ey,
 		current_color_r, current_color_g, current_color_b,
-		screen_width, screen_height);
+		SCREEN_WIDTH, SCREEN_HEIGHT);
 	if (redraw_flag) {
 		redraw();
 	}
@@ -1794,7 +1826,7 @@ command_boxf(execute_environment_t* e, execute_status_t* s, int arg_num)
 		x0, y0,
 		x1, y1,
 		current_color_r, current_color_g, current_color_b,
-		screen_width, screen_height);
+		SCREEN_WIDTH, SCREEN_HEIGHT);
 	if (redraw_flag) {
 		redraw();
 	}
@@ -1877,14 +1909,14 @@ command_circle(execute_environment_t* e, execute_status_t* s, int arg_num)
 			pixel_data,
 			x0, y0, x1, y1,
 			current_color_r, current_color_g, current_color_b,
-			screen_width, screen_height);
+			SCREEN_WIDTH, SCREEN_HEIGHT);
 	}
 	else {
 		set_circle_rgb(
 			pixel_data,
 			x0, y0, x1, y1,
 			current_color_r, current_color_g, current_color_b,
-			screen_width, screen_height);
+			SCREEN_WIDTH, SCREEN_HEIGHT);
 	}
 
 	if (redraw_flag) {
@@ -1894,7 +1926,7 @@ command_circle(execute_environment_t* e, execute_status_t* s, int arg_num)
 }
 
 //グローバル変数
-int paint_buffer[640][480];
+int paint_buffer[SCREEN_WIDTH][SCREEN_HEIGHT];
 
 bool is_equal_color(color_t color_a, color_t color_b) {
 	if (color_a.red == color_b.red &&
@@ -1908,36 +1940,36 @@ bool is_equal_color(color_t color_a, color_t color_b) {
 }
 
 void set_paint(int x, int y, color_t paint_color) {
-	if (x < 0 || y < 0 || x > screen_width || y > screen_height) {
+	if (x < 0 || y < 0 || x > SCREEN_WIDTH || y > SCREEN_HEIGHT) {
 		return;
 	}
 	// 点を打つ、バッファも打つ
-	set_pixel_rgb(pixel_data, x, y, current_color_r, current_color_g, current_color_b, screen_width, screen_height);
+	set_pixel_rgb(pixel_data, x, y, current_color_r, current_color_g, current_color_b, SCREEN_WIDTH, SCREEN_HEIGHT);
 	paint_buffer[x][y] = 1;
 	// 左マス
 	if (x - 1 >= 0) {
-		if (is_equal_color(paint_color, get_pixel_color(pixel_data, x - 1, y, screen_width, screen_height)) &&
+		if (is_equal_color(paint_color, get_pixel_color(pixel_data, x - 1, y, SCREEN_WIDTH, SCREEN_HEIGHT)) &&
 			paint_buffer[x - 1][y] == 0) {
 			set_paint(x - 1, y, paint_color);
 		}
 	}
 	// 上マス
 	if (y - 1 >= 0) {
-		if (is_equal_color(paint_color, get_pixel_color(pixel_data, x, y - 1, screen_width, screen_height)) &&
+		if (is_equal_color(paint_color, get_pixel_color(pixel_data, x, y - 1, SCREEN_WIDTH, SCREEN_HEIGHT)) &&
 			paint_buffer[x][y - 1] == 0) {
 			set_paint(x, y - 1, paint_color);
 		}
 	}
 	// 右マス
-	if (x + 1 <= screen_width) {
-		if (is_equal_color(paint_color, get_pixel_color(pixel_data, x + 1, y, screen_width, screen_height)) &&
+	if (x + 1 <= SCREEN_WIDTH) {
+		if (is_equal_color(paint_color, get_pixel_color(pixel_data, x + 1, y, SCREEN_WIDTH, SCREEN_HEIGHT)) &&
 			paint_buffer[x + 1][y] == 0) {
 			set_paint(x + 1, y, paint_color);
 		}
 	}
 	// 下マス
-	if (y + 1 <= screen_height) {
-		if (is_equal_color(paint_color, get_pixel_color(pixel_data, x, y + 1, screen_width, screen_height)) &&
+	if (y + 1 <= SCREEN_HEIGHT) {
+		if (is_equal_color(paint_color, get_pixel_color(pixel_data, x, y + 1, SCREEN_WIDTH, SCREEN_HEIGHT)) &&
 			paint_buffer[x][y + 1] == 0) {
 			set_paint(x, y + 1, paint_color);
 		}
@@ -1956,13 +1988,13 @@ command_paint(execute_environment_t* e, execute_status_t* s, int arg_num)
 	const value_t* p2 = stack_peek(s->stack_, arg_start + 1);
 	const int y = value_calc_int(p2);
 	// 塗りつぶし用バッファを初期化
-	for (int y = 0; y < 480; y++) {
-		for (int x = 0; x < 640; x++) {
+	for (int y = 0; y < SCREEN_HEIGHT; y++) {
+		for (int x = 0; x < SCREEN_WIDTH; x++) {
 			paint_buffer[x][y] = 0;
 		}
 	}
 	// 塗りつぶす対象の色を特定
-	color_t paint_color = get_pixel_color(pixel_data, x, y, screen_width, screen_height);
+	color_t paint_color = get_pixel_color(pixel_data, x, y, SCREEN_WIDTH, SCREEN_HEIGHT);
 	// 塗りつぶす色を指定
 	color_t current_color;
 	current_color.red = current_color_r;
@@ -2046,7 +2078,7 @@ command_picload(execute_environment_t* e, execute_status_t* s, int arg_num)
 	// 画像を読み込む
 	load_image(m->svalue_, pixel_data,
 		current_pos_x, current_pos_y,
-		screen_width, screen_height);
+		SCREEN_WIDTH, SCREEN_HEIGHT);
 	stack_pop(s->stack_, arg_num);
 }
 
@@ -5451,8 +5483,8 @@ mouse_button_callback(GLFWwindow *window, int button, int action, int mods)
 void
 cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 {
-	current_mouse_x = (int)xpos;
-	current_mouse_y = (int)ypos;
+	current_mouse_x = (int)xpos / MAGNIFICATION;
+	current_mouse_y = (int)ypos / MAGNIFICATION;
 }
 
 void
@@ -5577,21 +5609,19 @@ main(int argc, const char* argv[])
 		current_color_b = 0;
 		current_pos_x = 0;
 		current_pos_y = 0;
-		screen_width = 640;
-		screen_height = 480;
-		window_title = (char*)"Untitled";
 		redraw_flag = true;
 		close_flag = false;
-		for (int i = 0; i < screen_width * screen_height * 3; i++) {
+		for (int i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT * SAMPLES_PER_PIXEL; i++) {
 			pixel_data[i] = 255;
 		}
 		// GLFWライブラリの初期化
 		{
 			//初期化して、ウインドウを生成する
 			glfwInit();
-			window = glfwCreateWindow(screen_width,
-				screen_height,
-				window_title,
+			window = glfwCreateWindow(
+				WINDOW_WIDTH,
+				WINDOW_HEIGHT,
+				WINDOW_TITLE,
 				NULL,
 				NULL);			
 			glfwMakeContextCurrent(window);
