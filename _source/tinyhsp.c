@@ -32,6 +32,14 @@ gcc tinyhsp.o stb_vorbis.o -o tinyhsp_ext -lopengl32 -lglfw3dll -lopenal32 -mwin
 - VisualStudioで __HSPSTD__ または __HSPEXT__ を定義する場合:
 プロジェクト -> プロパティ -> 構成プロパティ -> リンカー -> サブシステム から「Windows」を選択
 
+# macOSでのコンパイルの覚書
+
+clangでのコンパイル環境、およびGLFWをhomebrewでインストール済みだとする。
+
+1.GLFWソースコードを入手する
+2.CMakeが入っていなければ入れる（$ brew install cmake）あるいは($ brew upgrade cmake)
+3.clang tinyhsp.c -o tinyhsp -lglfw3 -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo
+
 */
 //=============================================================
 
