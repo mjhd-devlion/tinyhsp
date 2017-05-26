@@ -259,6 +259,16 @@ TinyHSP本体のソースコードは `_source` ディレクトリに入って�
     - `$ gcc -c tinyhsp.c stb_vorbis.c`
     - `$ gcc tinyhsp.o stb_vorbis.o -o tinyhsp_ext -lm -ldl -lglfw3 -lGL -lX11 -lXxf86vm -lXrandr -lXinerama -lXcursor -lpthread -lXi -lopenal`
 
+## macOSで静的ビルドする
+
+clangを使用でき、GLFWをhomebrewでインストール済みの環境を想定しています。
+
+1. GLFWを公式ウェブサイトからソースコードを入手する
+2. CMakeが入っていなければ入れる `$ brew install cmake` あるいは `$ brew upgrade cmake`
+3. TinyHSPをコンパイルする `clang tinyhsp.c -o tinyhsp -lglfw3 -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo`
+
+コンパイルオプションを `-lglfw ` とした場合はHomebrewでインストールしたGLFWの動的ライブラリが使用され、 `-lglfw3` とした場合はソースコードからインストールしたGLFWの静的ライブラリ `libglfw3.a` が使用されます。
+
 ## 実行
 
 `$ ./tinyhsp_cui` のようにコマンドラインのオプションに何も指定がない場合は、実行ファイルと同じディレクトリにある `start.hsp` を読み込んで実行します。
