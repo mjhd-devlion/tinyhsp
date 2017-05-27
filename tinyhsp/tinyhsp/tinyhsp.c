@@ -586,6 +586,7 @@ typedef enum
 	COMMAND_FONT,
 	COMMAND_PICLOAD,
 	COMMAND_WAVE,
+	COMMAND_FMWAVE,
 	COMMAND_MMLOAD,
 	COMMAND_MMPLAY,
 	COMMAND_MMSTOP,
@@ -2142,6 +2143,11 @@ command_wave(execute_environment_t* e, execute_status_t* s, int arg_num)
 	alDeleteBuffers(1, &buffer); //バッファを消去
 	free(data);
 	stack_pop(s->stack_, arg_num);
+}
+
+void
+command_fmwave(execute_environment_t* e, execute_status_t* s, int arg_num)
+{
 }
 
 // sのposからlen分をtに取り出す
@@ -5330,6 +5336,7 @@ query_command(const char* s)
 		{ COMMAND_FONT, "font", },
 		{ COMMAND_PICLOAD, "picload", },
 		{ COMMAND_WAVE, "wave", },
+		{ COMMAND_FMWAVE, "fmwave", },
 		{ COMMAND_MMLOAD, "mmload", },
 		{ COMMAND_MMPLAY, "mmplay", },
 		{ COMMAND_MMSTOP, "mmstop", },
@@ -5380,6 +5387,7 @@ get_command_delegate(builtin_command_tag command)
 		&command_font,
 		&command_picload,
 		&command_wave,
+		&command_fmwave,
 		&command_mmload,
 		&command_mmplay,
 		&command_mmstop,
