@@ -2148,6 +2148,98 @@ command_wave(execute_environment_t* e, execute_status_t* s, int arg_num)
 void
 command_fmwave(execute_environment_t* e, execute_status_t* s, int arg_num)
 {
+	int freq = 440;
+	int duration = 1000;
+	int waveform = 0; // 0 - 4
+	int16_t volume = 3000;
+	if (arg_num > 4 || arg_num < 0) {
+		raise_error("wave: Invalid argument."); // wave：引数が多すぎます
+	}
+	const int arg_start = -arg_num;
+	// 引数が省略された場合
+	if (arg_num > 3) {
+		const value_t* p4 = stack_peek(s->stack_, arg_start + 3);
+		volume = value_calc_int(p4);
+	}
+	if (arg_num > 2) {
+		const value_t* p3 = stack_peek(s->stack_, arg_start + 2);
+		waveform = value_calc_int(p3);
+	}
+	if (arg_num > 1) {
+		const value_t* p2 = stack_peek(s->stack_, arg_start + 1);
+		duration = value_calc_int(p2);
+	}
+	if (arg_num > 0) {
+		const value_t* p1 = stack_peek(s->stack_, arg_start);
+		freq = value_calc_int(p1);
+	}
+	// 音を生成して再生
+	double f = freq;
+	double fs = 44100.0;
+	ALuint buffer;
+	ALuint source;
+	ALsizei size = round_one((int)fs * duration / 500);
+	ALshort* data = (ALshort*)calloc(size, sizeof(ALshort));
+	alGenBuffers(1, &buffer); // 次の行は音のデータを作成している
+							  // 音の生成
+	double n = 0.0;
+	double tmp = 0;
+	for (int i = 0; i < size; i++) {
+		switch (waveform) {
+		case 0: // 正弦波
+			tmp = volume * sin(2.0 * M_PI * f * n / fs);
+			break;
+		case 1: // ノコギリ波
+		{
+			double cons = fs / f;
+			double cons2 = 2.0 * volume * f / fs;
+			tmp = cons2 * fmod(n, cons) - volume;
+			break;
+		}
+		case 2: // 矩形波
+			if (fmod(n, fs / f) < fs / (2.0 * f)) {
+				tmp = volume;
+			}
+			else {
+				tmp = -volume;
+			}
+			break;
+		case 3: // 三角波
+			if (fmod(n, fs / f) < fs / (2.0 * f)) {
+				tmp = volume * (2.0 * (f / fs) * fmod(n, fs / f) - 1.0);
+			}
+			else {
+				tmp = -(volume * (2.0 * (f / fs) * fmod(n, fs / f) - 1.0));
+			}
+			break;
+		case 4: // 白雑音
+			tmp = volume * randf(-1, 1);
+			break;
+		}
+		data[i] = (ALshort)tmp;
+		n += 1.0;
+	}
+	alBufferData(buffer, AL_FORMAT_MONO16, data, size, 44100); // バッファにデータを格納
+	alGenSources(1, &source); // ソースを生成
+	alSourcei(source, AL_BUFFER, buffer); // ソースの値を設定
+	alSourcePlay(source); // ソースのバッファを再生
+						  // 再生が終了するまで待つ
+	glfwSetTime(0.0); // タイマーを初期化する
+	for (;;) { // ウィンドウを閉じるまで
+		if (glfwWindowShouldClose(window)) {
+			s->is_end_ = true;
+			break;
+		}
+		if (glfwGetTime() * 1000.0 > (double)duration) {
+			break;
+		}
+		glfwPollEvents(); // イベント待ち
+	}
+	alSourceStop(source); // ソースのバッファを停止
+	alDeleteSources(1, &source); // ソースを消去
+	alDeleteBuffers(1, &buffer); //バッファを消去
+	free(data);
+	stack_pop(s->stack_, arg_num);
 }
 
 // sのposからlen分をtに取り出す
