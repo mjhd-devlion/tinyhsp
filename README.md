@@ -17,6 +17,10 @@ TinyHSPの開発は完了しており、必要なときのみ保守をしてい�
 CuteHSPの書籍が工学社から発売されます。
 [「CuteHSP」ではじめる プログラミング入門](https://www.kohgakusha.co.jp/books/detail/978-4-7775-2015-2)。
 
+## バイナリのダウンロード
+
+[Releases](https://github.com/dolphilia/tinyhsp/releases)のページからWindows用の実行バイナリをダウンロードできます。
+
 ## 更新履歴
 
 - 2017/06/14 README.mdを更新
