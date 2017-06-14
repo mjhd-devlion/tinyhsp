@@ -4,8 +4,22 @@
 
 TinyHSPは**最軽量のHSPを作成する**ことを目標にしたプロジェクトです。
 
+## 今後について
+
+TinyHSPの開発は完了しており、必要なときのみ保守をしています。
+
+もっと軽量HSPの未来を見たい方は、[kikerogaさん](https://github.com/kikeroga3)が進めている[CuteHSP](https://github.com/kikeroga3/tinyhsp)プロジェクトをおすすめします。
+
+私自身は[C#でノベルゲームの開発ツールを作るプロジェクト「CrossTie」](https://github.com/dolphilia/crosstie)の開発に移行します。
+
+## 書籍について
+
+CuteHSPの書籍が工学社から発売されます。
+[「CuteHSP」ではじめる プログラミング入門](https://www.kohgakusha.co.jp/books/detail/978-4-7775-2015-2)。
+
 ## 更新履歴
 
+- 2017/06/14 README.mdを更新
 - 2017/05/24 v1.0.7をリリース。デフォルトの解像度を160x120に変更
 - 2017/05/17 paint命令を実装
 - 2017/04/29 v1.0.6をリリース。簡易的な音声ファイル系命令を追加
