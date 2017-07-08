@@ -122,9 +122,9 @@ gcc tinyhsp.o stb_vorbis.o -o tinyhsp_ext -lopengl32 -lglfw3dll -lopenal32 -mwin
 #define WINDOW_TITLE "Untitled" // ウィンドウの初期状態のタイトル
 #define WINDOW_WIDTH 640 // ウィンドウの幅と高さ
 #define WINDOW_HEIGHT 480
-#define SCREEN_WIDTH 160 // 画面解像度の幅と高さ
-#define SCREEN_HEIGHT 120
-#define MAGNIFICATION 4 // 倍率 = WINDOW_WIDTH / SCREEN_WIDTH
+#define SCREEN_WIDTH 640 // 画面解像度の幅と高さ
+#define SCREEN_HEIGHT 480
+#define MAGNIFICATION 1 // 倍率 = WINDOW_WIDTH / SCREEN_WIDTH
 #define SAMPLES_PER_PIXEL 3 // 3=RGBカラー, 4=RGBAカラー
 // グローバルな変数
 int current_pos_x;
@@ -581,7 +581,7 @@ typedef enum
 	COMMAND_BOXF,
 	COMMAND_STICK,
 	COMMAND_CIRCLE,
-	COMMAND_PAINT,
+	//COMMAND_PAINT,
 #ifdef __HSPEXT__
 	COMMAND_FONT,
 	COMMAND_PICLOAD,
@@ -1891,6 +1891,7 @@ command_circle(execute_environment_t* e, execute_status_t* s, int arg_num)
 	stack_pop(s->stack_, arg_num);
 }
 
+/*
 //グローバル変数
 int paint_buffer[SCREEN_WIDTH][SCREEN_HEIGHT];
 
@@ -1973,6 +1974,7 @@ command_paint(execute_environment_t* e, execute_status_t* s, int arg_num)
 	}
 	stack_pop(s->stack_, arg_num);
 }
+*/
 
 #ifdef __HSPEXT__
 void
@@ -5423,7 +5425,7 @@ query_command(const char* s)
 		{ COMMAND_BOXF, "boxf", },
 		{ COMMAND_STICK, "stick", },
 		{ COMMAND_CIRCLE, "circle", },
-		{ COMMAND_PAINT, "paint", },
+		//{ COMMAND_PAINT, "paint", },
 #ifdef __HSPEXT__
 		{ COMMAND_FONT, "font", },
 		{ COMMAND_PICLOAD, "picload", },
@@ -5474,7 +5476,7 @@ get_command_delegate(builtin_command_tag command)
 		&command_boxf,
 		&command_stick,
 		&command_circle,
-		&command_paint,
+		//&command_paint,
 #ifdef __HSPEXT__
 		&command_font,
 		&command_picload,

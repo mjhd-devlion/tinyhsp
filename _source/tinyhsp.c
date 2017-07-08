@@ -32,14 +32,6 @@ gcc tinyhsp.o stb_vorbis.o -o tinyhsp_ext -lopengl32 -lglfw3dll -lopenal32 -mwin
 - VisualStudioで __HSPSTD__ または __HSPEXT__ を定義する場合:
 プロジェクト -> プロパティ -> 構成プロパティ -> リンカー -> サブシステム から「Windows」を選択
 
-# macOSでのコンパイルの覚書
-
-clangでのコンパイル環境、およびGLFWをhomebrewでインストール済みだとする。
-
-1.GLFWソースコードを入手する
-2.CMakeが入っていなければ入れる（$ brew install cmake）あるいは($ brew upgrade cmake)
-3.clang tinyhsp.c -o tinyhsp -lglfw3 -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo
-
 */
 //=============================================================
 
@@ -130,9 +122,9 @@ clangでのコンパイル環境、およびGLFWをhomebrewでインストール
 #define WINDOW_TITLE "Untitled" // ウィンドウの初期状態のタイトル
 #define WINDOW_WIDTH 640 // ウィンドウの幅と高さ
 #define WINDOW_HEIGHT 480
-#define SCREEN_WIDTH 160 // 画面解像度の幅と高さ
-#define SCREEN_HEIGHT 120
-#define MAGNIFICATION 4 // 倍率 = WINDOW_WIDTH / SCREEN_WIDTH
+#define SCREEN_WIDTH 640 // 画面解像度の幅と高さ
+#define SCREEN_HEIGHT 480
+#define MAGNIFICATION 1 // 倍率 = WINDOW_WIDTH / SCREEN_WIDTH
 #define SAMPLES_PER_PIXEL 3 // 3=RGBカラー, 4=RGBAカラー
 // グローバルな変数
 int current_pos_x;
@@ -589,11 +581,12 @@ typedef enum
 	COMMAND_BOXF,
 	COMMAND_STICK,
 	COMMAND_CIRCLE,
-	COMMAND_PAINT,
+	//COMMAND_PAINT,
 #ifdef __HSPEXT__
 	COMMAND_FONT,
 	COMMAND_PICLOAD,
 	COMMAND_WAVE,
+	COMMAND_FMWAVE,
 	COMMAND_MMLOAD,
 	COMMAND_MMPLAY,
 	COMMAND_MMSTOP,
@@ -1898,6 +1891,7 @@ command_circle(execute_environment_t* e, execute_status_t* s, int arg_num)
 	stack_pop(s->stack_, arg_num);
 }
 
+/*
 //グローバル変数
 int paint_buffer[SCREEN_WIDTH][SCREEN_HEIGHT];
 
@@ -1980,6 +1974,7 @@ command_paint(execute_environment_t* e, execute_status_t* s, int arg_num)
 	}
 	stack_pop(s->stack_, arg_num);
 }
+*/
 
 #ifdef __HSPEXT__
 void
@@ -2134,6 +2129,103 @@ command_wave(execute_environment_t* e, execute_status_t* s, int arg_num)
 	alSourcei(source, AL_BUFFER, buffer); // ソースの値を設定
 	alSourcePlay(source); // ソースのバッファを再生
 	// 再生が終了するまで待つ
+	glfwSetTime(0.0); // タイマーを初期化する
+	for (;;) { // ウィンドウを閉じるまで
+		if (glfwWindowShouldClose(window)) {
+			s->is_end_ = true;
+			break;
+		}
+		if (glfwGetTime() * 1000.0 > (double)duration) {
+			break;
+		}
+		glfwPollEvents(); // イベント待ち
+	}
+	alSourceStop(source); // ソースのバッファを停止
+	alDeleteSources(1, &source); // ソースを消去
+	alDeleteBuffers(1, &buffer); //バッファを消去
+	free(data);
+	stack_pop(s->stack_, arg_num);
+}
+
+void
+command_fmwave(execute_environment_t* e, execute_status_t* s, int arg_num)
+{
+	int freq = 440;
+	int duration = 1000;
+	int waveform = 0; // 0 - 4
+	int16_t volume = 3000;
+	if (arg_num > 4 || arg_num < 0) {
+		raise_error("wave: Invalid argument."); // wave：引数が多すぎます
+	}
+	const int arg_start = -arg_num;
+	// 引数が省略された場合
+	if (arg_num > 3) {
+		const value_t* p4 = stack_peek(s->stack_, arg_start + 3);
+		volume = value_calc_int(p4);
+	}
+	if (arg_num > 2) {
+		const value_t* p3 = stack_peek(s->stack_, arg_start + 2);
+		waveform = value_calc_int(p3);
+	}
+	if (arg_num > 1) {
+		const value_t* p2 = stack_peek(s->stack_, arg_start + 1);
+		duration = value_calc_int(p2);
+	}
+	if (arg_num > 0) {
+		const value_t* p1 = stack_peek(s->stack_, arg_start);
+		freq = value_calc_int(p1);
+	}
+	// 音を生成して再生
+	double f = freq;
+	double fs = 44100.0;
+	ALuint buffer;
+	ALuint source;
+	ALsizei size = round_one((int)fs * duration / 500);
+	ALshort* data = (ALshort*)calloc(size, sizeof(ALshort));
+	alGenBuffers(1, &buffer); // 次の行は音のデータを作成している
+							  // 音の生成
+	double n = 0.0;
+	double tmp = 0;
+	for (int i = 0; i < size; i++) {
+		switch (waveform) {
+		case 0: // 正弦波
+			tmp = volume * sin(2.0 * M_PI * f * n / fs);
+			break;
+		case 1: // ノコギリ波
+		{
+			double cons = fs / f;
+			double cons2 = 2.0 * volume * f / fs;
+			tmp = cons2 * fmod(n, cons) - volume;
+			break;
+		}
+		case 2: // 矩形波
+			if (fmod(n, fs / f) < fs / (2.0 * f)) {
+				tmp = volume;
+			}
+			else {
+				tmp = -volume;
+			}
+			break;
+		case 3: // 三角波
+			if (fmod(n, fs / f) < fs / (2.0 * f)) {
+				tmp = volume * (2.0 * (f / fs) * fmod(n, fs / f) - 1.0);
+			}
+			else {
+				tmp = -(volume * (2.0 * (f / fs) * fmod(n, fs / f) - 1.0));
+			}
+			break;
+		case 4: // 白雑音
+			tmp = volume * randf(-1, 1);
+			break;
+		}
+		data[i] = (ALshort)tmp;
+		n += 1.0;
+	}
+	alBufferData(buffer, AL_FORMAT_MONO16, data, size, 44100); // バッファにデータを格納
+	alGenSources(1, &source); // ソースを生成
+	alSourcei(source, AL_BUFFER, buffer); // ソースの値を設定
+	alSourcePlay(source); // ソースのバッファを再生
+						  // 再生が終了するまで待つ
 	glfwSetTime(0.0); // タイマーを初期化する
 	for (;;) { // ウィンドウを閉じるまで
 		if (glfwWindowShouldClose(window)) {
@@ -5333,11 +5425,12 @@ query_command(const char* s)
 		{ COMMAND_BOXF, "boxf", },
 		{ COMMAND_STICK, "stick", },
 		{ COMMAND_CIRCLE, "circle", },
-		{ COMMAND_PAINT, "paint", },
+		//{ COMMAND_PAINT, "paint", },
 #ifdef __HSPEXT__
 		{ COMMAND_FONT, "font", },
 		{ COMMAND_PICLOAD, "picload", },
 		{ COMMAND_WAVE, "wave", },
+		{ COMMAND_FMWAVE, "fmwave", },
 		{ COMMAND_MMLOAD, "mmload", },
 		{ COMMAND_MMPLAY, "mmplay", },
 		{ COMMAND_MMSTOP, "mmstop", },
@@ -5383,11 +5476,12 @@ get_command_delegate(builtin_command_tag command)
 		&command_boxf,
 		&command_stick,
 		&command_circle,
-		&command_paint,
+		//&command_paint,
 #ifdef __HSPEXT__
 		&command_font,
 		&command_picload,
 		&command_wave,
+		&command_fmwave,
 		&command_mmload,
 		&command_mmplay,
 		&command_mmstop,
