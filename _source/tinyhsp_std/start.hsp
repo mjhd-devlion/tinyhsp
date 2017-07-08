@@ -3,8 +3,4 @@ color 255,0,0
 line 10,10,100,10
 line 10,10,10,100
 line 100,10,10,100
-color 0,255,0
-paint 20,20
-color 0,0,255
-paint 1,1
 stop

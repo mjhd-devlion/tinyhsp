@@ -4,17 +4,9 @@
 
 TinyHSPは**最軽量のHSPを作成する**ことを目標にしたプロジェクトです。
 
-## 今後について
-
-TinyHSPの開発は完了しており、必要なときのみ保守をしています。
-
-もっと軽量HSPの未来を見たい方は、[kikerogaさん](https://github.com/kikeroga3)が進めている[CuteHSP](https://github.com/kikeroga3/tinyhsp)プロジェクトをおすすめします。
-
-私自身は[C#でノベルゲームの開発ツールを作るプロジェクト「CrossTie」](https://github.com/dolphilia/crosstie)の開発に移行します。
-
 ## 書籍について
 
-CuteHSPの書籍が工学社から発売されます。
+CuteHSPの書籍が工学社から発売されました。
 [「CuteHSP」ではじめる プログラミング入門](https://www.kohgakusha.co.jp/books/detail/978-4-7775-2015-2)。
 
 ## バイナリのダウンロード
