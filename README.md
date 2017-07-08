@@ -4,11 +4,6 @@
 
 TinyHSPは**最軽量のHSPを作成する**ことを目標にしたプロジェクトです。
 
-## 書籍について
-
-CuteHSPの書籍が工学社から発売されました。
-[「CuteHSP」ではじめる プログラミング入門](https://www.kohgakusha.co.jp/books/detail/978-4-7775-2015-2)。
-
 ## バイナリのダウンロード
 
 [Releases](https://github.com/dolphilia/tinyhsp/releases)のページからWindows用の実行バイナリをダウンロードできます。
