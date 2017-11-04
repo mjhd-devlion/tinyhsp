@@ -1,7 +1,5 @@
 # TinyHSP
 
-![miyuzu_header](https://cloud.githubusercontent.com/assets/13228693/22240053/9dba8334-e25c-11e6-8543-7a537abf6664.png)
-
 TinyHSPは**最軽量のHSPを作成する**ことを目標にしたプロジェクトです。
 
 ## バイナリのダウンロード
@@ -10,6 +8,7 @@ TinyHSPは**最軽量のHSPを作成する**ことを目標にしたプロジェ
 
 ## 更新履歴
 
+- 2017/11/04 README.mdを更新
 - 2017/07/08 README.mdを更新。デフォルトの解像度を640x480に戻す
 - 2017/06/14 README.mdを更新
 - 2017/05/24 v1.0.7をリリース。デフォルトの解像度を160x120に変更
@@ -315,9 +314,6 @@ loop
 
 stop
 ```
-
-### サンプルのスクリーンショット
-![tinypaint](https://cloud.githubusercontent.com/assets/13228693/22679200/833b9b1e-ed43-11e6-80c2-94f5711863de.png)
 
 ## リンク
 
